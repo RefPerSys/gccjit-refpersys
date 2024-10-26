@@ -91,8 +91,12 @@ main (int argc, char **argv)
       FATAL ("%s failed to access selfpath %s (%s)",
 	     progname_RPS, selfpath, strerror (errno));
   }
+  // should define textual formats, a few global variables, what they
+  // contain, how is the libgccjit transforming textual data to
+  // code... Some global variables are pointers functions and they
+  // could need a libgccjit computation
+#warning TODO a lot of things
   gcc_jit_context_release (jitctx_RPS);
-  printf ("%s ending successfully (git %s)\n",
-	  progname_RPS, shortgitid_RPS);
+  printf ("%s ending successfully (git %s)\n", progname_RPS, shortgitid_RPS);
   return 0;
 }				/* end main */
