@@ -36,7 +36,7 @@ RM= /bin/rm -vf
 all: gccjit-refpersys
 
 clean:
-	$(RM) *.o *.i *~ gccjit-refpersys
+	$(RM) *.o *.i *~ gccjit-refpersys a.out
 
 gccjit-refpersys: main.o
-	$(CC) main.o -ldl -lgccjit -lreadline
+	$(CC) main.o -lgccjit -ldl -lreadline -o $@
