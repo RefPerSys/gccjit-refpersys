@@ -44,10 +44,19 @@
 #include <libgccjit.h>
 gcc_jit_context *jitctx;
 const char *progname;
-#define FATAL_AT_BIS(Fil,Lin,Func,Fmt,...) do {  \
-    fprintf(stderr, "%s:%d:%s ", (Fil), (Lin), (Func));	\
-    fprintf(stderr, Fmt "\n", ##__VA_ARGS__);		\
-    fflush(NULL);					\
+
+#ifndef SHORTGITID
+#error compilation command without SHORTGITID
+#endif
+
+const char shortgitid[] = SHORTGITID;
+
+#define FATAL_AT_BIS(Fil,Lin,Func,Fmt,...) do {         \
+    fprintf(stderr, "%s:%d:%s ", (Fil), (Lin), (Func)); \
+    fprintf(stderr, Fmt "\n", ##__VA_ARGS__);           \
+    fprintf(stderr, "%s: shortgit %s\n",                \
+            progname, shortgitid);                      \
+    fflush(NULL);                                       \
     abort(); } while(0)
 
 #define FATAL_AT(Fil,Lin,Func,Fmt,...) \
