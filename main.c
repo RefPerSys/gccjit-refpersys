@@ -1,10 +1,10 @@
 /****************************************************************
- * file refpersys.hh
+ * file gccjit-refpersys/main.c
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * Description:
  *      This file is part of the Reflective Persistent System.
- *      It is almost its only public C++ header file.
+ *      It is almost its main program.
  *
  * Author(s):
  *      Basile Starynkevitch, France   <basile@starynkevitch.net>
@@ -41,9 +41,11 @@
 #include <string.h>
 #include <errno.h>
 #include <assert.h>
+#include <zlib.h>
 #include <libgccjit.h>
-gcc_jit_context *jitctx;
-const char *progname;
+gcc_jit_context *jitctx_RPS;
+const char *progname_RPS;
+const char *zlibv_RPS;
 
 #ifndef SHORTGITID
 #error compilation command without SHORTGITID
@@ -55,7 +57,7 @@ const char shortgitid[] = SHORTGITID;
     fprintf(stderr, "%s:%d:%s ", (Fil), (Lin), (Func)); \
     fprintf(stderr, Fmt "\n", ##__VA_ARGS__);           \
     fprintf(stderr, "%s: shortgit %s\n",                \
-            progname, shortgitid);                      \
+            progname_RPS, shortgitid);                      \
     fflush(NULL);                                       \
     abort(); } while(0)
 
@@ -69,9 +71,11 @@ main (int argc, char **argv)
 {
   assert (argc > 0);
   rl_initialize ();		/// initialize readline
-  progname = argv[0];
-  jitctx = gcc_jit_context_acquire ();
-  if (!jitctx)
-    FATAL ("%s failed to create jitctx (%s)", progname, strerror (errno));
-  gcc_jit_context_release (jitctx);
+  progname_RPS = argv[0];
+  zlibv_RPS = zlibVersion();
+  jitctx_RPS = gcc_jit_context_acquire ();
+  if (!jitctx_RPS)
+    FATAL ("%s failed to create jitctx_RPS (%s)", progname_RPS,
+	   strerror (errno));
+  gcc_jit_context_release (jitctx_RPS);
 }				/* end main */

@@ -43,4 +43,4 @@ clean:
 	$(RM) *.o *.i *~ gccjit-refpersys a.out
 
 gccjit-refpersys: main.o
-	$(CC) main.o -lgccjit -ldl -lreadline -o $@
+	$(CC) main.o -lgccjit -ldl -lreadline -lz -o $@
