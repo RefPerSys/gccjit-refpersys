@@ -51,13 +51,20 @@ const char *zlibv_RPS;
 #error compilation command without SHORTGITID
 #endif
 
-const char shortgitid[] = SHORTGITID;
+const char shortgitid_RPS[] = SHORTGITID;
+
+
+#ifndef SOURCEDIR
+#error compilation command without SOURCEDIR
+#endif
+
+const char sourcedir_RPS[] = SOURCEDIR;
 
 #define FATAL_AT_BIS(Fil,Lin,Func,Fmt,...) do {         \
     fprintf(stderr, "%s:%d:%s ", (Fil), (Lin), (Func)); \
     fprintf(stderr, Fmt "\n", ##__VA_ARGS__);           \
     fprintf(stderr, "%s: shortgit %s\n",                \
-            progname_RPS, shortgitid);                      \
+            progname_RPS, shortgitid_RPS);              \
     fflush(NULL);                                       \
     abort(); } while(0)
 
@@ -72,10 +79,20 @@ main (int argc, char **argv)
   assert (argc > 0);
   rl_initialize ();		/// initialize readline
   progname_RPS = argv[0];
-  zlibv_RPS = zlibVersion();
+  zlibv_RPS = zlibVersion ();
   jitctx_RPS = gcc_jit_context_acquire ();
   if (!jitctx_RPS)
     FATAL ("%s failed to create jitctx_RPS (%s)", progname_RPS,
 	   strerror (errno));
+  {
+    char selfpath[256];
+    snprintf (selfpath, sizeof (selfpath), "%s/%s", sourcedir_RPS, __FILE__);
+    if (access (selfpath, R_OK))
+      FATAL ("%s failed to access selfpath %s (%s)",
+	     progname_RPS, selfpath, strerror (errno));
+  }
   gcc_jit_context_release (jitctx_RPS);
+  printf ("%s ending successfully (git %s)\n",
+	  progname_RPS, shortgitid_RPS);
+  return 0;
 }				/* end main */

@@ -32,13 +32,15 @@ export
 CC=/usr/bin/gcc-14
 GITID:= $(shell ./do-generate-gitid.sh)
 SHORTGITID:= $(shell ./do-generate-gitid.sh -s)
-CFLAGS= -Wall -Wextra -g -O -std=gnu99 -DSHORTGITID=\"$(SHORTGITID)\"
+SOURCEDIR:= $(shell /bin/pwd)
+CFLAGS= -Wall -Wextra -g -O -std=gnu99 \
+        -DSHORTGITID=\"$(SHORTGITID)\" -DSOURCEDIR=\"$(SOURCEDIR)\"
 
 RM= /bin/rm -vf
 .PHONY: all clean 
 
 all: gccjit-refpersys
-	echo done gitid $(GITID)
+
 clean:
 	$(RM) *.o *.i *~ gccjit-refpersys a.out
 
