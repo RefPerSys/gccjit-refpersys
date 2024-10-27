@@ -194,6 +194,14 @@ main (int argc, char **argv)
   // contain, how is the libgccjit transforming textual data to
   // code... Some global variables are pointers functions and they
   // could need a libgccjit computation
+  {
+    int32_t i1= randomi32_RPS();
+    int32_t i2= randomi32_RPS();
+    int32_t i3= randomi32_RPS();
+    printf("%s:%d three random ints %#x=%d, %#x=%d, %#x=%d\n",
+	   __FILE__, __LINE__-1,
+	   i1, i1, i2, i2, i3, i3);
+  }
 #warning TODO a lot of things
   gcc_jit_context_release (jitctx_RPS);
   printf ("%s ending successfully (git %s) source in %s\n",
