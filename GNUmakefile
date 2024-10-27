@@ -33,7 +33,7 @@ CC=/usr/bin/gcc-14
 GITID:= $(shell ./do-generate-gitid.sh)
 SHORTGITID:= $(shell ./do-generate-gitid.sh -s)
 SOURCEDIR:= $(shell /bin/pwd)
-CFLAGS= -Wall -Wextra -g -O -std=gnu99 \
+CFLAGS= -Wall -Wextra -g -O -std=gnu99 -I/usr/local/include \
         -DSHORTGITID=\"$(SHORTGITID)\" -DSOURCEDIR=\"$(SOURCEDIR)\"
 
 RM= /bin/rm -vf
@@ -44,5 +44,5 @@ all: gccjit-refpersys
 clean:
 	$(RM) *.o *.i *~ gccjit-refpersys a.out
 
-gccjit-refpersys: main.o
-	$(CC) main.o -lgccjit -ldl -lreadline -lz -o $@
+gccjit-refpersys: main.o jzon.o
+	$(CC) main.o jzon.o -lgccjit -L/usr/local/lib  -lunistring  -lbacktrace -ldl -lreadline -lz -o $@
