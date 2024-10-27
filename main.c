@@ -155,7 +155,7 @@ randomi32_RPS (void)
 {
   if (__builtin_expect (!atomic_flag_test_and_set (&random_inited_RPS), true))
     {
-      static thread_local char randbuf[64];
+      static thread_local char randbuf[128];
       memset (&random_data_RPS, 0, sizeof (random_data_RPS));
       if (getrandom (&randbuf, sizeof (randbuf), 0) <
           (long) sizeof (randbuf) / 2)
@@ -169,6 +169,13 @@ randomi32_RPS (void)
     FATAL ("failed to call random_r (%s)", strerror (er));
   return res;
 }                               /* end randomi32_RPS */
+
+int64_t
+randomi64_RPS (void)
+{
+   int64_t x= ((unsigned long)randomi32_RPS()<<32)|((unsigned long)randomi32_RPS());
+   return x;
+}
 
 int
 main (int argc, char **argv)
@@ -201,6 +208,11 @@ main (int argc, char **argv)
     printf("%s:%d three random ints %#x=%d, %#x=%d, %#x=%d\n",
 	   __FILE__, __LINE__-1,
 	   i1, i1, i2, i2, i3, i3);
+    int64_t j1= randomi64_RPS(), j2= randomi64_RPS(), j3= randomi64_RPS();
+    printf("%s:%d three random longs %#lx=%ld, %#lx=%ld, %#lx=%ld\n",
+	   __FILE__, __LINE__-1,
+	   j1, j1, j2, j2, j3, j3);
+    
   }
 #warning TODO a lot of things
   gcc_jit_context_release (jitctx_RPS);
