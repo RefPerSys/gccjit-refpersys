@@ -52,11 +52,14 @@
 #include <threads.h>
 #include <backtrace.h>
 #include <readline/readline.h>
+#include <unistring/version.h>
+#include <gnu/libc-version.h>
 #include <libgccjit.h>
 
 gcc_jit_context *jitctx_RPS;
 const char *progname_RPS;
 const char *zlibv_RPS;
+char hostname_RPS[64];
 struct backtrace_state *backtrace_state_RPS;
 thread_local struct random_data random_data_RPS;
 thread_local volatile atomic_flag random_inited_RPS;
@@ -103,7 +106,7 @@ backtrace_error_RPS (void *data, const char *msg, int errnum)
 {
   if (data)
     {
-    }
+    };
   fprintf (stderr, "backtrace_error_RPS: %s (%d:%s)\n", msg, errnum,
            strerror (errnum));
   fflush (NULL);
@@ -177,12 +180,63 @@ randomi64_RPS (void)
    return x;
 }
 
+int verbose_RPS;
+
+const struct option progopt_RPS[] = {
+  
+  {.name="verbose", .has_arg=no_argument, .flag= &verbose_RPS, .val= 1 },
+  {.name="version", .has_arg=no_argument, .flag= NULL, .val= 0},
+  {.name="help", .has_arg=no_argument, .flag= NULL, .val= 0},
+  {.name=NULL, .has_arg=no_argument, .flag= NULL, .val= 0 }
+};				/* end progopt_RPS */
+
+
+
+void
+program_usage_RPS(void) {
+  printf("%s usage:\n", progname_RPS);
+  printf("\t -V | --verbose        # verbose flag\n");
+  printf("\t -v | --version        # version info\n");
+  printf("\t -h | --help           # this help\n");
+  printf("%s is GPLv3+ licensed, so WITHOUT WARRANTY; see www.gnu.org/licenses/gpl-3.0.html\n", progname_RPS);
+  fflush(NULL);
+} /* end prog_usage_RPS */
+
+void
+parse_program_option_RPS(int argc, char**argv)
+{
+  //     extern char *optarg;
+  //     extern int optind, opterr, optopt;
+  int opt= -1;
+  int ix= -1;
+  while ((opt= getopt_long(argc, argv, "Vvh", progopt_RPS, &ix))>0) {
+    switch (opt) {
+    case 'V': 			/* --verbose */
+      printf("%s is verbose (pid %d on %s), GPLv3+ licensed\n", progname_RPS, (int)getpid(), hostname_RPS);
+      break;
+    case 'v':			/* --version */
+      printf("%s version gitid %s built on %s\n", progname_RPS, shortgitid_RPS, __DATE__ "@" __TIME__);
+      printf("\t libunistring version: %d.%d.%d\n", _libunistring_version>>16, 0xff&(_libunistring_version>>8), _libunistring_version&0xff);
+      printf("\t GNU libc version: %s [%s]\n", gnu_get_libc_version(), gnu_get_libc_release());
+      printf("\t libgccjit version: %d.%d.%d\n", gcc_jit_version_major(), gcc_jit_version_minor(), gcc_jit_version_patchlevel());
+      printf("%s is GPLv3+ licensed, so WITHOUT WARRANTY; see www.gnu.org/licenses/gpl-3.0.html\n", progname_RPS);
+      printf("\t Its source code could be on github.com/RefPerSys/gccjit-refpersys/\n");
+      break;
+    case 'h':			/* --help */
+      program_usage_RPS();
+      break;
+    };
+  }
+} /* end parse_program_option_RPS */
+
 int
 main (int argc, char **argv)
 {
   assert (argc > 0);
   progname_RPS = argv[0];
   pthread_setname_np (pthread_self (), "main-rpsjit");
+  gethostname(hostname_RPS, sizeof(hostname_RPS));
+  parse_program_option_RPS(argc, argv);
   rl_initialize ();             /// initialize readline
   zlibv_RPS = zlibVersion ();
   jitctx_RPS = gcc_jit_context_acquire ();
@@ -197,26 +251,8 @@ main (int argc, char **argv)
   backtrace_state_RPS =
     backtrace_create_state (full_source_main_RPS, /*THREADED: */ 1,
                             backtrace_error_RPS, NULL);
-  // should define textual formats, a few global variables, what they
-  // contain, how is the libgccjit transforming textual data to
-  // code... Some global variables are pointers functions and they
-  // could need a libgccjit computation
-  {
-    int32_t i1= randomi32_RPS();
-    int32_t i2= randomi32_RPS();
-    int32_t i3= randomi32_RPS();
-    printf("%s:%d three random ints %#x=%d, %#x=%d, %#x=%d\n",
-	   __FILE__, __LINE__-1,
-	   i1, i1, i2, i2, i3, i3);
-    int64_t j1= randomi64_RPS(), j2= randomi64_RPS(), j3= randomi64_RPS();
-    printf("%s:%d three random longs %#lx=%ld, %#lx=%ld, %#lx=%ld\n",
-	   __FILE__, __LINE__-1,
-	   j1, j1, j2, j2, j3, j3);
-    
-  }
-#warning TODO a lot of things
   gcc_jit_context_release (jitctx_RPS);
-  printf ("%s ending successfully (git %s) source in %s\n",
-          progname_RPS, shortgitid_RPS, full_source_main_RPS);
+  printf ("%s ending successfully (git %s) on %s source in %s\n",
+          progname_RPS, shortgitid_RPS, hostname_RPS, full_source_main_RPS);
   return 0;
 }                               /* end main */
