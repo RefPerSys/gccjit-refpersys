@@ -58,6 +58,7 @@
 
 gcc_jit_context *jitctx_RPS;
 const char *progname_RPS;
+const char *loadpath_RPS;
 const char *zlibv_RPS;
 char hostname_RPS[64];
 struct backtrace_state *backtrace_state_RPS;
@@ -187,6 +188,7 @@ const struct option progopt_RPS[] = {
   {.name="verbose", .has_arg=no_argument, .flag= &verbose_RPS, .val= 1 },
   {.name="version", .has_arg=no_argument, .flag= NULL, .val= 0},
   {.name="help", .has_arg=no_argument, .flag= NULL, .val= 0},
+  {.name="load", .has_arg=required_argument, .flag= NULL, .val= 0},
   {.name=NULL, .has_arg=no_argument, .flag= NULL, .val= 0 }
 };				/* end progopt_RPS */
 
@@ -195,9 +197,10 @@ const struct option progopt_RPS[] = {
 void
 program_usage_RPS(void) {
   printf("%s usage:\n", progname_RPS);
-  printf("\t -V | --verbose        # verbose flag\n");
-  printf("\t -v | --version        # version info\n");
-  printf("\t -h | --help           # this help\n");
+  printf("\t -V | --verbose         # verbose flag\n");
+  printf("\t -v | --version         # version info\n");
+  printf("\t -h | --help            # this help\n");
+  printf("\t -l | --load <topfile>  # load heap from TOPFILE\n");
   printf("%s is GPLv3+ licensed, so WITHOUT WARRANTY; see www.gnu.org/licenses/gpl-3.0.html\n", progname_RPS);
   fflush(NULL);
 } /* end prog_usage_RPS */
@@ -209,7 +212,7 @@ parse_program_option_RPS(int argc, char**argv)
   //     extern int optind, opterr, optopt;
   int opt= -1;
   int ix= -1;
-  while ((opt= getopt_long(argc, argv, "Vvh", progopt_RPS, &ix))>0) {
+  while ((opt= getopt_long(argc, argv, "Vvhl:", progopt_RPS, &ix))>0) {
     switch (opt) {
     case 'V': 			/* --verbose */
       printf("%s is verbose (pid %d on %s), GPLv3+ licensed\n", progname_RPS, (int)getpid(), hostname_RPS);
@@ -224,6 +227,12 @@ parse_program_option_RPS(int argc, char**argv)
       break;
     case 'h':			/* --help */
       program_usage_RPS();
+      break;
+    case 'l':
+      if (loadpath_RPS)
+	FATAL("cannot load more than once (%s & %s)",
+	      loadpath_RPS, optarg);
+      loadpath_RPS = optarg;
       break;
     };
   }
