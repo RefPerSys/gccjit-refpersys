@@ -40,6 +40,7 @@
 #include <stdatomic.h>
 #include <unistd.h>
 #include <time.h>
+#include <fcntl.h>
 #include <sys/time.h>
 #include <sys/random.h>
 #include <getopt.h>
@@ -60,6 +61,8 @@ gcc_jit_context *jitctx_RPS;
 const char *progname_RPS;
 const char *loadpath_RPS;
 const char *zlibv_RPS;
+char**argv_RPS;
+int argc_RPS;
 char hostname_RPS[64];
 struct backtrace_state *backtrace_state_RPS;
 thread_local struct random_data random_data_RPS;
@@ -88,8 +91,9 @@ const char sourcedir_RPS[] = SOURCEDIR;
     fprintf (stderr, "%s:%d:%s [%s]", (Fil), (Lin),     \
              (Func), thrname##Lin);                     \
     fprintf (stderr, Fmt "\n", ##__VA_ARGS__);          \
-    fprintf (stderr, "%s: shortgit %s\n",               \
-             progname_RPS, shortgitid_RPS);             \
+    fprintf (stderr, "%s: shortgit %s pid %d\n",        \
+             progname_RPS, shortgitid_RPS,              \
+             (int)getpid());                            \
     fflush (stderr);                                    \
     if (backtrace_state_RPS)                            \
       backtrace_print (backtrace_state_RPS, 1, stderr); \
@@ -185,10 +189,10 @@ int verbose_RPS;
 
 const struct option progopt_RPS[] = {
   
-  {.name="verbose", .has_arg=no_argument, .flag= &verbose_RPS, .val= 1 },
-  {.name="version", .has_arg=no_argument, .flag= NULL, .val= 0},
-  {.name="help", .has_arg=no_argument, .flag= NULL, .val= 0},
-  {.name="load", .has_arg=required_argument, .flag= NULL, .val= 0},
+  {.name="verbose", .has_arg=no_argument, .flag= NULL, .val= 'V' },
+  {.name="version", .has_arg=no_argument, .flag= NULL, .val= 'v'},
+  {.name="help", .has_arg=no_argument, .flag= NULL, .val= 'H'},
+  {.name="load", .has_arg=required_argument, .flag= NULL, .val= 'l'},
   {.name=NULL, .has_arg=no_argument, .flag= NULL, .val= 0 }
 };				/* end progopt_RPS */
 
@@ -212,10 +216,16 @@ parse_program_option_RPS(int argc, char**argv)
   //     extern int optind, opterr, optopt;
   int opt= -1;
   int ix= -1;
-  while ((opt= getopt_long(argc, argv, "Vvhl:", progopt_RPS, &ix))>0) {
+  do {
+    opt= getopt_long(argc, argv, "Vvhl:", progopt_RPS, &ix);
     switch (opt) {
+    case 0:
+      continue;
+    case -1:
+      break;
     case 'V': 			/* --verbose */
       printf("%s is verbose (pid %d on %s), GPLv3+ licensed\n", progname_RPS, (int)getpid(), hostname_RPS);
+      verbose_RPS = 1;
       break;
     case 'v':			/* --version */
       printf("%s version gitid %s built on %s\n", progname_RPS, shortgitid_RPS, __DATE__ "@" __TIME__);
@@ -234,11 +244,46 @@ parse_program_option_RPS(int argc, char**argv)
 	      loadpath_RPS, optarg);
       loadpath_RPS = optarg;
       break;
+    default:
+      break;
     };
-  }
+  } while(opt>=0);
 } /* end parse_program_option_RPS */
 
+
 int
+void
+load_file_RPS(const char*ldpath)
+{
+  struct stat ldstat = {};
+  int ldfd = open(ldpath, R_OK);
+  if (ldfd < 0)
+    FATAL("%s failed to open loaded file %s (%s)", //
+	  progname_RPS, ldpath, strerror(errno));
+  if (fstat(ldfd, &ldstat))
+    FATAL("%s failed to fstat loaded file %s (%s) fd#%d", //
+	  progname_RPS, ldpath, strerror(errno), ldfd);
+  size_t ldsize = ldstat.st_size;
+  size_t pgsize = getpagesize();
+  size_t memsize = (ldsize%pgsize)?(1+(ldsize|(pgsize-1))):ldsize;
+  const void*ldad = mmap(NULL, memsize, PROT_READ,
+#ifdef MAP_HUGETLB
+			 MAP_HUGETLB |
+#endif //MAP_HUGETLB
+			 MAP_SHARED, 
+			 ldfd, 0);
+  if (ldad == MAP_FAILED)
+    FATAL("%s failed to mmap fd#%d (%zd Kbytes) for loaded file %s (%s)",
+	  progname_RPS, ldfd, memsize>>10, ldpath,
+	  strerror(errno));
+  if (verbose_RPS) {
+    printf("%s mmaped loaded file %s (fd#%d) for %zd Kbytes @%p\n",
+	   progname_RPS, ldpath, ldfd, memsize>>10, ldad);
+    fflush(NULL);
+  }
+} /* end load_file_RPS */
+
+
 main (int argc, char **argv)
 {
   assert (argc > 0);
@@ -258,7 +303,7 @@ main (int argc, char **argv)
     FATAL ("%s failed to access full_source_main_RPS %s (%s)",
            progname_RPS, full_source_main_RPS, strerror (errno));
   backtrace_state_RPS =
-    backtrace_create_state (full_source_main_RPS, /*THREADED: */ 1,
+    backtrace_create_state ("/proc/self/exe", /*THREADED: */ 1,
                             backtrace_error_RPS, NULL);
   gcc_jit_context_release (jitctx_RPS);
   printf ("%s ending successfully (git %s) on %s source in %s\n",
