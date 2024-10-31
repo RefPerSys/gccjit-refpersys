@@ -315,6 +315,7 @@ parse_program_option_RPS (int argc, char **argv)
 void
 load_file_RPS (const char *ldpath)
 {
+  extern void load_state_RPS(const char*path, const void*start, const void*last);
   struct stat ldstat = { };
   int ldfd = open (ldpath, R_OK);
   if (ldfd < 0)
@@ -335,12 +336,14 @@ load_file_RPS (const char *ldpath)
   if (ldad == MAP_FAILED)
     FATAL ("%s failed to mmap fd#%d (%zd Kbytes) for loaded file %s (%s)",
 	   progname_RPS, ldfd, memsize >> 10, ldpath, strerror (errno));
+  const void*ldend = (const char*)ldad + memsize;
   if (verbose_RPS)
     {
-      printf ("%s mmaped loaded file %s (fd#%d) for %zd Kbytes @%p\n",
-	      progname_RPS, ldpath, ldfd, memsize >> 10, ldad);
+      printf ("%s mmaped loaded file %s (fd#%d) for %zd Kbytes @%p-%p\n",
+	      progname_RPS, ldpath, ldfd, memsize >> 10, ldad, ldend);
       fflush (NULL);
-    }
+    };
+  load_state_RPS(ldpath, ldad, ldend);
 }				/* end load_file_RPS */
 
 

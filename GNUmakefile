@@ -44,5 +44,5 @@ all: gccjit-refpersys
 clean:
 	$(RM) *.o *.i *~ gccjit-refpersys a.out
 
-gccjit-refpersys: main.o 
-	$(CC) main.o -lgccjit -L/usr/local/lib  -lunistring  -lbacktrace -ldl -lreadline -lz -o $@
+gccjit-refpersys: main.o persist.o
+	$(CC) $^ -lgccjit -L/usr/local/lib  -lunistring  -lbacktrace -ldl -lreadline -lz -o $@
