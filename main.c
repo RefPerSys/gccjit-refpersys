@@ -50,6 +50,7 @@
 #include <string.h>
 #include <errno.h>
 #include <assert.h>
+#include <math.h>
 #include <zlib.h>
 #include <unistr.h>
 #include <pthread.h>
@@ -107,6 +108,44 @@ const char sourcedir_RPS[] = SOURCEDIR;
   FATAL_AT_BIS(Fil,Lin,Func,Fmt,##__VA_ARGS__)
 
 #define FATAL(Fmt,...) FATAL_AT(__FILE__,__LINE__,__FUNCTION__,Fmt,##__VA_ARGS__)
+
+double
+wallclock_real_time_RPS (void)
+{
+  struct timespec ts = { 0, 0 };
+  if (clock_gettime (CLOCK_REALTIME, &ts))
+    return NAN;
+  return 1.0 * ts.tv_sec + 1.0e-9 * ts.tv_nsec;
+}				/* end wallclock_real_time_RPS */
+
+double
+monotonic_real_time_RPS (void)
+{
+  struct timespec ts = { 0, 0 };
+  if (clock_gettime (CLOCK_MONOTONIC, &ts))
+    return NAN;
+  return 1.0 * ts.tv_sec + 1.0e-9 * ts.tv_nsec;
+}				// end monotonic_real_time_RPS
+
+
+double
+process_cpu_time_RPS (void)
+{
+  struct timespec ts = { 0, 0 };
+  if (clock_gettime (CLOCK_PROCESS_CPUTIME_ID, &ts))
+    return NAN;
+  return 1.0 * ts.tv_sec + 1.0e-9 * ts.tv_nsec;
+}				// end process_cpu_time_RPS
+
+
+double
+thread_cpu_time_RPS (void)
+{
+  struct timespec ts = { 0, 0 };
+  if (clock_gettime (CLOCK_THREAD_CPUTIME_ID, &ts))
+    return NAN;
+  return 1.0 * ts.tv_sec + 1.0e-9 * ts.tv_nsec;
+}				// end thread_cpu_time_RPS
 
 
 void
