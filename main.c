@@ -316,7 +316,8 @@ parse_program_option_RPS (int argc, char **argv)
 void
 load_file_RPS (const char *ldpath)
 {
-  extern void load_state_RPS(const char*path, const void*start, const void*last);
+  extern void load_state_RPS (const char *path, const void *start,
+			      const void *last);
   struct stat ldstat = { };
   int ldfd = open (ldpath, R_OK);
   if (ldfd < 0)
@@ -328,23 +329,28 @@ load_file_RPS (const char *ldpath)
   size_t ldsize = ldstat.st_size;
   size_t pgsize = getpagesize ();
   size_t memsize = (ldsize % pgsize) ? (1 + (ldsize | (pgsize - 1))) : ldsize;
-  const void *ldad = mmap (NULL, memsize, PROT_READ,
-#ifdef MAP_HUGETLB
-			   MAP_HUGETLB |
-#endif //MAP_HUGETLB
-			   MAP_SHARED,
+  size_t mmapsize = memsize;
+  if (verbose_RPS)
+    {
+      printf ("%s: [%s:%d] mmap mmapsize=%zd ldfd#%d ldsize=%zd ldpath:%s\n",
+	      progname_RPS, __FILE__, __LINE__ - 1, mmapsize, ldfd,
+	      ldsize, ldpath);
+      fflush (NULL);
+    }
+  const void *ldad = mmap (NULL, mmapsize, PROT_READ,
+			   MAP_SHARED,	/* MAP_HUGETLB dont work here */
 			   ldfd, 0);
   if (ldad == MAP_FAILED)
     FATAL ("%s failed to mmap fd#%d (%zd Kbytes) for loaded file %s (%s)",
-	   progname_RPS, ldfd, memsize >> 10, ldpath, strerror (errno));
-  const void*ldend = (const char*)ldad + memsize;
+	   progname_RPS, ldfd, mmapsize >> 10, ldpath, strerror (errno));
+  const void *ldend = (const char *) ldad + mmapsize;
   if (verbose_RPS)
     {
       printf ("%s mmaped loaded file %s (fd#%d) for %zd Kbytes @%p-%p\n",
-	      progname_RPS, ldpath, ldfd, memsize >> 10, ldad, ldend);
+	      progname_RPS, ldpath, ldfd, mmapsize >> 10, ldad, ldend);
       fflush (NULL);
     };
-  load_state_RPS(ldpath, ldad, ldend);
+  load_state_RPS (ldpath, ldad, ldend);
 }				/* end load_file_RPS */
 
 
@@ -371,7 +377,7 @@ main (int argc, char **argv)
     backtrace_create_state ("/proc/self/exe", /*THREADED: */ 1,
 			    backtrace_error_RPS, NULL);
   if (loadpath_RPS)
-    load_file_RPS(loadpath_RPS);
+    load_file_RPS (loadpath_RPS);
   gcc_jit_context_release (jitctx_RPS);
   printf ("%s ending successfully (git %s) on %s source in %s\n",
 	  progname_RPS, shortgitid_RPS, hostname_RPS, full_source_main_RPS);
