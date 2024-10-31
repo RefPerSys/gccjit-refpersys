@@ -379,7 +379,8 @@ main (int argc, char **argv)
   if (loadpath_RPS)
     load_file_RPS (loadpath_RPS);
   gcc_jit_context_release (jitctx_RPS);
-  printf ("%s ending successfully (git %s) on %s source in %s\n",
-	  progname_RPS, shortgitid_RPS, hostname_RPS, full_source_main_RPS);
+  printf ("%s ending successfully (git %s) on %s (pid %d) source in %s\n",
+	  progname_RPS, shortgitid_RPS, hostname_RPS, (int) getpid (),
+	  full_source_main_RPS);
   return 0;
 }				/* end main */
