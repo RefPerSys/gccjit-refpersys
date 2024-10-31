@@ -67,9 +67,62 @@ extern char **argv_RPS;
 extern int argc_RPS;
 extern char hostname_RPS[64];
 extern struct backtrace_state *backtrace_state_RPS;
+extern const char shortgitid_RPS[];
+extern const char sourcedir_RPS[];
+extern char full_source_main_RPS[];
+extern int verbose_RPS;
 
+extern double wallclock_real_time_RPS (void);
+extern double monotonic_real_time_RPS (void);
+extern double process_cpu_time_RPS (void);
+extern double thread_cpu_time_RPS (void);
+
+extern void
+emit_gplv3_notice_AT_RPS (FILE *fout, const char *fil, int lin,
+			  const char *fromfun, const char *path,
+			  const char *linprefix, const char *linsuffix,
+			  char *explain);
+
+extern int32_t randomi32_RPS (void);
+extern int64_t randomi64_RPS (void);
+
+#define FATAL_AT_BIS(Fil,Lin,Func,Fmt,...) do {         \
+    char thrname##Lin[32];                              \
+    memset(thrname##Lin, 0, sizeof(thrname##Lin));      \
+    pthread_getname_np(pthread_self(), thrname##Lin,    \
+                       sizeof(thrname##Lin));           \
+    fprintf (stderr, "%s:%d:%s [%s]", (Fil), (Lin),     \
+             (Func), thrname##Lin);                     \
+    fprintf (stderr, Fmt "\n", ##__VA_ARGS__);          \
+    fprintf (stderr, "%s: shortgit %s pid %d\n",        \
+             progname_RPS, shortgitid_RPS,              \
+             (int)getpid());                            \
+    fflush (stderr);                                    \
+    if (backtrace_state_RPS)                            \
+      backtrace_print (backtrace_state_RPS, 1, stderr); \
+    fflush(NULL);                                       \
+    abort(); } while(0)
+
+#define FATAL_AT(Fil,Lin,Func,Fmt,...) \
+  FATAL_AT_BIS(Fil,Lin,Func,Fmt,##__VA_ARGS__)
+
+#define FATAL(Fmt,...) FATAL_AT(__FILE__,__LINE__,__FUNCTION__,Fmt,##__VA_ARGS__)
+
+
+#warning TODO: define a simple and human readable syntax of the persistent file
 
 void
 load_state_RPS(const char*path, const void*start, const void*last)
 {
+  assert(path != NULL);
+  assert(start != NULL);
+  assert(last != NULL);
 } /* end load_state_RPS */
+
+
+void
+write_state_RPS(const char*path)
+{
+#warning write_state_RPS is missing and needs a better signature
+  FATAL("unimplemented write_state_RPS path=%s", path);
+} /* end write_state_RPS */
