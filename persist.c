@@ -95,6 +95,7 @@ extern int64_t randomi64_RPS (void);
                        sizeof(thrname##Lin));           \
     fprintf (stderr, "%s:%d:%s [%s]", (Fil), (Lin),     \
              (Func), thrname##Lin);                     \
+    fprintf (stderr, "FATAL ERROR");                    \
     fprintf (stderr, Fmt "\n", ##__VA_ARGS__);          \
     fprintf (stderr, "%s: shortgit %s pid %d\n",        \
              progname_RPS, shortgitid_RPS,              \
@@ -130,7 +131,9 @@ load_state_RPS(const char*path, const void*start, const void*last)
       && startcomm[-1]!='\n' && startcomm[-1]!='\r')
     FATAL("load state file %s with start comment %s not at start of line",
 	  path, start_comment_RPS);
-    
+#warning incomplete load_state_RPS
+  if (verbose_RPS)
+    printf("%s: loaded state %s\n", progname_RPS, path);
 } /* end load_state_RPS */
 
 

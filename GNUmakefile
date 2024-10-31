@@ -37,7 +37,7 @@ CFLAGS= -Wall -Wextra -g -O -std=gnu99 -I/usr/local/include \
         -DSHORTGITID=\"$(SHORTGITID)\" -DSOURCEDIR=\"$(SOURCEDIR)\"
 
 RM= /bin/rm -vf
-.PHONY: all clean 
+.PHONY: all clean tests test00
 
 all: gccjit-refpersys
 
@@ -46,3 +46,7 @@ clean:
 
 gccjit-refpersys: main.o persist.o
 	$(CC) $^ -lbsd -lgccjit -L/usr/local/lib  -lunistring  -lbacktrace -ldl -lreadline -lz -o $@
+
+
+test00: gccjit-refpersys GNUmakefile cold-load.sh
+	./cold-load.sh

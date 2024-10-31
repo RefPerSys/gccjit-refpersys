@@ -92,8 +92,9 @@ const char sourcedir_RPS[] = SOURCEDIR;
     memset(thrname##Lin, 0, sizeof(thrname##Lin));      \
     pthread_getname_np(pthread_self(), thrname##Lin,    \
                        sizeof(thrname##Lin));           \
-    fprintf (stderr, "%s:%d:%s [%s]", (Fil), (Lin),     \
+    fprintf (stderr, "%s:%d:%s [%s]\n", (Fil), (Lin),   \
              (Func), thrname##Lin);                     \
+    fprintf (stderr, "FATAL ERROR");                    \
     fprintf (stderr, Fmt "\n", ##__VA_ARGS__);          \
     fprintf (stderr, "%s: shortgit %s pid %d\n",        \
              progname_RPS, shortgitid_RPS,              \
@@ -369,6 +370,8 @@ main (int argc, char **argv)
   backtrace_state_RPS =
     backtrace_create_state ("/proc/self/exe", /*THREADED: */ 1,
 			    backtrace_error_RPS, NULL);
+  if (loadpath_RPS)
+    load_file_RPS(loadpath_RPS);
   gcc_jit_context_release (jitctx_RPS);
   printf ("%s ending successfully (git %s) on %s source in %s\n",
 	  progname_RPS, shortgitid_RPS, hostname_RPS, full_source_main_RPS);
