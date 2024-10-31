@@ -131,6 +131,8 @@ load_state_RPS(const char*path, const void*start, const void*last)
       && startcomm[-1]!='\n' && startcomm[-1]!='\r')
     FATAL("load state file %s with start comment %s not at start of line",
 	  path, start_comment_RPS);
+  const char*endcomm = startcomm + strlen(start_comment_RPS);
+  assert (endcomm < last);
 #warning incomplete load_state_RPS
   if (verbose_RPS)
     printf("%s: loaded state %s\n", progname_RPS, path);
