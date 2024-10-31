@@ -58,6 +58,8 @@
 #include <readline/readline.h>
 #include <unistring/version.h>
 #include <gnu/libc-version.h>
+#include <bsd/string.h>		/* for strnstr(3) */
+
 #include <libgccjit.h>
 
 extern gcc_jit_context *jitctx_RPS;
@@ -111,18 +113,41 @@ extern int64_t randomi64_RPS (void);
 
 #warning TODO: define a simple and human readable syntax of the persistent file
 
+const char start_comment_RPS[] = "#*START-GCCJIT-REFPERSYS";
 void
 load_state_RPS(const char*path, const void*start, const void*last)
 {
   assert(path != NULL);
   assert(start != NULL);
   assert(last != NULL);
+  assert (last > start);
+  const char*startcomm = strnstr((const char*)start, start_comment_RPS,
+				 (const char*)last-(const char*)start);
+  if (!startcomm)
+    FATAL("load state file %s is lacking a start comment %s",
+	  path, start_comment_RPS);
+  if (startcomm > (const char*)start
+      && startcomm[-1]!='\n' && startcomm[-1]!='\r')
+    FATAL("load state file %s with start comment %s not at start of line",
+	  path, start_comment_RPS);
+    
 } /* end load_state_RPS */
 
 
 void
 write_state_RPS(const char*path)
 {
+  FILE*filsta = NULL;
+  if (!access(path, F_OK)) {
+    char backupath[384];
+    memset (backupath, 0, sizeof(backupath));
+    snprintf(backupath, sizeof(backupath)-4, "%s~", path);
+    if (strlen(backupath) > strlen(path))
+      rename(path, backupath);
+  };
+  filsta = fopen(path, "w");
+  if (!filsta)
+    FATAL("failed to open state file %s (%s)", path, strerror(errno));
 #warning write_state_RPS is missing and needs a better signature
   FATAL("unimplemented write_state_RPS path=%s", path);
 } /* end write_state_RPS */
