@@ -29,7 +29,8 @@
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 export
-CC=/usr/bin/gcc-14
+#CC=/usr/bin/gcc-14
+CC=/usr/bin/gcc
 GITID:= $(shell ./do-generate-gitid.sh)
 SHORTGITID:= $(shell ./do-generate-gitid.sh -s)
 SOURCEDIR:= $(shell /bin/pwd)
