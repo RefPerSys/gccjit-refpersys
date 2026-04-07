@@ -1,5 +1,6 @@
 This variant of [RefPerSys](http://refpersys.org/) uses libgccjit (see https://gcc.gnu.org/ and https://gcc.gnu.org/onlinedocs/jit/ ...) with a simple GNU readline interface.
 
+The main (C++ coded) [RefPerSys](http://refpersys.org/) on https://github.com/RefPerSys/RefPerSys also uses [libgccjit](https://gcc.gnu.org/onlinedocs/jit/) in April 2026 and later.
 
 ## Intuition
 
