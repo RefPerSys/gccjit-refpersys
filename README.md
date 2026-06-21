@@ -2,6 +2,9 @@ This variant of [RefPerSys](http://refpersys.org/) uses libgccjit (see https://g
 
 The main (C++ coded) [RefPerSys](http://refpersys.org/) on https://github.com/RefPerSys/RefPerSys also uses [libgccjit](https://gcc.gnu.org/onlinedocs/jit/) in April 2026 and later.
 
+
+# OBSOLETE
+
 ## Intuition
 
 Code quickly something which is able to load and dump a persistent
