@@ -48,6 +48,7 @@ load_state_HDGJIRPS (const char *path, const void *start, const void *last)
   assert (start != NULL);
   assert (last != NULL);
   assert (last > start);
+  assert (loadmagic_HDGJRPS == LOADMAGIC_HDGJRPS);
   const char *startcomm =
     strnstr ((const char *) start, start_comment_HDGJIRPS,
 	     (const char *) last - (const char *) start);

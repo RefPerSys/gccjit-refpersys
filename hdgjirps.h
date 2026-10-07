@@ -66,7 +66,7 @@
 #include <bsd/string.h>		/* for strnstr(3) */
 #include <string.h>
 
-#include <libgccjit.h> /* see gcc.gnu.org/onlinedocs/jit/ */
+#include <libgccjit.h>		/* see gcc.gnu.org/onlinedocs/jit/ */
 
 extern gcc_jit_context *jitctx_HDGJIRPS;
 extern const char *progname_HDGJIRPS;
@@ -74,7 +74,7 @@ extern const char *loadpath_HDGJIRPS;
 extern char **argv_HDGJIRPS;
 extern int argc_HDGJIRPS;
 extern char hostname_HDGJIRPS[64];
-extern const char* zlibv_HDGJIRPS;
+extern const char *zlibv_HDGJIRPS;
 extern struct backtrace_state *backtrace_state_HDGJIRPS;
 extern const char shortgitid_HDGJIRPS[];
 extern const char sourcedir_HDGJIRPS[];
@@ -89,13 +89,24 @@ extern double process_cpu_time_HDGJIRPS (void);
 extern double thread_cpu_time_HDGJIRPS (void);
 
 extern void
-emit_gplv3_notice_AT_HDGJIRPS (FILE *fout, const char *fil, int lin,
-			  const char *fromfun, const char *path,
-			  const char *linprefix, const char *linsuffix,
-			  char *explain);
+emit_gplv3_notice_AT_HDGJIRPS (FILE * fout, const char *fil, int lin,
+			       const char *fromfun, const char *path,
+			       const char *linprefix, const char *linsuffix,
+			       char *explain);
 
 extern int32_t randomi32_HDGJIRPS (void);
 extern int64_t randomi64_HDGJIRPS (void);
+
+#define LOADMAGIC_HDGJRPS 0x5feb03561	/*25747797345 */
+
+extern const uint64_t loadmagic_HDGJRPS;
+struct load_data_HDGJIRPS_st
+{
+  uint64_t lda_magic;		/* aload loadmagic_HDGJRPS */
+  void *lda_start;
+  void *lda_cur;
+  void *lda_end;
+};
 
 #define HDGJIRPS_FATAL_AT_BIS(Fil,Lin,Func,Fmt,...) do {	\
     char thrname##Lin[32];					\
@@ -127,5 +138,5 @@ extern int64_t randomi64_HDGJIRPS (void);
   uint8_t  flag;	       \
   uint32_t numval
 
-#endif /*HDGJIRPS_INCLUDED*/
+#endif /*HDGJIRPS_INCLUDED */
 /*end of file */
