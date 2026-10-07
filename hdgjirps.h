@@ -63,7 +63,7 @@
 #include <readline/readline.h>
 #include <unistring/version.h>
 #include <gnu/libc-version.h>
-#include "unistr.h" /* www.gnu.org/software/libunistring */
+#include "unistr.h"		/* www.gnu.org/software/libunistring */
 #include "jemalloc/jemalloc.h"	/* see jemalloc.net */
 #include <bsd/string.h>		/* for strnstr(3) */
 #include <string.h>
@@ -113,7 +113,7 @@ extern const uint64_t loadmagic_HDGJRPS;
 struct load_data_HDGJIRPS_st
 {
   uint64_t lda_magic;		/* aload loadmagic_HDGJRPS */
-  const char*lda_path;
+  const char *lda_path;
   void *lda_start;
   void *lda_cur;
   void *lda_end;
@@ -239,7 +239,7 @@ bool get_double_xtra_HDGJIRPS (const void *ptr, double *p, int32_t * x);
 
 //-  struct boxtwodbls_hdgjirps_st
 //-  {
-//-    HDGJIRPS_HEADER_FIELDS;	//
+//-    HDGJIRPS_HEADER_FIELDS;  //
 //-    double dblpair[2];
 //-  };
 
@@ -248,8 +248,13 @@ struct string_hdgjirps_st
   HDGJIRPS_HEADER_FIELDS;	//
   char cstr[];
 };
-struct string_hdgjirps_st*make_string_HDGJIRPS(const char*str);
-struct string_hdgjirps_st*make_sized_string_HDGJIRPS(const char*str, int  bytesize);
+struct string_hdgjirps_st *make_string_HDGJIRPS (const char *str);
+struct string_hdgjirps_st *make_sized_string_HDGJIRPS (const char *str,
+						       int bytesize);
+bool get_string_length_HDGJIRPS (void *ptr, const char **pstr,
+				 unsigned *pslen);
+
+bool get_string_HDGJIRPS (void *ptr, const char **pstr);
 
 struct intvect_hdgjirps_st
 {

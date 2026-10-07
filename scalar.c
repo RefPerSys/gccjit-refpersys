@@ -294,4 +294,32 @@ make_sized_string_HDGJIRPS (const char *str, int bytesize)
   return p;
 }				/* end make_sized_string_HDGJIRPS */
 
+bool
+get_string_length_HDGJIRPS (void *ptr, const char **pstr, unsigned *pslen)
+{
+  if (!ptr || !is_valid_ptr_HDGJIRPS (ptr))
+    return false;
+  const struct string_hdgjirps_st *d = (struct string_hdgjirps_st *) ptr;
+  if (d->typenum != sca_boxed_string)
+    return false;
+  if (pstr)
+    *pstr = d->cstr;
+  if (pslen)
+    *pslen = d->length;
+  return true;
+}				/* end get_string_length_HDGJIRPS */
+
+bool
+get_string_HDGJIRPS (void *ptr, const char **pstr)
+{
+  if (!ptr || !is_valid_ptr_HDGJIRPS (ptr))
+    return false;
+  const struct string_hdgjirps_st *d = (struct string_hdgjirps_st *) ptr;
+  if (d->typenum != sca_boxed_string)
+    return false;
+  if (pstr)
+    *pstr = d->cstr;
+  return true;
+}				/* end get_string_HDGJIRPS */
+
 /// end of file gccjit-refpersys/scalar.c
