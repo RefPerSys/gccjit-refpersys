@@ -35,6 +35,8 @@
 
 #include "hdgjirps.h"
 
+const char persist_HDGJIRPS_git[] = SHORTGITID;
+
 #warning TODO: define a simple and human readable syntax of the persistent file
 
 static void load_data_HDGJIRPS(struct load_data_HDGJIRPS_st*ld);
@@ -71,7 +73,6 @@ load_state_HDGJIRPS (const char *path, const void *start, const void *last)
   ldata.lda_cur = endcomm+1;
   ldata.lda_end = (void*)last;
   load_data_HDGJIRPS(&ldata);
-#warning incomplete load_state_HDGJIRPS should use ldata
   if (verbose_HDGJIRPS)
     printf ("%s: loaded state %s\n", progname_HDGJIRPS, path);
 }				/* end load_state_HDGJIRPS */
@@ -80,7 +81,9 @@ void
 load_data_HDGJIRPS(struct load_data_HDGJIRPS_st*ld)
 {
   assert (ld && ld->lda_magic == LOADMAGIC_HDGJRPS);
-  fprintf(stderr, "load_data_HDGJIRPS unimplemented for path %s\n", ld->lda_path);
+  fprintf(stderr, "load_data_HDGJIRPS unimplemented for path %s [%s:%d] git %s\n",
+	  ld->lda_path, __FILE__, __LINE__,  persist_HDGJIRPS_git);
+#warning incomplete load_data_HDGJIRPS should use ld
 } /* end load_data_HDGJIRPS */
 
 void
