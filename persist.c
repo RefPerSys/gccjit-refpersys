@@ -38,6 +38,9 @@
 #warning TODO: define a simple and human readable syntax of the persistent file
 
 const char start_comment_HDGJIRPS[] = "#*START-GCCJIT-REFPERSYS";
+
+/// This loading state is called after a successful mmap of path
+/// (start -> end)
 void
 load_state_HDGJIRPS (const char *path, const void *start, const void *last)
 {
