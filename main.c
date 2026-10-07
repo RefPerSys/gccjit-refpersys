@@ -129,7 +129,8 @@ emit_gplv3_notice_AT_HDGJIRPS (FILE *fout, const char *fil, int lin,
   EMIT_PRINTF ("License: GPLv3+ (file COPYING-GPLv3)");
   EMIT_PRINTF ("see refpersys.org & github.com/RefPerSys/gccjit-refpersys");
   EMIT_PRINTF ("Contact team@refpersys.org and/or ...");
-  EMIT_PRINTF ("Basile STARYNKEVITCH <basile@starynkevitch.net> (France)");
+  EMIT_PRINTF ("Basile STARYNKEVITCH <basile@starynkevitch.net>");
+  EMIT_PRINTF ("92340 Bourg-la-Reine (or b-star-y.tech µentreprise)");
 #undef EMIT_PRINTF
 }				/* end emit_gplv3_copyright_notice_AT_HDGJIRPS */
 
@@ -151,10 +152,12 @@ randomi32_HDGJIRPS (void)
       unsigned seed = (unsigned) (time (NULL) + getpid ());
       initstate_r (seed, randbuf, sizeof (randbuf), &random_data_HDGJIRPS);
     };
-  int32_t res;
-  int er = random_r (&random_data_HDGJIRPS, &res);
-  if (er)
-    HDGJIRPS_FATAL ("failed to call random_r (%s)", strerror (er));
+  int32_t res =0;
+  do {
+    int er = random_r (&random_data_HDGJIRPS, &res);
+    if (er)
+      HDGJIRPS_FATAL ("failed to call random_r (%s)", strerror (er));
+  } while (res==0);
   return res;
 }				/* end randomi32_HDGJIRPS */
 
@@ -230,8 +233,8 @@ parse_program_option_HDGJIRPS (int argc, char **argv)
 	  printf
 	    ("%s is GPLv3+ licensed, so WITHOUT WARRANTY; see www.gnu.org/licenses/gpl-3.0.html\n",
 	     progname_HDGJIRPS);
-	  printf
-	    ("\t Its source code could be on github.com/RefPerSys/gccjit-refpersys/\n");
+	  printf ("\t Its source code could be on %s\n",
+		  "github.com/RefPerSys/gccjit-refpersys/");
 	  break;
 	case 'h':		/* --help */
 	  program_usage_HDGJIRPS ();

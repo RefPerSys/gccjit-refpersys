@@ -11,7 +11,7 @@
 ##      Nimesh Neema <nimeshneema@gmail.com>
 ##      Abdullah Siddiqui <siddiquiabdullah92@gmail.com>
 ##
-##      © Copyright 2024 The Reflective Persistent System Team
+##      © Copyright 2024 - 2026 The Reflective Persistent System Team
 ##      team@refpersys.org
 ##
 ## License:
@@ -36,18 +36,25 @@ SHORTGITID:= $(shell ./do-generate-gitid.sh -s)
 SOURCEDIR:= $(shell /bin/pwd)
 CFLAGS= -Wall -Wextra -g -O -std=gnu99 -I/usr/local/include \
         -DSHORTGITID=\"$(SHORTGITID)\" -DSOURCEDIR=\"$(SOURCEDIR)\"
-
+CFILES:=$(wildcard *.c)
+OBJFILES:=$(patsubst %.c, obj/%.o, $(CFILES))
 RM= /bin/rm -vf
 .PHONY: all clean tests test00
+.SUFFIXES: .c
 
 all: gccjit-refpersys
 
 clean:
-	$(RM) *.o *.i *~ gccjit-refpersys a.out
+	$(RM) *.o obj/*.o *.i *~ gccjit-refpersys a.out
 
-gccjit-refpersys: main.o persist.o
+gccjit-refpersys: $(OBJFILES)
 	$(CC) $^ -lbsd -lgccjit -L/usr/local/lib  -lunistring  -lbacktrace -ldl -lreadline -lz -o $@
 
 
 test00: gccjit-refpersys GNUmakefile cold-load.sh
 	./cold-load.sh
+
+#obj/main.o: main.c |GNUmakefile hdgjirps.h toml-c.h
+#	$(CC) $(CFLAGS) $< -o $@
+obj/%.o: %.c |GNUmakefile hdgjirps.h toml-c.h
+	$(CC) $(CFLAGS) $< -o $@

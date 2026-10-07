@@ -55,7 +55,7 @@ load_state_HDGJIRPS(const char*path, const void*start, const void*last)
     HDGJIRPS_FATAL("load state file %s with start comment %s not at start of line",
 	  path, start_comment_HDGJIRPS);
   const char*endcomm = startcomm + strlen(start_comment_HDGJIRPS);
-  assert (endcomm < last);
+  assert (endcomm < (const char*)last);
 #warning incomplete load_state_HDGJIRPS
   if (verbose_HDGJIRPS)
     printf("%s: loaded state %s\n", progname_HDGJIRPS, path);
