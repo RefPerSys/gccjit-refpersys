@@ -69,7 +69,7 @@ load_state_HDGJIRPS (const char *path, const void *start, const void *last)
 
 
 void
-write_state_HDGJIRPS (const char *path)
+write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab)
 {
   FILE *filsta = NULL;
   if (!access (path, F_OK))
