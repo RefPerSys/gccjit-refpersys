@@ -31,6 +31,10 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ***/
 
+#ifndef SHORTGITID
+#error SHORTGITID should be defined in the command line
+#endif
+
 #include "hdgjirps.h"
 
 gcc_jit_context *jitctx_HDGJIRPS;
@@ -41,9 +45,7 @@ int argc_HDGJIRPS;
 char hostname_HDGJIRPS[64];
 char* zlibv_HDGJIRPS;
 struct backtrace_state *backtrace_state_HDGJIRPS;
-const char shortgitid_HDGJIRPS[];
-const char sourcedir_HDGJIRPS[];
-char full_source_main_HDGJIRPS[];
-int verbose_HDGJIRPS;
+const char shortgitid_HDGJIRPS[32]=SHORTGITID;
+
 
 /// end of file gccjit-refpersys/global.c

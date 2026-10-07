@@ -38,6 +38,7 @@ CFLAGS= -Wall -Wextra -g -O -std=gnu99 -I/usr/local/include \
         -DSHORTGITID=\"$(SHORTGITID)\" -DSOURCEDIR=\"$(SOURCEDIR)\"
 CFILES:=$(wildcard *.c)
 OBJFILES:=$(patsubst %.c, obj/%.o, $(CFILES))
+NONGLOBOBFILES=$(patsubst %.c, obj/%.o, $(filter-out global.c, $(CFILES)))
 RM= /bin/rm -vf
 .PHONY: all clean tests test00
 .SUFFIXES: .c
@@ -48,7 +49,8 @@ clean:
 	$(RM) *.o obj/*.o *.i *~ gccjit-refpersys a.out
 
 gccjit-refpersys: $(OBJFILES)
-	$(CC) $^ -lbsd -lgccjit -L/usr/local/lib  -lunistring  -lbacktrace -ldl -lreadline -lz -o $@
+	$(CC) $(CFLAGS) global.c $(NONGLOBOBFILES) -lbsd -lgccjit -L/usr/local/lib  -lunistring  -lbacktrace -ldl -lreadline -lz -o $@
+
 
 
 test00: gccjit-refpersys GNUmakefile cold-load.sh
@@ -57,4 +59,4 @@ test00: gccjit-refpersys GNUmakefile cold-load.sh
 #obj/main.o: main.c |GNUmakefile hdgjirps.h toml-c.h
 #	$(CC) $(CFLAGS) $< -o $@
 obj/%.o: %.c |GNUmakefile hdgjirps.h toml-c.h
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
