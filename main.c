@@ -49,6 +49,8 @@ thread_local volatile atomic_flag random_inited_HDGJIRPS;
 
 const char sourcedir_HDGJIRPS[] = SOURCEDIR;
 
+const char main_HDGJIRPS_git[] = SHORTGITID;
+
 static void backtrace_error_HDGJIRPS (void *data, const char *msg,
 				      int errnum);
 static void parse_program_option_HDGJIRPS (int argc, char **argv);
