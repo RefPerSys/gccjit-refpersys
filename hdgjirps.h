@@ -112,6 +112,7 @@ extern const uint64_t loadmagic_HDGJRPS;
 struct load_data_HDGJIRPS_st
 {
   uint64_t lda_magic;		/* aload loadmagic_HDGJRPS */
+  const char*lda_path;
   void *lda_start;
   void *lda_cur;
   void *lda_end;

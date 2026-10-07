@@ -37,6 +37,8 @@
 
 #warning TODO: define a simple and human readable syntax of the persistent file
 
+static void load_data_HDGJIRPS(struct load_data_HDGJIRPS_st*ld);
+
 const char start_comment_HDGJIRPS[] = "#*START-GCCJIT-REFPERSYS";
 
 /// This loading state is called after a successful mmap of path
@@ -62,16 +64,32 @@ load_state_HDGJIRPS (const char *path, const void *start, const void *last)
        start_comment_HDGJIRPS);
   const char *endcomm = startcomm + strlen (start_comment_HDGJIRPS);
   assert (endcomm < (const char *) last);
-#warning incomplete load_state_HDGJIRPS
+  struct load_data_HDGJIRPS_st ldata={};
+  ldata.lda_magic = LOADMAGIC_HDGJRPS;
+  ldata.lda_path = path;
+  ldata.lda_start = (void*)endcomm;
+  ldata.lda_cur = endcomm+1;
+  ldata.lda_end = (void*)last;
+  load_data_HDGJIRPS(&ldata);
+#warning incomplete load_state_HDGJIRPS should use ldata
   if (verbose_HDGJIRPS)
     printf ("%s: loaded state %s\n", progname_HDGJIRPS, path);
 }				/* end load_state_HDGJIRPS */
 
+void
+load_data_HDGJIRPS(struct load_data_HDGJIRPS_st*ld)
+{
+  assert (ld && ld->lda_magic == LOADMAGIC_HDGJRPS);
+  fprintf(stderr, "load_data_HDGJIRPS unimplemented for path %s\n", ld->lda_path);
+} /* end load_data_HDGJIRPS */
 
 void
 write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab)
 {
   FILE *filsta = NULL;
+  assert(path);
+  assert(tabptr != NULL);
+  assert(siztab > 0);
   if (!access (path, F_OK))
     {
       char backupath[384];
@@ -84,6 +102,6 @@ write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab)
   if (!filsta)
     HDGJIRPS_FATAL ("failed to open state file %s (%s)", path,
 		    strerror (errno));
-#warning write_state_HDGJIRPS is missing and needs a better signature
+#warning write_state_HDGJIRPS is incomplete and needs a better signature
   HDGJIRPS_FATAL ("unimplemented write_state_HDGJIRPS path=%s", path);
 }				/* end write_state_HDGJIRPS */
