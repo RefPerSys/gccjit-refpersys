@@ -74,12 +74,14 @@ extern const char *loadpath_HDGJIRPS;
 extern char **argv_HDGJIRPS;
 extern int argc_HDGJIRPS;
 extern char hostname_HDGJIRPS[64];
-extern char* zlibv_HDGJIRPS;
+extern const char* zlibv_HDGJIRPS;
 extern struct backtrace_state *backtrace_state_HDGJIRPS;
 extern const char shortgitid_HDGJIRPS[];
 extern const char sourcedir_HDGJIRPS[];
 extern char full_source_main_HDGJIRPS[];
+extern char executable_HDGJIRPS[128];
 extern int verbose_HDGJIRPS;
+extern pthread_mutex_t globmtx_HDGJIRPS;
 
 extern double wallclock_real_time_HDGJIRPS (void);
 extern double monotonic_real_time_HDGJIRPS (void);
@@ -118,6 +120,12 @@ extern int64_t randomi64_HDGJIRPS (void);
    HDGJIRPS_FATAL_AT_BIS(Fil,Lin,Func,Fmt,##__VA_ARGS__)
 
 #define  HDGJIRPS_FATAL(Fmt,...)  HDGJIRPS_FATAL_AT(__FILE__,__LINE__,__FUNCTION__,Fmt,##__VA_ARGS__)
+
+#define HDGJIRPS_HEADER_FIELDS \
+  uint16_t typenum;	       \
+  uint8_t  gcmark;	       \
+  uint8_t  flag;	       \
+  uint32_t numval
 
 #endif /*HDGJIRPS_INCLUDED*/
 /*end of file */

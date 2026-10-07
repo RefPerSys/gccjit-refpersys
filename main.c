@@ -313,6 +313,19 @@ load_file_HDGJIRPS (const char *ldpath)
   load_state_HDGJIRPS (ldpath, ldad, ldend);
 }				/* end load_file_HDGJIRPS */
 
+static void
+getexec_HDGJIRPS(void)
+{
+  ssize_t s = readlink("/proc/self/exe",
+		       executable_HDGJIRPS,
+		       sizeof(executable_HDGJIRPS)-1);
+  if (s<0 || !executable_HDGJIRPS[0])
+    HDGJIRPS_FATAL("%s failed to readlink /proc/self/exe (%s)", progname_HDGJIRPS,
+		   strerror(errno));
+  if (access(executable_HDGJIRPS, R_OK|X_OK))
+    HDGJIRPS_FATAL("%s has bad executable %s (%s)",
+		   progname_HDGJIRPS, executable_HDGJIRPS, strerror(errno));
+} /* end getexec_HDGJIRPS */
 
 int
 main (int argc, char **argv)
@@ -321,6 +334,7 @@ main (int argc, char **argv)
   progname_HDGJIRPS = argv[0];
   pthread_setname_np (pthread_self (), "main-rpsjit");
   gethostname (hostname_HDGJIRPS, sizeof (hostname_HDGJIRPS));
+  getexec_HDGJIRPS();
   parse_program_option_HDGJIRPS (argc, argv);
   rl_initialize ();		/// initialize readline
   zlibv_HDGJIRPS = zlibVersion ();

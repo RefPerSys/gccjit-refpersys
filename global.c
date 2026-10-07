@@ -43,9 +43,9 @@ const char *loadpath_HDGJIRPS;
 char **argv_HDGJIRPS;
 int argc_HDGJIRPS;
 char hostname_HDGJIRPS[64];
-char* zlibv_HDGJIRPS;
+const char* zlibv_HDGJIRPS;
 struct backtrace_state *backtrace_state_HDGJIRPS;
 const char shortgitid_HDGJIRPS[32]=SHORTGITID;
-
-
+pthread_mutex_t globmtx_HDGJIRPS= PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+char executable_HDGJIRPS[128];
 /// end of file gccjit-refpersys/global.c
