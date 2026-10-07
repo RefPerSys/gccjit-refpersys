@@ -39,43 +39,47 @@
 
 const char start_comment_HDGJIRPS[] = "#*START-GCCJIT-REFPERSYS";
 void
-load_state_HDGJIRPS(const char*path, const void*start, const void*last)
+load_state_HDGJIRPS (const char *path, const void *start, const void *last)
 {
-  assert(path != NULL);
-  assert(start != NULL);
-  assert(last != NULL);
+  assert (path != NULL);
+  assert (start != NULL);
+  assert (last != NULL);
   assert (last > start);
-  const char*startcomm = strnstr((const char*)start, start_comment_HDGJIRPS,
-				 (const char*)last-(const char*)start);
+  const char *startcomm =
+    strnstr ((const char *) start, start_comment_HDGJIRPS,
+	     (const char *) last - (const char *) start);
   if (!startcomm)
-    HDGJIRPS_FATAL("load state file %s is lacking a start comment %s",
-	  path, start_comment_HDGJIRPS);
-  if (startcomm > (const char*)start
-      && startcomm[-1]!='\n' && startcomm[-1]!='\r')
-    HDGJIRPS_FATAL("load state file %s with start comment %s not at start of line",
-	  path, start_comment_HDGJIRPS);
-  const char*endcomm = startcomm + strlen(start_comment_HDGJIRPS);
-  assert (endcomm < (const char*)last);
+    HDGJIRPS_FATAL ("load state file %s is lacking a start comment %s",
+		    path, start_comment_HDGJIRPS);
+  if (startcomm > (const char *) start
+      && startcomm[-1] != '\n' && startcomm[-1] != '\r')
+    HDGJIRPS_FATAL
+      ("load state file %s with start comment %s not at start of line", path,
+       start_comment_HDGJIRPS);
+  const char *endcomm = startcomm + strlen (start_comment_HDGJIRPS);
+  assert (endcomm < (const char *) last);
 #warning incomplete load_state_HDGJIRPS
   if (verbose_HDGJIRPS)
-    printf("%s: loaded state %s\n", progname_HDGJIRPS, path);
-} /* end load_state_HDGJIRPS */
+    printf ("%s: loaded state %s\n", progname_HDGJIRPS, path);
+}				/* end load_state_HDGJIRPS */
 
 
 void
-write_state_HDGJIRPS(const char*path)
+write_state_HDGJIRPS (const char *path)
 {
-  FILE*filsta = NULL;
-  if (!access(path, F_OK)) {
-    char backupath[384];
-    memset (backupath, 0, sizeof(backupath));
-    snprintf(backupath, sizeof(backupath)-4, "%s~", path);
-    if (strlen(backupath) > strlen(path))
-      rename(path, backupath);
-  };
-  filsta = fopen(path, "w");
+  FILE *filsta = NULL;
+  if (!access (path, F_OK))
+    {
+      char backupath[384];
+      memset (backupath, 0, sizeof (backupath));
+      snprintf (backupath, sizeof (backupath) - 4, "%s~", path);
+      if (strlen (backupath) > strlen (path))
+	rename (path, backupath);
+    };
+  filsta = fopen (path, "w");
   if (!filsta)
-    HDGJIRPS_FATAL("failed to open state file %s (%s)", path, strerror(errno));
+    HDGJIRPS_FATAL ("failed to open state file %s (%s)", path,
+		    strerror (errno));
 #warning write_state_HDGJIRPS is missing and needs a better signature
-  HDGJIRPS_FATAL("unimplemented write_state_HDGJIRPS path=%s", path);
-} /* end write_state_HDGJIRPS */
+  HDGJIRPS_FATAL ("unimplemented write_state_HDGJIRPS path=%s", path);
+}				/* end write_state_HDGJIRPS */

@@ -100,9 +100,9 @@ backtrace_error_HDGJIRPS (void *data, const char *msg, int errnum)
 
 void
 emit_gplv3_notice_AT_HDGJIRPS (FILE *fout, const char *fil, int lin,
-			  const char *fromfun, const char *path,
-			  const char *linprefix, const char *linsuffix,
-			  char *explain)
+			       const char *fromfun, const char *path,
+			       const char *linprefix, const char *linsuffix,
+			       char *explain)
 {
   assert (fout);
   assert (path);
@@ -142,7 +142,8 @@ emit_gplv3_notice_AT_HDGJIRPS (FILE *fout, const char *fil, int lin,
 int32_t
 randomi32_HDGJIRPS (void)
 {
-  if (__builtin_expect (!atomic_flag_test_and_set (&random_inited_HDGJIRPS), true))
+  if (__builtin_expect
+      (!atomic_flag_test_and_set (&random_inited_HDGJIRPS), true))
     {
       static thread_local char randbuf[128];
       memset (&random_data_HDGJIRPS, 0, sizeof (random_data_HDGJIRPS));
@@ -152,12 +153,14 @@ randomi32_HDGJIRPS (void)
       unsigned seed = (unsigned) (time (NULL) + getpid ());
       initstate_r (seed, randbuf, sizeof (randbuf), &random_data_HDGJIRPS);
     };
-  int32_t res =0;
-  do {
-    int er = random_r (&random_data_HDGJIRPS, &res);
-    if (er)
-      HDGJIRPS_FATAL ("failed to call random_r (%s)", strerror (er));
-  } while (res==0);
+  int32_t res = 0;
+  do
+    {
+      int er = random_r (&random_data_HDGJIRPS, &res);
+      if (er)
+	HDGJIRPS_FATAL ("failed to call random_r (%s)", strerror (er));
+    }
+  while (res == 0);
   return res;
 }				/* end randomi32_HDGJIRPS */
 
@@ -166,11 +169,18 @@ randomi64_HDGJIRPS (void)
 {
   int64_t x =
     ((unsigned long) randomi32_HDGJIRPS () << 32) | ((unsigned long)
-						randomi32_HDGJIRPS ());
+						     randomi32_HDGJIRPS ());
   return x;
 }
 
 int verbose_HDGJIRPS;
+
+enum longopt_HDGJIRPS_en
+{
+  noneopt__HDGJIRPS = 0,
+  random_optHDGJIRPS = 1000,
+  lastopt__HDGJIRPS
+};
 
 const struct option progopt_HDGJIRPS[] = {
 
@@ -178,6 +188,8 @@ const struct option progopt_HDGJIRPS[] = {
   {.name = "version",.has_arg = no_argument,.flag = NULL,.val = 'v'},
   {.name = "help",.has_arg = no_argument,.flag = NULL,.val = 'H'},
   {.name = "load",.has_arg = required_argument,.flag = NULL,.val = 'l'},
+  {.name = "random",.has_arg = no_argument,.flag = NULL,
+   .val = (int) random_optHDGJIRPS},
   {.name = NULL,.has_arg = no_argument,.flag = NULL,.val = 0}
 };				/* end progopt_HDGJIRPS */
 
@@ -189,11 +201,13 @@ program_usage_HDGJIRPS (void)
   printf ("%s usage:\n", progname_HDGJIRPS);
   printf ("\t -V | --verbose         # verbose flag\n");
   printf ("\t -v | --version         # version info\n");
-  printf ("\t -h | --help            # this help\n");
+  printf ("\t -H | --help            # this help\n");
+  printf ("\t      --random          # prints a random id\n");
   printf ("\t -l | --load <topfile>  # load heap from TOPFILE\n");
   printf
-    ("%s is GPLv3+ licensed, so WITHOUT WARRANTY; see www.gnu.org/licenses/gpl-3.0.html\n",
-     progname_HDGJIRPS);
+    ("%s is GPLv3+ licensed, so WITHOUT WARRANTY;\n"
+     " see www.gnu.org/licenses/gpl-3.0.html and refpersys.org\n"
+     " and github.com/RefPerSys/ggccjit-refpersys\n", progname_HDGJIRPS);
   fflush (NULL);
 }				/* end prog_usage_HDGJIRPS */
 
@@ -206,7 +220,7 @@ parse_program_option_HDGJIRPS (int argc, char **argv)
   int ix = -1;
   do
     {
-      opt = getopt_long (argc, argv, "Vvhl:", progopt_HDGJIRPS, &ix);
+      opt = getopt_long (argc, argv, "VvHl:", progopt_HDGJIRPS, &ix);
       switch (opt)
 	{
 	case 0:
@@ -230,9 +244,9 @@ parse_program_option_HDGJIRPS (int argc, char **argv)
 	  printf ("\t libgccjit version: %d.%d.%d\n",
 		  gcc_jit_version_major (), gcc_jit_version_minor (),
 		  gcc_jit_version_patchlevel ());
-	  printf
-	    ("%s is GPLv3+ licensed, so WITHOUT WARRANTY; see www.gnu.org/licenses/gpl-3.0.html\n",
-	     progname_HDGJIRPS);
+	  printf ("%s is GPLv3+ licensed, so WITHOUT WARRANTY;\n"
+		  " see www.gnu.org/licenses/gpl-3.0.html\n",
+		  progname_HDGJIRPS);
 	  printf ("\t Its source code could be on %s\n",
 		  "github.com/RefPerSys/gccjit-refpersys/");
 	  break;
@@ -242,8 +256,11 @@ parse_program_option_HDGJIRPS (int argc, char **argv)
 	case 'l':
 	  if (loadpath_HDGJIRPS)
 	    HDGJIRPS_FATAL ("cannot load more than once (%s & %s)",
-		   loadpath_HDGJIRPS, optarg);
+			    loadpath_HDGJIRPS, optarg);
 	  loadpath_HDGJIRPS = optarg;
+	  break;
+	case random_optHDGJIRPS:
+	  printf ("%ld\n", (long) randomi64_HDGJIRPS);
 	  break;
 	default:
 	  break;
@@ -257,15 +274,15 @@ void
 load_file_HDGJIRPS (const char *ldpath)
 {
   extern void load_state_HDGJIRPS (const char *path, const void *start,
-			      const void *last);
+				   const void *last);
   struct stat ldstat = { };
   int ldfd = open (ldpath, R_OK);
   if (ldfd < 0)
     HDGJIRPS_FATAL ("%s failed to open loaded file %s (%s)",	//
-	   progname_HDGJIRPS, ldpath, strerror (errno));
+		    progname_HDGJIRPS, ldpath, strerror (errno));
   if (fstat (ldfd, &ldstat))
     HDGJIRPS_FATAL ("%s failed to fstat loaded file %s (%s) fd#%d",	//
-	   progname_HDGJIRPS, ldpath, strerror (errno), ldfd);
+		    progname_HDGJIRPS, ldpath, strerror (errno), ldfd);
   size_t ldsize = ldstat.st_size;
   size_t pgsize = getpagesize ();
   size_t memsize = (ldsize % pgsize) ? (1 + (ldsize | (pgsize - 1))) : ldsize;
@@ -281,8 +298,9 @@ load_file_HDGJIRPS (const char *ldpath)
 			   MAP_SHARED,	/* MAP_HUGETLB dont work here */
 			   ldfd, 0);
   if (ldad == MAP_FAILED)
-    HDGJIRPS_FATAL ("%s failed to mmap fd#%d (%zd Kbytes) for loaded file %s (%s)",
-	   progname_HDGJIRPS, ldfd, mmapsize >> 10, ldpath, strerror (errno));
+    HDGJIRPS_FATAL
+      ("%s failed to mmap fd#%d (%zd Kbytes) for loaded file %s (%s)",
+       progname_HDGJIRPS, ldfd, mmapsize >> 10, ldpath, strerror (errno));
   const void *ldend = (const char *) ldad + mmapsize;
   if (verbose_HDGJIRPS)
     {
@@ -306,13 +324,14 @@ main (int argc, char **argv)
   zlibv_HDGJIRPS = zlibVersion ();
   jitctx_HDGJIRPS = gcc_jit_context_acquire ();
   if (!jitctx_HDGJIRPS)
-    HDGJIRPS_FATAL ("%s failed to create jitctx_HDGJIRPS (%s)", progname_HDGJIRPS,
-	   strerror (errno));
-  snprintf (full_source_main_HDGJIRPS, sizeof (full_source_main_HDGJIRPS), "%s/%s",
-	    sourcedir_HDGJIRPS, __FILE__);
+    HDGJIRPS_FATAL ("%s failed to create jitctx_HDGJIRPS (%s)",
+		    progname_HDGJIRPS, strerror (errno));
+  snprintf (full_source_main_HDGJIRPS, sizeof (full_source_main_HDGJIRPS),
+	    "%s/%s", sourcedir_HDGJIRPS, __FILE__);
   if (access (full_source_main_HDGJIRPS, R_OK))
     HDGJIRPS_FATAL ("%s failed to access full_source_main_HDGJIRPS %s (%s)",
-	   progname_HDGJIRPS, full_source_main_HDGJIRPS, strerror (errno));
+		    progname_HDGJIRPS, full_source_main_HDGJIRPS,
+		    strerror (errno));
   backtrace_state_HDGJIRPS =
     backtrace_create_state ("/proc/self/exe", /*THREADED: */ 1,
 			    backtrace_error_HDGJIRPS, NULL);
@@ -320,7 +339,7 @@ main (int argc, char **argv)
     load_file_HDGJIRPS (loadpath_HDGJIRPS);
   gcc_jit_context_release (jitctx_HDGJIRPS);
   printf ("%s ending successfully (git %s) on %s (pid %d) source in %s\n",
-	  progname_HDGJIRPS, shortgitid_HDGJIRPS, hostname_HDGJIRPS, (int) getpid (),
-	  full_source_main_HDGJIRPS);
+	  progname_HDGJIRPS, shortgitid_HDGJIRPS, hostname_HDGJIRPS,
+	  (int) getpid (), full_source_main_HDGJIRPS);
   return 0;
 }				/* end main */
