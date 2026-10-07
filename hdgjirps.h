@@ -132,11 +132,87 @@ struct load_data_HDGJIRPS_st
 
 #define  HDGJIRPS_FATAL(Fmt,...)  HDGJIRPS_FATAL_AT(__FILE__,__LINE__,__FUNCTION__,Fmt,##__VA_ARGS__)
 
-#define HDGJIRPS_HEADER_FIELDS \
-  uint16_t typenum;	       \
-  uint8_t  gcmark;	       \
-  uint8_t  flag;	       \
-  uint32_t numval
 
+#define HDGJIRPS_TWO_WORDS_ALIGNED __attribute__((aligned(2*sizeof(void*))))
+
+enum scalar_typid_HDGJIRPS_en
+{
+  sca__none,
+  sca_boxed_int,
+  sca_boxed_twoints,
+  sca_boxed_double,
+  sca_boxed_twodoubles,
+  sca_boxed_string,
+  sca_boxed_namedrout
+};
+
+
+#define HDGJIRPS_HEADER_FIELDS			\
+  uint16_t HDGJIRPS_TWO_WORDS_ALIGNED typenum;	\
+  uint8_t  gcmark;				\
+  uint8_t  flag;				\
+  union {					\
+    uint32_t length;				\
+    int32_t xtranum;				\
+  }
+
+struct header_hdgjirps_st
+{
+  HDGJIRPS_HEADER_FIELDS;
+};
+
+struct boxint_hdgjirps_st
+{
+  HDGJIRPS_HEADER_FIELDS;	//
+  intptr_t intval;
+};
+struct boxint_hdgjirps_st *box_int_HDGJIRPS (intptr_t v);
+struct boxint_hdgjirps_st *bxtra_int_HDGJIRPS (intptr_t v, int32_t xtra);
+intptr_t fetch_int_HDGJIRPS (const void *p);
+bool get_int_HDGJIRPS (const void *ptr, intptr_t * p);
+bool get_int_xtra_HDGJIRPS (const void *ptr, intptr_t * p, int32_t * x);
+
+struct boxtwoints_hdgjirps_st
+{
+  HDGJIRPS_HEADER_FIELDS;	//
+  intptr_t intpair[2];
+};
+
+struct boxdouble_hdgjirps_st
+{
+  HDGJIRPS_HEADER_FIELDS;	//
+  double dblval;
+};
+
+struct boxtwodbls_hdgjirps_st
+{
+  HDGJIRPS_HEADER_FIELDS;	//
+  double dblpair[2];
+};
+
+struct string_hdgjirps_st
+{
+  HDGJIRPS_HEADER_FIELDS;	//
+  char cstr[];
+};
+
+struct intvect_hdgjirps_st
+{
+  HDGJIRPS_HEADER_FIELDS;	//
+  intptr_t intarr[];
+};
+
+struct dblvect_hdgjirps_st
+{
+  HDGJIRPS_HEADER_FIELDS;	//
+  double dblarr[];
+};
+
+struct namedrout_hdgjirps_st
+{
+  HDGJIRPS_HEADER_FIELDS;	//
+  void *routad;
+  char routnam[40];
+};
 #endif /*HDGJIRPS_INCLUDED */
 /*end of file */
