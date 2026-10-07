@@ -260,7 +260,7 @@ parse_program_option_HDGJIRPS (int argc, char **argv)
 	  loadpath_HDGJIRPS = optarg;
 	  break;
 	case random_optHDGJIRPS:
-	  printf ("%ld\n", (long) randomi64_HDGJIRPS);
+	  printf ("%ld\n", (long) randomi64_HDGJIRPS ());
 	  break;
 	default:
 	  break;
@@ -280,6 +280,8 @@ load_file_HDGJIRPS (const char *ldpath)
   if (ldfd < 0)
     HDGJIRPS_FATAL ("%s failed to open loaded file %s (%s)",	//
 		    progname_HDGJIRPS, ldpath, strerror (errno));
+  if (!jitctx_HDGJIRPS)
+    HDGJIRPS_FATAL ("%s without jitctx_HDGJIRPS", progname_HDGJIRPS);
   if (fstat (ldfd, &ldstat))
     HDGJIRPS_FATAL ("%s failed to fstat loaded file %s (%s) fd#%d",	//
 		    progname_HDGJIRPS, ldpath, strerror (errno), ldfd);
@@ -338,8 +340,9 @@ main (int argc, char **argv)
   if (loadpath_HDGJIRPS)
     load_file_HDGJIRPS (loadpath_HDGJIRPS);
   gcc_jit_context_release (jitctx_HDGJIRPS);
-  printf ("%s ending successfully (git %s) on %s (pid %d) source in %s\n",
-	  progname_HDGJIRPS, shortgitid_HDGJIRPS, hostname_HDGJIRPS,
-	  (int) getpid (), full_source_main_HDGJIRPS);
+  if (verbose_HDGJIRPS)
+    printf ("%s ending successfully (git %s) on %s (pid %d) source in %s\n",
+	    progname_HDGJIRPS, shortgitid_HDGJIRPS, hostname_HDGJIRPS,
+	    (int) getpid (), full_source_main_HDGJIRPS);
   return 0;
 }				/* end main */
