@@ -4,6 +4,7 @@
  *
  * Description:
  *      This file is part of the Reflective Persistent System.
+ *      Some gccjit variant to please indian programmers
  *      It is almost its main program.
  *
  * Author(s):
@@ -11,7 +12,7 @@
  *      Abhishek Chakravarti, India    <abhishek@taranjali.org>
  *      Nimesh Neema, India            <nimeshneema@gmail.com>
  *
- *      © Copyright 2019 - 2024 The Reflective Persistent System Team
+ *      © Copyright 2019 - 2026 The Reflective Persistent System Team
  *      team@refpersys.org & http://refpersys.org/
  *
  * You can consider RefPerSys as either GPLv3+ or LGPLv3+ licensed (at
@@ -32,137 +33,73 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ***/
 
-//// TODO: avoid any non-generated header file!
+#include "hdgjirps.h"
 
-#define _GNU_SOURCE
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdatomic.h>
-#include <unistd.h>
-#include <time.h>
-#include <fcntl.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/mman.h>
-#include <sys/random.h>
-#include <sys/stat.h>
-#include <getopt.h>
-#include <string.h>
-#include <errno.h>
-#include <assert.h>
-#include <math.h>
-#include <zlib.h>
-#include <unistr.h>
-#include <pthread.h>
-#include <threads.h>
-#include <backtrace.h>
-#include <readline/readline.h>
-#include <unistring/version.h>
-#include <gnu/libc-version.h>
-#include <libgccjit.h>
+char full_source_main_HDGJIRPS[384];
 
-gcc_jit_context *jitctx_RPS;
-const char *progname_RPS;
-const char *loadpath_RPS;
-const char *zlibv_RPS;
-char **argv_RPS;
-int argc_RPS;
-char hostname_RPS[64];
-struct backtrace_state *backtrace_state_RPS;
-thread_local struct random_data random_data_RPS;
-thread_local volatile atomic_flag random_inited_RPS;
 
-char full_source_main_RPS[384];
-
-#ifndef SHORTGITID
-#error compilation command without SHORTGITID
-#endif
-
-const char shortgitid_RPS[] = SHORTGITID;
-
+thread_local struct random_data random_data_HDGJIRPS;
+thread_local volatile atomic_flag random_inited_HDGJIRPS;
 
 #ifndef SOURCEDIR
 #error compilation command without SOURCEDIR
 #endif
 
-const char sourcedir_RPS[] = SOURCEDIR;
-
-#define FATAL_AT_BIS(Fil,Lin,Func,Fmt,...) do {         \
-    char thrname##Lin[32];                              \
-    memset(thrname##Lin, 0, sizeof(thrname##Lin));      \
-    pthread_getname_np(pthread_self(), thrname##Lin,    \
-                       sizeof(thrname##Lin));           \
-    fprintf (stderr, "%s:%d:%s [%s]\n", (Fil), (Lin),   \
-             (Func), thrname##Lin);                     \
-    fprintf (stderr, "FATAL ERROR");                    \
-    fprintf (stderr, Fmt "\n", ##__VA_ARGS__);          \
-    fprintf (stderr, "%s: shortgit %s pid %d\n",        \
-             progname_RPS, shortgitid_RPS,              \
-             (int)getpid());                            \
-    fflush (stderr);                                    \
-    if (backtrace_state_RPS)                            \
-      backtrace_print (backtrace_state_RPS, 1, stderr); \
-    fflush(NULL);                                       \
-    abort(); } while(0)
-
-#define FATAL_AT(Fil,Lin,Func,Fmt,...) \
-  FATAL_AT_BIS(Fil,Lin,Func,Fmt,##__VA_ARGS__)
-
-#define FATAL(Fmt,...) FATAL_AT(__FILE__,__LINE__,__FUNCTION__,Fmt,##__VA_ARGS__)
+const char sourcedir_HDGJIRPS[] = SOURCEDIR;
 
 double
-wallclock_real_time_RPS (void)
+wallclock_real_time_HDGJIRPS (void)
 {
   struct timespec ts = { 0, 0 };
   if (clock_gettime (CLOCK_REALTIME, &ts))
     return NAN;
   return 1.0 * ts.tv_sec + 1.0e-9 * ts.tv_nsec;
-}				/* end wallclock_real_time_RPS */
+}				/* end wallclock_real_time_HDGJIRPS */
 
 double
-monotonic_real_time_RPS (void)
+monotonic_real_time_HDGJIRPS (void)
 {
   struct timespec ts = { 0, 0 };
   if (clock_gettime (CLOCK_MONOTONIC, &ts))
     return NAN;
   return 1.0 * ts.tv_sec + 1.0e-9 * ts.tv_nsec;
-}				// end monotonic_real_time_RPS
+}				// end monotonic_real_time_HDGJIRPS
 
 
 double
-process_cpu_time_RPS (void)
+process_cpu_time_HDGJIRPS (void)
 {
   struct timespec ts = { 0, 0 };
   if (clock_gettime (CLOCK_PROCESS_CPUTIME_ID, &ts))
     return NAN;
   return 1.0 * ts.tv_sec + 1.0e-9 * ts.tv_nsec;
-}				// end process_cpu_time_RPS
+}				// end process_cpu_time_HDGJIRPS
 
 
 double
-thread_cpu_time_RPS (void)
+thread_cpu_time_HDGJIRPS (void)
 {
   struct timespec ts = { 0, 0 };
   if (clock_gettime (CLOCK_THREAD_CPUTIME_ID, &ts))
     return NAN;
   return 1.0 * ts.tv_sec + 1.0e-9 * ts.tv_nsec;
-}				// end thread_cpu_time_RPS
+}				// end thread_cpu_time_HDGJIRPS
 
 
 void
-backtrace_error_RPS (void *data, const char *msg, int errnum)
+backtrace_error_HDGJIRPS (void *data, const char *msg, int errnum)
 {
   if (data)
     {
     };
-  fprintf (stderr, "backtrace_error_RPS: %s (%d:%s)\n", msg, errnum,
+  fprintf (stderr, "backtrace_error_HDGJIRPS: %s (%d:%s)\n", msg, errnum,
 	   strerror (errnum));
   fflush (NULL);
-}				/* end backtrace_error_RPS */
+}				/* end backtrace_error_HDGJIRPS */
 
 
 void
-emit_gplv3_notice_AT_RPS (FILE *fout, const char *fil, int lin,
+emit_gplv3_notice_AT_HDGJIRPS (FILE *fout, const char *fil, int lin,
 			  const char *fromfun, const char *path,
 			  const char *linprefix, const char *linsuffix,
 			  char *explain)
@@ -184,9 +121,9 @@ emit_gplv3_notice_AT_RPS (FILE *fout, const char *fil, int lin,
   EMIT_PRINTF ("GENERATED [GPLv3+] file %s / DO NOT EDIT", path);
   if (explain)
     EMIT_PRINTF ("! %s !", explain);
-  EMIT_PRINTF ("! generating git %s !", shortgitid_RPS);
+  EMIT_PRINTF ("! generating git %s !", shortgitid_HDGJIRPS);
   EMIT_PRINTF ("This %s file is generated by %s from %s:%d:%s",
-	       path, progname_RPS, fil, lin, fromfun);
+	       path, progname_HDGJIRPS, fil, lin, fromfun);
   EMIT_PRINTF ("© Copyright 2023 - %d - RefPerSys team",
 	       (nowtm.tm_year + 1900));
   EMIT_PRINTF ("License: GPLv3+ (file COPYING-GPLv3)");
@@ -194,71 +131,71 @@ emit_gplv3_notice_AT_RPS (FILE *fout, const char *fil, int lin,
   EMIT_PRINTF ("Contact team@refpersys.org and/or ...");
   EMIT_PRINTF ("Basile STARYNKEVITCH <basile@starynkevitch.net> (France)");
 #undef EMIT_PRINTF
-}				/* end emit_gplv3_copyright_notice_AT_RPS */
+}				/* end emit_gplv3_copyright_notice_AT_HDGJIRPS */
 
-#define EMIT_GPLV3_COPYRIGHT_RPS(Fout,Path,Lpref,Lsuff,Explain) \
-  emit_gplv3_notice_AT_RPS(Fout,                                \
+#define EMIT_GPLV3_COPYRIGHT_HDGJIRPS(Fout,Path,Lpref,Lsuff,Explain) \
+  emit_gplv3_notice_AT_HDGJIRPS(Fout,                                \
                            __FILE__,__LINE__,__FUNCTION__,      \
                            (LPref),(Lsuff),(Explain))
 
 int32_t
-randomi32_RPS (void)
+randomi32_HDGJIRPS (void)
 {
-  if (__builtin_expect (!atomic_flag_test_and_set (&random_inited_RPS), true))
+  if (__builtin_expect (!atomic_flag_test_and_set (&random_inited_HDGJIRPS), true))
     {
       static thread_local char randbuf[128];
-      memset (&random_data_RPS, 0, sizeof (random_data_RPS));
+      memset (&random_data_HDGJIRPS, 0, sizeof (random_data_HDGJIRPS));
       if (getrandom (&randbuf, sizeof (randbuf), 0) <
 	  (long) sizeof (randbuf) / 2)
-	FATAL ("failed to initialize random (%s)", strerror (errno));
+	HDGJIRPS_FATAL ("failed to initialize random (%s)", strerror (errno));
       unsigned seed = (unsigned) (time (NULL) + getpid ());
-      initstate_r (seed, randbuf, sizeof (randbuf), &random_data_RPS);
+      initstate_r (seed, randbuf, sizeof (randbuf), &random_data_HDGJIRPS);
     };
   int32_t res;
-  int er = random_r (&random_data_RPS, &res);
+  int er = random_r (&random_data_HDGJIRPS, &res);
   if (er)
-    FATAL ("failed to call random_r (%s)", strerror (er));
+    HDGJIRPS_FATAL ("failed to call random_r (%s)", strerror (er));
   return res;
-}				/* end randomi32_RPS */
+}				/* end randomi32_HDGJIRPS */
 
 int64_t
-randomi64_RPS (void)
+randomi64_HDGJIRPS (void)
 {
   int64_t x =
-    ((unsigned long) randomi32_RPS () << 32) | ((unsigned long)
-						randomi32_RPS ());
+    ((unsigned long) randomi32_HDGJIRPS () << 32) | ((unsigned long)
+						randomi32_HDGJIRPS ());
   return x;
 }
 
-int verbose_RPS;
+int verbose_HDGJIRPS;
 
-const struct option progopt_RPS[] = {
+const struct option progopt_HDGJIRPS[] = {
 
   {.name = "verbose",.has_arg = no_argument,.flag = NULL,.val = 'V'},
   {.name = "version",.has_arg = no_argument,.flag = NULL,.val = 'v'},
   {.name = "help",.has_arg = no_argument,.flag = NULL,.val = 'H'},
   {.name = "load",.has_arg = required_argument,.flag = NULL,.val = 'l'},
   {.name = NULL,.has_arg = no_argument,.flag = NULL,.val = 0}
-};				/* end progopt_RPS */
+};				/* end progopt_HDGJIRPS */
 
 
 
 void
-program_usage_RPS (void)
+program_usage_HDGJIRPS (void)
 {
-  printf ("%s usage:\n", progname_RPS);
+  printf ("%s usage:\n", progname_HDGJIRPS);
   printf ("\t -V | --verbose         # verbose flag\n");
   printf ("\t -v | --version         # version info\n");
   printf ("\t -h | --help            # this help\n");
   printf ("\t -l | --load <topfile>  # load heap from TOPFILE\n");
   printf
     ("%s is GPLv3+ licensed, so WITHOUT WARRANTY; see www.gnu.org/licenses/gpl-3.0.html\n",
-     progname_RPS);
+     progname_HDGJIRPS);
   fflush (NULL);
-}				/* end prog_usage_RPS */
+}				/* end prog_usage_HDGJIRPS */
 
 void
-parse_program_option_RPS (int argc, char **argv)
+parse_program_option_HDGJIRPS (int argc, char **argv)
 {
   //     extern char *optarg;
   //     extern int optind, opterr, optopt;
@@ -266,7 +203,7 @@ parse_program_option_RPS (int argc, char **argv)
   int ix = -1;
   do
     {
-      opt = getopt_long (argc, argv, "Vvhl:", progopt_RPS, &ix);
+      opt = getopt_long (argc, argv, "Vvhl:", progopt_HDGJIRPS, &ix);
       switch (opt)
 	{
 	case 0:
@@ -275,12 +212,12 @@ parse_program_option_RPS (int argc, char **argv)
 	  break;
 	case 'V':		/* --verbose */
 	  printf ("%s is verbose (pid %d on %s), GPLv3+ licensed\n",
-		  progname_RPS, (int) getpid (), hostname_RPS);
-	  verbose_RPS = 1;
+		  progname_HDGJIRPS, (int) getpid (), hostname_HDGJIRPS);
+	  verbose_HDGJIRPS = 1;
 	  break;
 	case 'v':		/* --version */
-	  printf ("%s version gitid %s built on %s\n", progname_RPS,
-		  shortgitid_RPS, __DATE__ "@" __TIME__);
+	  printf ("%s version gitid %s built on %s\n", progname_HDGJIRPS,
+		  shortgitid_HDGJIRPS, __DATE__ "@" __TIME__);
 	  printf ("\t libunistring version: %d.%d.%d\n",
 		  _libunistring_version >> 16,
 		  0xff & (_libunistring_version >> 8),
@@ -292,48 +229,48 @@ parse_program_option_RPS (int argc, char **argv)
 		  gcc_jit_version_patchlevel ());
 	  printf
 	    ("%s is GPLv3+ licensed, so WITHOUT WARRANTY; see www.gnu.org/licenses/gpl-3.0.html\n",
-	     progname_RPS);
+	     progname_HDGJIRPS);
 	  printf
 	    ("\t Its source code could be on github.com/RefPerSys/gccjit-refpersys/\n");
 	  break;
 	case 'h':		/* --help */
-	  program_usage_RPS ();
+	  program_usage_HDGJIRPS ();
 	  break;
 	case 'l':
-	  if (loadpath_RPS)
-	    FATAL ("cannot load more than once (%s & %s)",
-		   loadpath_RPS, optarg);
-	  loadpath_RPS = optarg;
+	  if (loadpath_HDGJIRPS)
+	    HDGJIRPS_FATAL ("cannot load more than once (%s & %s)",
+		   loadpath_HDGJIRPS, optarg);
+	  loadpath_HDGJIRPS = optarg;
 	  break;
 	default:
 	  break;
 	};
     }
   while (opt >= 0);
-}				/* end parse_program_option_RPS */
+}				/* end parse_program_option_HDGJIRPS */
 
 
 void
-load_file_RPS (const char *ldpath)
+load_file_HDGJIRPS (const char *ldpath)
 {
-  extern void load_state_RPS (const char *path, const void *start,
+  extern void load_state_HDGJIRPS (const char *path, const void *start,
 			      const void *last);
   struct stat ldstat = { };
   int ldfd = open (ldpath, R_OK);
   if (ldfd < 0)
-    FATAL ("%s failed to open loaded file %s (%s)",	//
-	   progname_RPS, ldpath, strerror (errno));
+    HDGJIRPS_FATAL ("%s failed to open loaded file %s (%s)",	//
+	   progname_HDGJIRPS, ldpath, strerror (errno));
   if (fstat (ldfd, &ldstat))
-    FATAL ("%s failed to fstat loaded file %s (%s) fd#%d",	//
-	   progname_RPS, ldpath, strerror (errno), ldfd);
+    HDGJIRPS_FATAL ("%s failed to fstat loaded file %s (%s) fd#%d",	//
+	   progname_HDGJIRPS, ldpath, strerror (errno), ldfd);
   size_t ldsize = ldstat.st_size;
   size_t pgsize = getpagesize ();
   size_t memsize = (ldsize % pgsize) ? (1 + (ldsize | (pgsize - 1))) : ldsize;
   size_t mmapsize = memsize;
-  if (verbose_RPS)
+  if (verbose_HDGJIRPS)
     {
       printf ("%s: [%s:%d] mmap mmapsize=%zd ldfd#%d ldsize=%zd ldpath:%s\n",
-	      progname_RPS, __FILE__, __LINE__ - 1, mmapsize, ldfd,
+	      progname_HDGJIRPS, __FILE__, __LINE__ - 1, mmapsize, ldfd,
 	      ldsize, ldpath);
       fflush (NULL);
     }
@@ -341,46 +278,46 @@ load_file_RPS (const char *ldpath)
 			   MAP_SHARED,	/* MAP_HUGETLB dont work here */
 			   ldfd, 0);
   if (ldad == MAP_FAILED)
-    FATAL ("%s failed to mmap fd#%d (%zd Kbytes) for loaded file %s (%s)",
-	   progname_RPS, ldfd, mmapsize >> 10, ldpath, strerror (errno));
+    HDGJIRPS_FATAL ("%s failed to mmap fd#%d (%zd Kbytes) for loaded file %s (%s)",
+	   progname_HDGJIRPS, ldfd, mmapsize >> 10, ldpath, strerror (errno));
   const void *ldend = (const char *) ldad + mmapsize;
-  if (verbose_RPS)
+  if (verbose_HDGJIRPS)
     {
       printf ("%s mmaped loaded file %s (fd#%d) for %zd Kbytes @%p-%p\n",
-	      progname_RPS, ldpath, ldfd, mmapsize >> 10, ldad, ldend);
+	      progname_HDGJIRPS, ldpath, ldfd, mmapsize >> 10, ldad, ldend);
       fflush (NULL);
     };
-  load_state_RPS (ldpath, ldad, ldend);
-}				/* end load_file_RPS */
+  load_state_HDGJIRPS (ldpath, ldad, ldend);
+}				/* end load_file_HDGJIRPS */
 
 
 int
 main (int argc, char **argv)
 {
   assert (argc > 0);
-  progname_RPS = argv[0];
+  progname_HDGJIRPS = argv[0];
   pthread_setname_np (pthread_self (), "main-rpsjit");
-  gethostname (hostname_RPS, sizeof (hostname_RPS));
-  parse_program_option_RPS (argc, argv);
+  gethostname (hostname_HDGJIRPS, sizeof (hostname_HDGJIRPS));
+  parse_program_option_HDGJIRPS (argc, argv);
   rl_initialize ();		/// initialize readline
-  zlibv_RPS = zlibVersion ();
-  jitctx_RPS = gcc_jit_context_acquire ();
-  if (!jitctx_RPS)
-    FATAL ("%s failed to create jitctx_RPS (%s)", progname_RPS,
+  zlibv_HDGJIRPS = zlibVersion ();
+  jitctx_HDGJIRPS = gcc_jit_context_acquire ();
+  if (!jitctx_HDGJIRPS)
+    HDGJIRPS_FATAL ("%s failed to create jitctx_HDGJIRPS (%s)", progname_HDGJIRPS,
 	   strerror (errno));
-  snprintf (full_source_main_RPS, sizeof (full_source_main_RPS), "%s/%s",
-	    sourcedir_RPS, __FILE__);
-  if (access (full_source_main_RPS, R_OK))
-    FATAL ("%s failed to access full_source_main_RPS %s (%s)",
-	   progname_RPS, full_source_main_RPS, strerror (errno));
-  backtrace_state_RPS =
+  snprintf (full_source_main_HDGJIRPS, sizeof (full_source_main_HDGJIRPS), "%s/%s",
+	    sourcedir_HDGJIRPS, __FILE__);
+  if (access (full_source_main_HDGJIRPS, R_OK))
+    HDGJIRPS_FATAL ("%s failed to access full_source_main_HDGJIRPS %s (%s)",
+	   progname_HDGJIRPS, full_source_main_HDGJIRPS, strerror (errno));
+  backtrace_state_HDGJIRPS =
     backtrace_create_state ("/proc/self/exe", /*THREADED: */ 1,
-			    backtrace_error_RPS, NULL);
-  if (loadpath_RPS)
-    load_file_RPS (loadpath_RPS);
-  gcc_jit_context_release (jitctx_RPS);
+			    backtrace_error_HDGJIRPS, NULL);
+  if (loadpath_HDGJIRPS)
+    load_file_HDGJIRPS (loadpath_HDGJIRPS);
+  gcc_jit_context_release (jitctx_HDGJIRPS);
   printf ("%s ending successfully (git %s) on %s (pid %d) source in %s\n",
-	  progname_RPS, shortgitid_RPS, hostname_RPS, (int) getpid (),
-	  full_source_main_RPS);
+	  progname_HDGJIRPS, shortgitid_HDGJIRPS, hostname_HDGJIRPS, (int) getpid (),
+	  full_source_main_HDGJIRPS);
   return 0;
 }				/* end main */

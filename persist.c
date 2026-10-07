@@ -11,7 +11,7 @@
  *      Abhishek Chakravarti, India    <abhishek@taranjali.org>
  *      Nimesh Neema, India            <nimeshneema@gmail.com>
  *
- *      © Copyright 2019 - 2024 The Reflective Persistent System Team
+ *      © Copyright (C) 2019 - 2026 The Reflective Persistent System Team
  *      team@refpersys.org & http://refpersys.org/
  *
  * You can consider RefPerSys as either GPLv3+ or LGPLv3+ licensed (at
@@ -31,116 +31,39 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ***/
 
-//// TODO: avoid any non-generated header file!
+//// TODO: avoid most non-generated header files (except hdgjirps.h)!
 
-#define _GNU_SOURCE
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdatomic.h>
-#include <unistd.h>
-#include <time.h>
-#include <fcntl.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/mman.h>
-#include <sys/random.h>
-#include <sys/stat.h>
-#include <getopt.h>
-#include <string.h>
-#include <errno.h>
-#include <assert.h>
-#include <math.h>
-#include <zlib.h>
-#include <unistr.h>
-#include <pthread.h>
-#include <threads.h>
-#include <backtrace.h>
-#include <readline/readline.h>
-#include <unistring/version.h>
-#include <gnu/libc-version.h>
-#include <bsd/string.h>		/* for strnstr(3) */
-
-#include <libgccjit.h>
-
-extern gcc_jit_context *jitctx_RPS;
-extern const char *progname_RPS;
-extern const char *loadpath_RPS;
-extern char **argv_RPS;
-extern int argc_RPS;
-extern char hostname_RPS[64];
-extern struct backtrace_state *backtrace_state_RPS;
-extern const char shortgitid_RPS[];
-extern const char sourcedir_RPS[];
-extern char full_source_main_RPS[];
-extern int verbose_RPS;
-
-extern double wallclock_real_time_RPS (void);
-extern double monotonic_real_time_RPS (void);
-extern double process_cpu_time_RPS (void);
-extern double thread_cpu_time_RPS (void);
-
-extern void
-emit_gplv3_notice_AT_RPS (FILE *fout, const char *fil, int lin,
-			  const char *fromfun, const char *path,
-			  const char *linprefix, const char *linsuffix,
-			  char *explain);
-
-extern int32_t randomi32_RPS (void);
-extern int64_t randomi64_RPS (void);
-
-#define FATAL_AT_BIS(Fil,Lin,Func,Fmt,...) do {         \
-    char thrname##Lin[32];                              \
-    memset(thrname##Lin, 0, sizeof(thrname##Lin));      \
-    pthread_getname_np(pthread_self(), thrname##Lin,    \
-                       sizeof(thrname##Lin));           \
-    fprintf (stderr, "%s:%d:%s [%s]", (Fil), (Lin),     \
-             (Func), thrname##Lin);                     \
-    fprintf (stderr, "FATAL ERROR");                    \
-    fprintf (stderr, Fmt "\n", ##__VA_ARGS__);          \
-    fprintf (stderr, "%s: shortgit %s pid %d\n",        \
-             progname_RPS, shortgitid_RPS,              \
-             (int)getpid());                            \
-    fflush (stderr);                                    \
-    if (backtrace_state_RPS)                            \
-      backtrace_print (backtrace_state_RPS, 1, stderr); \
-    fflush(NULL);                                       \
-    abort(); } while(0)
-
-#define FATAL_AT(Fil,Lin,Func,Fmt,...) \
-  FATAL_AT_BIS(Fil,Lin,Func,Fmt,##__VA_ARGS__)
-
-#define FATAL(Fmt,...) FATAL_AT(__FILE__,__LINE__,__FUNCTION__,Fmt,##__VA_ARGS__)
-
+#include "hdgjirps.h"
 
 #warning TODO: define a simple and human readable syntax of the persistent file
 
-const char start_comment_RPS[] = "#*START-GCCJIT-REFPERSYS";
+const char start_comment_HDGJIRPS[] = "#*START-GCCJIT-REFPERSYS";
 void
-load_state_RPS(const char*path, const void*start, const void*last)
+load_state_HDGJIRPS(const char*path, const void*start, const void*last)
 {
   assert(path != NULL);
   assert(start != NULL);
   assert(last != NULL);
   assert (last > start);
-  const char*startcomm = strnstr((const char*)start, start_comment_RPS,
+  const char*startcomm = strnstr((const char*)start, start_comment_HDGJIRPS,
 				 (const char*)last-(const char*)start);
   if (!startcomm)
-    FATAL("load state file %s is lacking a start comment %s",
-	  path, start_comment_RPS);
+    HDGJIRPS_FATAL("load state file %s is lacking a start comment %s",
+	  path, start_comment_HDGJIRPS);
   if (startcomm > (const char*)start
       && startcomm[-1]!='\n' && startcomm[-1]!='\r')
-    FATAL("load state file %s with start comment %s not at start of line",
-	  path, start_comment_RPS);
-  const char*endcomm = startcomm + strlen(start_comment_RPS);
+    HDGJIRPS_FATAL("load state file %s with start comment %s not at start of line",
+	  path, start_comment_HDGJIRPS);
+  const char*endcomm = startcomm + strlen(start_comment_HDGJIRPS);
   assert (endcomm < last);
-#warning incomplete load_state_RPS
-  if (verbose_RPS)
-    printf("%s: loaded state %s\n", progname_RPS, path);
-} /* end load_state_RPS */
+#warning incomplete load_state_HDGJIRPS
+  if (verbose_HDGJIRPS)
+    printf("%s: loaded state %s\n", progname_HDGJIRPS, path);
+} /* end load_state_HDGJIRPS */
 
 
 void
-write_state_RPS(const char*path)
+write_state_HDGJIRPS(const char*path)
 {
   FILE*filsta = NULL;
   if (!access(path, F_OK)) {
@@ -152,7 +75,7 @@ write_state_RPS(const char*path)
   };
   filsta = fopen(path, "w");
   if (!filsta)
-    FATAL("failed to open state file %s (%s)", path, strerror(errno));
-#warning write_state_RPS is missing and needs a better signature
-  FATAL("unimplemented write_state_RPS path=%s", path);
-} /* end write_state_RPS */
+    HDGJIRPS_FATAL("failed to open state file %s (%s)", path, strerror(errno));
+#warning write_state_HDGJIRPS is missing and needs a better signature
+  HDGJIRPS_FATAL("unimplemented write_state_HDGJIRPS path=%s", path);
+} /* end write_state_HDGJIRPS */
