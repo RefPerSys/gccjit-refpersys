@@ -100,6 +100,11 @@ extern int64_t randomi64_HDGJIRPS (void);
 
 #define LOADMAGIC_HDGJRPS 0x5feb03561	/*25747797345 */
 
+/// This loading state is called after a successful mmap of path
+/// (start -> end)
+extern void
+load_state_HDGJIRPS (const char *path, const void *start, const void *last);
+
 extern const uint64_t loadmagic_HDGJRPS;
 struct load_data_HDGJIRPS_st
 {
@@ -166,22 +171,23 @@ enum scalar_typid_HDGJIRPS_en
 
 
 inline bool
-is_valid_ptr_HDGJIRPS(const void*ptr)
+is_valid_ptr_HDGJIRPS (const void *ptr)
 {
-  if (((intptr_t)ptr & ~0xf) == 0)
+  if (((intptr_t) ptr & ~0xf) == 0)
     return false;
-  const struct header_hdgjirps_st*had = ptr;
-  switch (had->typenum) {
-  case (int)sca_boxed_int:
-  case (int)sca_boxed_twoints:
-  case (int)sca_boxed_double:
-  case (int)sca_boxed_twodoubles:
-  case (int)sca_boxed_string:
-  case (int)sca_boxed_namedrout:
-    return true;
-  };
+  const struct header_hdgjirps_st *had = ptr;
+  switch (had->typenum)
+    {
+    case (int) sca_boxed_int:
+    case (int) sca_boxed_twoints:
+    case (int) sca_boxed_double:
+    case (int) sca_boxed_twodoubles:
+    case (int) sca_boxed_string:
+    case (int) sca_boxed_namedrout:
+      return true;
+    };
   return false;
-} /* end is_valid_ptr_HDGJIRPS */
+}				/* end is_valid_ptr_HDGJIRPS */
 
 
 struct boxint_hdgjirps_st
@@ -200,16 +206,31 @@ struct boxtwoints_hdgjirps_st
   intptr_t intpair[2];
 };
 
-struct boxtwoints_hdgjirps_st *make_boxtwoints_HDGJIRPS (intptr_t v0, intptr_t v1);
-struct boxtwoints_hdgjirps_st *make_bxtra_twoints_HDGJIRPS (intptr_t v0, intptr_t v1, int32_t xtra);
-bool get_twoints_HDGJIRPS (const void *ptr, intptr_t * p0, intptr_t* p1);
-bool get_twoints_xtra_HDGJIRPS (const void *ptr, intptr_t *p0, intptr_t*p1, int32_t * xtra);
+struct boxtwoints_hdgjirps_st *make_boxtwoints_HDGJIRPS (intptr_t v0,
+							 intptr_t v1);
+struct boxtwoints_hdgjirps_st *make_bxtra_twoints_HDGJIRPS (intptr_t v0,
+							    intptr_t v1,
+							    int32_t xtra);
+bool get_twoints_HDGJIRPS (const void *ptr, intptr_t * p0, intptr_t * p1);
+bool get_twoints_xtra_HDGJIRPS (const void *ptr, intptr_t * p0, intptr_t * p1,
+				int32_t * xtra);
+
+
+
 
 struct boxdouble_hdgjirps_st
 {
   HDGJIRPS_HEADER_FIELDS;	//
   double dblval;
 };
+
+
+struct boxdouble_hdgjirps_st *make_box_double_HDGJIRPS (double v);
+struct boxdouble_hdgjirps_st *make_bxtra_double_HDGJIRPS (double v,
+							  int32_t xtra);
+bool get_double_HDGJIRPS (const void *ptr, double *p);
+bool get_double_xtra_HDGJIRPS (const void *ptr, double *p, int32_t * x);
+
 
 struct boxtwodbls_hdgjirps_st
 {
