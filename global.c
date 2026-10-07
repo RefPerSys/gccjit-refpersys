@@ -4,8 +4,8 @@
  *
  * Description:
  *      This file is part of the Reflective Persistent System.
- *      Some gccjit variant to please indian programmers
- *      It is almost its main program.
+ *      (Some gccjit variant to please indian programmers)
+ *      It declares global variables.
  *
  * Author(s):
  *      Basile Starynkevitch, France   <basile@starynkevitch.net>

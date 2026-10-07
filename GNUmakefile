@@ -34,7 +34,7 @@ CC=/usr/bin/gcc
 GITID:= $(shell ./do-generate-gitid.sh)
 SHORTGITID:= $(shell ./do-generate-gitid.sh -s)
 SOURCEDIR:= $(shell /bin/pwd)
-CFLAGS= -Wall -Wextra -g -O -std=gnu99 -I/usr/local/include \
+CFLAGS= -Wall -Wextra -g -O -std=gnu17 -I/usr/local/include \
         -DSHORTGITID=\"$(SHORTGITID)\" -DSOURCEDIR=\"$(SOURCEDIR)\"
 CFILES:=$(wildcard *.c)
 OBJFILES:=$(patsubst %.c, obj/%.o, $(CFILES))

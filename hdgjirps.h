@@ -39,6 +39,7 @@
 #endif
 
 #include <stdlib.h>
+#include <stdalign.h>
 #include <stdio.h>
 #include <stdatomic.h>
 #include <unistd.h>
@@ -135,20 +136,8 @@ struct load_data_HDGJIRPS_st
 
 #define HDGJIRPS_TWO_WORDS_ALIGNED __attribute__((aligned(2*sizeof(void*))))
 
-enum scalar_typid_HDGJIRPS_en
-{
-  sca__none,
-  sca_boxed_int,
-  sca_boxed_twoints,
-  sca_boxed_double,
-  sca_boxed_twodoubles,
-  sca_boxed_string,
-  sca_boxed_namedrout
-};
-
-
 #define HDGJIRPS_HEADER_FIELDS			\
-  uint16_t HDGJIRPS_TWO_WORDS_ALIGNED typenum;	\
+  int16_t HDGJIRPS_TWO_WORDS_ALIGNED typenum;	\
   uint8_t  gcmark;				\
   uint8_t  flag;				\
   union {					\
@@ -161,14 +150,47 @@ struct header_hdgjirps_st
   HDGJIRPS_HEADER_FIELDS;
 };
 
+
+//// scalar types values for typenum
+enum scalar_typid_HDGJIRPS_en
+{
+  sca__none,
+  sca_boxed_int,
+  sca_boxed_twoints,
+  sca_boxed_double,
+  sca_boxed_twodoubles,
+  sca_boxed_string,
+  sca_boxed_namedrout
+};
+
+
+
+inline bool
+is_valid_ptr_HDGJIRPS(const void*ptr)
+{
+  if (((intptr_t)ptr & ~0xf) == 0)
+    return false;
+  const struct header_hdgjirps_st*had = ptr;
+  switch (had->typenum) {
+  case (int)sca_boxed_int:
+  case (int)sca_boxed_twoints:
+  case (int)sca_boxed_double:
+  case (int)sca_boxed_twodoubles:
+  case (int)sca_boxed_string:
+  case (int)sca_boxed_namedrout:
+    return true;
+  };
+  return false;
+} /* end is_valid_ptr_HDGJIRPS */
+
+
 struct boxint_hdgjirps_st
 {
   HDGJIRPS_HEADER_FIELDS;	//
   intptr_t intval;
 };
-struct boxint_hdgjirps_st *box_int_HDGJIRPS (intptr_t v);
-struct boxint_hdgjirps_st *bxtra_int_HDGJIRPS (intptr_t v, int32_t xtra);
-intptr_t fetch_int_HDGJIRPS (const void *p);
+struct boxint_hdgjirps_st *make_box_int_HDGJIRPS (intptr_t v);
+struct boxint_hdgjirps_st *make_bxtra_int_HDGJIRPS (intptr_t v, int32_t xtra);
 bool get_int_HDGJIRPS (const void *ptr, intptr_t * p);
 bool get_int_xtra_HDGJIRPS (const void *ptr, intptr_t * p, int32_t * x);
 
@@ -177,6 +199,11 @@ struct boxtwoints_hdgjirps_st
   HDGJIRPS_HEADER_FIELDS;	//
   intptr_t intpair[2];
 };
+
+struct boxtwoints_hdgjirps_st *make_boxtwoints_HDGJIRPS (intptr_t v0, intptr_t v1);
+struct boxtwoints_hdgjirps_st *make_bxtra_twoints_HDGJIRPS (intptr_t v0, intptr_t v1, int32_t xtra);
+bool get_twoints_HDGJIRPS (const void *ptr, intptr_t * p0, intptr_t* p1);
+bool get_twoints_xtra_HDGJIRPS (const void *ptr, intptr_t *p0, intptr_t*p1, int32_t * xtra);
 
 struct boxdouble_hdgjirps_st
 {
