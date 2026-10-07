@@ -63,6 +63,7 @@
 #include <readline/readline.h>
 #include <unistring/version.h>
 #include <gnu/libc-version.h>
+#include "unistr.h" /* www.gnu.org/software/libunistring */
 #include "jemalloc/jemalloc.h"	/* see jemalloc.net */
 #include <bsd/string.h>		/* for strnstr(3) */
 #include <string.h>
@@ -236,17 +237,19 @@ bool get_double_HDGJIRPS (const void *ptr, double *p);
 bool get_double_xtra_HDGJIRPS (const void *ptr, double *p, int32_t * x);
 
 
-struct boxtwodbls_hdgjirps_st
-{
-  HDGJIRPS_HEADER_FIELDS;	//
-  double dblpair[2];
-};
+//-  struct boxtwodbls_hdgjirps_st
+//-  {
+//-    HDGJIRPS_HEADER_FIELDS;	//
+//-    double dblpair[2];
+//-  };
 
 struct string_hdgjirps_st
 {
   HDGJIRPS_HEADER_FIELDS;	//
   char cstr[];
 };
+struct string_hdgjirps_st*make_string_HDGJIRPS(const char*str);
+struct string_hdgjirps_st*make_sized_string_HDGJIRPS(const char*str, int  bytesize);
 
 struct intvect_hdgjirps_st
 {
