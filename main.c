@@ -250,7 +250,7 @@ parse_program_option_HDGJIRPS (int argc, char **argv)
 	  printf ("\t Its source code could be on %s\n",
 		  "github.com/RefPerSys/gccjit-refpersys/");
 	  break;
-	case 'h':		/* --help */
+	case 'H':		/* --help */
 	  program_usage_HDGJIRPS ();
 	  break;
 	case 'l':

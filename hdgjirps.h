@@ -62,10 +62,11 @@
 #include <readline/readline.h>
 #include <unistring/version.h>
 #include <gnu/libc-version.h>
+#include "jemalloc/jemalloc.h"	/* see jemalloc.net */
 #include <bsd/string.h>		/* for strnstr(3) */
 #include <string.h>
 
-#include <libgccjit.h>
+#include <libgccjit.h> /* see gcc.gnu.org/onlinedocs/jit/ */
 
 extern gcc_jit_context *jitctx_HDGJIRPS;
 extern const char *progname_HDGJIRPS;
@@ -101,7 +102,7 @@ extern int64_t randomi64_HDGJIRPS (void);
                        sizeof(thrname##Lin));			\
     fprintf (stderr, "%s:%d:%s [%s]", (Fil), (Lin),		\
              (Func), thrname##Lin);				\
-    fprintf (stderr, "FATAL ERROR");				\
+    fprintf (stderr, "FATAL ERROR\n");				\
     fprintf (stderr, Fmt "\n", ##__VA_ARGS__);			\
     fprintf (stderr, "%s: shortgit %s pid %d\n",		\
              progname_HDGJIRPS, shortgitid_HDGJIRPS,		\

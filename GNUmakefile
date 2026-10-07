@@ -49,7 +49,7 @@ clean:
 	$(RM) *.o obj/*.o *.i *~ gccjit-refpersys a.out
 
 gccjit-refpersys: $(OBJFILES)
-	$(CC) $(CFLAGS) global.c $(NONGLOBOBFILES) -lbsd -lgccjit -L/usr/local/lib  -lunistring  -lbacktrace -ldl -lreadline -lz -o $@
+	$(CC) $(CFLAGS) global.c $(NONGLOBOBFILES) -lbsd -lgccjit -L/usr/local/lib  -lunistring  -lbacktrace -ldl -lreadline -ljemalloc -lz -o $@
 
 
 
@@ -58,5 +58,5 @@ test00: gccjit-refpersys GNUmakefile cold-load.sh
 
 #obj/main.o: main.c |GNUmakefile hdgjirps.h toml-c.h
 #	$(CC) $(CFLAGS) $< -o $@
-obj/%.o: %.c |GNUmakefile hdgjirps.h toml-c.h
+obj/%.o: %.c hdgjirps.h toml-c.h |GNUmakefile 
 	$(CC) $(CFLAGS) -c $< -o $@
