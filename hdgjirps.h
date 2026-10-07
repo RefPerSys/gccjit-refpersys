@@ -105,6 +105,9 @@ extern int64_t randomi64_HDGJIRPS (void);
 extern void
 load_state_HDGJIRPS (const char *path, const void *start, const void *last);
 
+extern void
+write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab);
+
 extern const uint64_t loadmagic_HDGJRPS;
 struct load_data_HDGJIRPS_st
 {
