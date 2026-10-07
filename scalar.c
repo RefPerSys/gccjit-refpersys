@@ -255,4 +255,43 @@ get_double_xtra_HDGJIRPS (const void *ptr, double *p, int32_t *x)
 }				/* end get_double_xtra_HDGJIRPS */
 
 
+struct string_hdgjirps_st *
+make_string_HDGJIRPS (const char *str)
+{
+  if (!str || !is_valid_ptr_HDGJIRPS (str))
+    return NULL;
+  size_t slen = strlen (str);
+  const uint8_t *uc = u8_check ((const uint8_t *) str, slen);
+  if (uc)
+    return NULL;
+  struct string_hdgjirps_st *p
+    = SCALAR_MALLOC_HDGJIRPS (sizeof (*p) + ((slen + 1) | 7) + 1);
+  if (!p)
+    return NULL;
+  p->typenum = sca_boxed_string;
+  p->gcmark = 0;
+  p->flag = 0;
+  p->length = slen;
+  memcpy (p->cstr, str, slen);
+  return p;
+}				/* end make_string_HDGJIRPS */
+
+struct string_hdgjirps_st *
+make_sized_string_HDGJIRPS (const char *str, int bytesize)
+{
+  if (!str || !is_valid_ptr_HDGJIRPS (str))
+    return NULL;
+  size_t slen = (bytesize < 0) ? strlen (str) : (size_t) bytesize;
+  struct string_hdgjirps_st *p
+    = SCALAR_MALLOC_HDGJIRPS (sizeof (*p) + ((slen + 1) | 7) + 1);
+  if (!p)
+    return NULL;
+  p->typenum = sca_boxed_string;
+  p->gcmark = 0;
+  p->flag = 0;
+  p->length = slen;
+  memcpy (p->cstr, str, slen);
+  return p;
+}				/* end make_sized_string_HDGJIRPS */
+
 /// end of file gccjit-refpersys/scalar.c
