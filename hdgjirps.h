@@ -57,6 +57,7 @@
 #include <math.h>
 #include <zlib.h>
 #include <unistr.h>
+#include <dlfcn.h>
 #include <pthread.h>
 #include <threads.h>
 #include <backtrace.h>
@@ -90,6 +91,10 @@ extern double monotonic_real_time_HDGJIRPS (void);
 extern double process_cpu_time_HDGJIRPS (void);
 extern double thread_cpu_time_HDGJIRPS (void);
 
+#pragma GCC poison malloc calloc free
+#define MALLOC_HDGJIRPS(Siz) \
+  mallocx((Siz),		    \
+	  MALLOCX_ZERO|MALLOCX_LG_ALIGN(4));
 extern void
 emit_gplv3_notice_AT_HDGJIRPS (FILE * fout, const char *fil, int lin,
 			       const char *fromfun, const char *path,
@@ -98,6 +103,8 @@ emit_gplv3_notice_AT_HDGJIRPS (FILE * fout, const char *fil, int lin,
 
 extern int32_t randomi32_HDGJIRPS (void);
 extern int64_t randomi64_HDGJIRPS (void);
+
+extern void*full_program_dlhandle_HOGJIRPS(void);
 
 #define LOADMAGIC_HDGJRPS 0x5feb03561	/*25747797345 */
 
