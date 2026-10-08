@@ -1,5 +1,5 @@
 /****************************************************************
- * file gccjit-refpersys/global.c
+ * file gccjit-refpersys/scalar.c
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * Description:
@@ -36,13 +36,9 @@
 #ifndef SHORTGITID
 #error SHORTGITID should be defined in the command line
 #endif
-#pragma GCC poison malloc calloc free
 
 const char scalar_shortgit_HDGJIRPS[] = SHORTGITID;
 
-#define SCALAR_MALLOC_HDGJIRPS(Siz) \
-  mallocx((Siz),		    \
-	  MALLOCX_ZERO|MALLOCX_LG_ALIGN(4));
 
 
 ///// boxed integers (intptr_t so 64 bits on AMD64)
@@ -64,6 +60,7 @@ hashstr_HDGJIRPS(const char*s)
     if (l<0)
       HDGJIRPS_FATAL("corrupted UTF8 string %s", s);
     cnt++;
+    us += l;
     if (cnt%2==0)
       h = ((h*443) ^ (uc*347)) + (cnt&0xff);
     else
@@ -78,7 +75,7 @@ struct boxint_hdgjirps_st *
 make_box_int_HDGJIRPS (intptr_t v)
 {
   static_assert (alignof (struct boxint_hdgjirps_st) == 16);
-  struct boxint_hdgjirps_st *p = SCALAR_MALLOC_HDGJIRPS (sizeof (*p));
+  struct boxint_hdgjirps_st *p = MALLOC_HDGJIRPS (sizeof (*p));
   if (!p)
     HDGJIRPS_FATAL ("out of memory when boxing int %ld", (long) v);
   p->typenum = sca_boxed_int;
@@ -93,7 +90,7 @@ make_box_int_HDGJIRPS (intptr_t v)
 struct boxint_hdgjirps_st *
 make_bxtra_int_HDGJIRPS (intptr_t v, int32_t xtra)
 {
-  struct boxint_hdgjirps_st *p = SCALAR_MALLOC_HDGJIRPS (sizeof (*p));
+  struct boxint_hdgjirps_st *p = MALLOC_HDGJIRPS (sizeof (*p));
   if (!p)
     HDGJIRPS_FATAL ("out of memory when boxing int %ld", (long) v);
   p->typenum = sca_boxed_int;
@@ -144,7 +141,7 @@ struct boxtwoints_hdgjirps_st *
 make_boxtwoints_HDGJIRPS (intptr_t v0, intptr_t v1)
 {
   static_assert (alignof (struct boxtwoints_hdgjirps_st) == 16);
-  struct boxtwoints_hdgjirps_st *p = SCALAR_MALLOC_HDGJIRPS (sizeof (*p));
+  struct boxtwoints_hdgjirps_st *p = MALLOC_HDGJIRPS (sizeof (*p));
   if (!p)
     HDGJIRPS_FATAL ("out of memory when boxing two ints %ld & %ld",
 		    (long) v0, (long) v1);
@@ -161,7 +158,7 @@ make_boxtwoints_HDGJIRPS (intptr_t v0, intptr_t v1)
 struct boxtwoints_hdgjirps_st *
 make_bxtra_twoints_HDGJIRPS (intptr_t v0, intptr_t v1, int32_t xtra)
 {
-  struct boxtwoints_hdgjirps_st *p = SCALAR_MALLOC_HDGJIRPS (sizeof (*p));
+  struct boxtwoints_hdgjirps_st *p = MALLOC_HDGJIRPS (sizeof (*p));
   if (!p)
     HDGJIRPS_FATAL ("out of memory when boxing two ints %ld & %ld", (long) v0,
 		    (long) v1);
@@ -223,7 +220,7 @@ struct boxdouble_hdgjirps_st *
 make_box_double_HDGJIRPS (double v)
 {
   static_assert (alignof (struct boxdouble_hdgjirps_st) == 16);
-  struct boxdouble_hdgjirps_st *p = SCALAR_MALLOC_HDGJIRPS (sizeof (*p));
+  struct boxdouble_hdgjirps_st *p = MALLOC_HDGJIRPS (sizeof (*p));
   if (!p)
     HDGJIRPS_FATAL ("out of memory when boxing double %g", v);
   p->typenum = sca_boxed_double;
@@ -238,7 +235,7 @@ make_box_double_HDGJIRPS (double v)
 struct boxdouble_hdgjirps_st *
 make_bxtra_double_HDGJIRPS (double v, int32_t xtra)
 {
-  struct boxdouble_hdgjirps_st *p = SCALAR_MALLOC_HDGJIRPS (sizeof (*p));
+  struct boxdouble_hdgjirps_st *p = MALLOC_HDGJIRPS (sizeof (*p));
   if (!p)
     HDGJIRPS_FATAL ("out of memory when boxing double %g", v);
   p->typenum = sca_boxed_double;
@@ -283,14 +280,14 @@ get_double_xtra_HDGJIRPS (const void *ptr, double *p, int32_t *x)
 struct string_hdgjirps_st *
 make_string_HDGJIRPS (const char *str)
 {
-  if (!str || !is_valid_ptr_HDGJIRPS (str))
+  if (!str)
     return NULL;
   size_t slen = strlen (str);
   const uint8_t *uc = u8_check ((const uint8_t *) str, slen);
   if (uc)
     return NULL;
   struct string_hdgjirps_st *p
-    = SCALAR_MALLOC_HDGJIRPS (sizeof (*p) + ((slen + 1) | 7) + 1);
+    = MALLOC_HDGJIRPS (sizeof (*p) + ((slen + 1) | 7) + 1);
   if (!p)
     return NULL;
   p->typenum = sca_boxed_string;
@@ -308,7 +305,7 @@ make_sized_string_HDGJIRPS (const char *str, int bytesize)
     return NULL;
   size_t slen = (bytesize < 0) ? strlen (str) : (size_t) bytesize;
   struct string_hdgjirps_st *p
-    = SCALAR_MALLOC_HDGJIRPS (sizeof (*p) + ((slen + 1) | 7) + 1);
+    = MALLOC_HDGJIRPS (sizeof (*p) + ((slen + 1) | 7) + 1);
   if (!p)
     return NULL;
   p->typenum = sca_boxed_string;
@@ -347,4 +344,45 @@ get_string_HDGJIRPS (void *ptr, const char **pstr)
   return true;
 }				/* end get_string_HDGJIRPS */
 
+static_assert(sizeof(void*) == sizeof(&fopen));
+struct namedrout_hdgjirps_st *
+make_namedrout_HDGJIRPS (const char *nam)
+{
+  if (!nam || !nam[0])
+    return NULL;
+  size_t namlen = strlen(nam);
+  if (namlen>=NAMEDROUT_LENGTH_HDGJIRPS)
+    return NULL;
+  void*ad = dlsym(full_program_dlhandle_HOGJIRPS(), nam);
+  if (!ad) {
+    fprintf(stderr, "%s: missing symbol %s (%s) [%s:%d]\n", progname_HDGJIRPS,
+	    nam, dlerror(), __FILE__, __LINE__);
+    fflush(NULL);
+    return NULL;
+  };
+  struct namedrout_hdgjirps_st *p 
+    = MALLOC_HDGJIRPS (sizeof (*p));
+  if (!p)
+    return NULL;
+  p->typenum = sca_boxed_namedrout;
+  p->gcmark = 0;
+  p->flag = 0;
+  strcpy((char*)p->routnam, nam);
+  p->routad = ad;
+  return p;
+} /* end make_namedrout_HDGJIRPS */
+
+
+bool
+get_namedrout_HDGJIRPS(const void*ptr, void**pad, const char**pnam)
+{
+  if (!ptr  || !is_valid_ptr_HDGJIRPS (ptr))
+    return false;
+  const struct namedrout_hdgjirps_st* d
+    = (const struct namedrout_hdgjirps_st*)ptr;
+  if (d->typenum != sca_boxed_namedrout)
+    return false;
+  if (d->routad == NULL) {
+  }
+} /* end get_namedrout_HDGJIRPS */
 /// end of file gccjit-refpersys/scalar.c
