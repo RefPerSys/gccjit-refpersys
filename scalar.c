@@ -46,30 +46,31 @@ static_assert (alignof (struct boxint_hdgjirps_st) == (1 << 4));
 static_assert (sizeof (struct boxint_hdgjirps_st) < 4 * sizeof (intptr_t));
 
 unsigned
-hashstr_HDGJIRPS(const char*s)
+hashstr_HDGJIRPS (const char *s)
 {
-  unsigned h =0;
-  const uint8_t*us = (const uint8_t*)s;
+  unsigned h = 0;
+  const uint8_t *us = (const uint8_t *) s;
   if (!s)
     return 0;
-  unsigned bytlen = strlen(s);
-  int cnt=0;
-  while (us) {
-    ucs4_t uc= 0;
-    int l= u8_mbtoucr(&uc, us, s+bytlen-(char*)us);
-    if (l<0)
-      HDGJIRPS_FATAL("corrupted UTF8 string %s", s);
-    cnt++;
-    us += l;
-    if (cnt%2==0)
-      h = ((h*443) ^ (uc*347)) + (cnt&0xff);
-    else
-      h = ((h*311) ^ (uc*359 + cnt%17));
-  };
-  if (h==0)
-    h= bytlen+1;
+  unsigned bytlen = strlen (s);
+  int cnt = 0;
+  while (us)
+    {
+      ucs4_t uc = 0;
+      int l = u8_mbtoucr (&uc, us, s + bytlen - (char *) us);
+      if (l < 0)
+	HDGJIRPS_FATAL ("corrupted UTF8 string %s", s);
+      cnt++;
+      us += l;
+      if (cnt % 2 == 0)
+	h = ((h * 443) ^ (uc * 347)) + (cnt & 0xff);
+      else
+	h = ((h * 311) ^ (uc * 359 + cnt % 17));
+    };
+  if (h == 0)
+    h = bytlen + 1;
   return h;
-} /* end  hashstr_HDGJIRPS */
+}				/* end  hashstr_HDGJIRPS */
 
 struct boxint_hdgjirps_st *
 make_box_int_HDGJIRPS (intptr_t v)
@@ -229,7 +230,7 @@ make_box_double_HDGJIRPS (double v)
   p->xtranum = 0;
   p->dblval = v;
   return p;
-}				/* end make_box_int_HDGJIRPS */
+}				/* end make_box_double_HDGJIRPS */
 
 
 struct boxdouble_hdgjirps_st *
@@ -344,45 +345,47 @@ get_string_HDGJIRPS (void *ptr, const char **pstr)
   return true;
 }				/* end get_string_HDGJIRPS */
 
-static_assert(sizeof(void*) == sizeof(&fopen));
+static_assert (sizeof (void *) == sizeof (&fopen));
 struct namedrout_hdgjirps_st *
 make_namedrout_HDGJIRPS (const char *nam)
 {
   if (!nam || !nam[0])
     return NULL;
-  size_t namlen = strlen(nam);
-  if (namlen>=NAMEDROUT_LENGTH_HDGJIRPS)
+  size_t namlen = strlen (nam);
+  if (namlen >= NAMEDROUT_LENGTH_HDGJIRPS)
     return NULL;
-  void*ad = dlsym(full_program_dlhandle_HOGJIRPS(), nam);
-  if (!ad) {
-    fprintf(stderr, "%s: missing symbol %s (%s) [%s:%d]\n", progname_HDGJIRPS,
-	    nam, dlerror(), __FILE__, __LINE__);
-    fflush(NULL);
-    return NULL;
-  };
-  struct namedrout_hdgjirps_st *p 
-    = MALLOC_HDGJIRPS (sizeof (*p));
+  void *ad = dlsym (full_program_dlhandle_HOGJIRPS (), nam);
+  if (!ad)
+    {
+      fprintf (stderr, "%s: missing symbol %s (%s) [%s:%d]\n",
+	       progname_HDGJIRPS, nam, dlerror (), __FILE__, __LINE__);
+      fflush (NULL);
+      return NULL;
+    };
+  struct namedrout_hdgjirps_st *p = MALLOC_HDGJIRPS (sizeof (*p));
   if (!p)
     return NULL;
   p->typenum = sca_boxed_namedrout;
   p->gcmark = 0;
   p->flag = 0;
-  strcpy((char*)p->routnam, nam);
+  strcpy ((char *) p->routnam, nam);
   p->routad = ad;
   return p;
-} /* end make_namedrout_HDGJIRPS */
+}				/* end make_namedrout_HDGJIRPS */
 
 
 bool
-get_namedrout_HDGJIRPS(const void*ptr, void**pad, const char**pnam)
+get_namedrout_HDGJIRPS (const void *ptr, void **pad, const char **pnam)
 {
-  if (!ptr  || !is_valid_ptr_HDGJIRPS (ptr))
+  if (!ptr || !is_valid_ptr_HDGJIRPS (ptr))
     return false;
-  const struct namedrout_hdgjirps_st* d
-    = (const struct namedrout_hdgjirps_st*)ptr;
+  const struct namedrout_hdgjirps_st *d
+    = (const struct namedrout_hdgjirps_st *) ptr;
   if (d->typenum != sca_boxed_namedrout)
     return false;
-  if (d->routad == NULL) {
-  }
-} /* end get_namedrout_HDGJIRPS */
+  if (d->routad == NULL)
+    {
+    }
+}				/* end get_namedrout_HDGJIRPS */
+
 /// end of file gccjit-refpersys/scalar.c
