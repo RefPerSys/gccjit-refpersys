@@ -39,7 +39,9 @@ const char persist_HDGJIRPS_git[] = SHORTGITID;
 
 #warning TODO: define a simple and human readable syntax of the persistent file
 
-static void load_data_HDGJIRPS(struct load_data_HDGJIRPS_st*ld);
+static void load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
+
+static void* loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
 
 const char start_comment_HDGJIRPS[] = "#*START-GCCJIT-REFPERSYS";
 
@@ -66,33 +68,62 @@ load_state_HDGJIRPS (const char *path, const void *start, const void *last)
        start_comment_HDGJIRPS);
   const char *endcomm = startcomm + strlen (start_comment_HDGJIRPS);
   assert (endcomm < (const char *) last);
-  struct load_data_HDGJIRPS_st ldata={};
+  struct load_data_HDGJIRPS_st ldata = { };
   ldata.lda_magic = LOADMAGIC_HDGJRPS;
   ldata.lda_path = path;
-  ldata.lda_start = (void*)endcomm;
-  ldata.lda_cur = endcomm+1;
-  ldata.lda_end = (void*)last;
-  load_data_HDGJIRPS(&ldata);
+  ldata.lda_start = (void *) endcomm;
+  ldata.lda_cur = endcomm + 1;
+  ldata.lda_end = (void *) last;
+  load_data_HDGJIRPS (&ldata);
   if (verbose_HDGJIRPS)
     printf ("%s: loaded state %s\n", progname_HDGJIRPS, path);
 }				/* end load_state_HDGJIRPS */
 
+static void *
+loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
+{
+  if (!ld || ld->lda_magic != LOADMAGIC_HDGJRPS)
+    return NULL;
+  void *res = NULL;
+  int pos = -1;
+  intptr_t i = 0;
+  long long il = 0;
+  double d = 0;
+  ///https://stackoverflow.com/a/5796039/841108
+  if (sscanf (ld->lda_cur, " INT%lli%n", &il, &pos) >= 2 && pos > 0)
+    {
+      i = (intptr_t) il;
+      res = make_box_int_HDGJIRPS (i);
+      ld->lda_cur += pos;
+      return res;
+    }
+  else if (sscanf (ld->lda_cur, " FLO%lg%n", &d, &pos) >= 2 && pos)
+    {
+      res = make_box_double_HDGJIRPS (d);
+      ld->lda_cur += pos;
+      return res;
+    }
+#warning loaded_value_HDGJIRPS very incomplete
+  return NULL;
+}				/* end loaded_value_HDGJIRPS */
+
 void
-load_data_HDGJIRPS(struct load_data_HDGJIRPS_st*ld)
+load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 {
   assert (ld && ld->lda_magic == LOADMAGIC_HDGJRPS);
-  fprintf(stderr, "load_data_HDGJIRPS unimplemented for path %s [%s:%d] git %s\n",
-	  ld->lda_path, __FILE__, __LINE__,  persist_HDGJIRPS_git);
+  fprintf (stderr,
+	   "load_data_HDGJIRPS unimplemented for path %s [%s:%d] git %s\n",
+	   ld->lda_path, __FILE__, __LINE__, persist_HDGJIRPS_git);
 #warning incomplete load_data_HDGJIRPS should use ld
-} /* end load_data_HDGJIRPS */
+}				/* end load_data_HDGJIRPS */
 
 void
 write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab)
 {
   FILE *filsta = NULL;
-  assert(path);
-  assert(tabptr != NULL);
-  assert(siztab > 0);
+  assert (path);
+  assert (tabptr != NULL);
+  assert (siztab > 0);
   if (!access (path, F_OK))
     {
       char backupath[384];
