@@ -104,7 +104,7 @@ emit_gplv3_notice_AT_HDGJIRPS (FILE * fout, const char *fil, int lin,
 extern int32_t randomi32_HDGJIRPS (void);
 extern int64_t randomi64_HDGJIRPS (void);
 
-extern void*full_program_dlhandle_HOGJIRPS(void);
+extern void *full_program_dlhandle_HOGJIRPS (void);
 
 #define LOADMAGIC_HDGJRPS 0x5feb03561	/*25747797345 */
 
@@ -236,7 +236,7 @@ struct boxdouble_hdgjirps_st
   double dblval;
 };
 
-unsigned hashstr_HDGJIRPS(const char*s);
+unsigned hashstr_HDGJIRPS (const char *s);
 
 struct boxdouble_hdgjirps_st *make_box_double_HDGJIRPS (double v);
 struct boxdouble_hdgjirps_st *make_bxtra_double_HDGJIRPS (double v,
@@ -266,13 +266,13 @@ bool get_string_HDGJIRPS (void *ptr, const char **pstr);
 
 //- struct intvect_hdgjirps_st
 //- {
-//-   HDGJIRPS_HEADER_FIELDS;	//
+//-   HDGJIRPS_HEADER_FIELDS;   //
 //-   intptr_t intarr[];
 //- };
 //-
 //- struct dblvect_hdgjirps_st
 //- {
-//-   HDGJIRPS_HEADER_FIELDS;	//
+//-   HDGJIRPS_HEADER_FIELDS;   //
 //-   double dblarr[];
 //- };
 
@@ -284,6 +284,27 @@ struct namedrout_hdgjirps_st
   const char routnam[NAMEDROUT_LENGTH_HDGJIRPS];
 };
 struct namedrout_hdgjirps_st *make_namedrout_HDGJIRPS (const char *str);
-bool get_namedrout_HDGJIRPS(const void*, void**pad, const char**pnam);
+bool get_namedrout_HDGJIRPS (const void *, void **pad, const char **pnam);
+
+
+////////////////////////////////////////////////////////////////
+/////// composite values
+
+struct object_hdgjirps_st;
+
+struct node_hdgjirps_st
+{
+  HDGJIRPS_HEADER_FIELDS;
+  struct object_hdgjirps_st *nod_obj;
+  void *nod_sons[];
+};
+
+struct object_hdgjirps_st
+{
+  HDGJIRPS_HEADER_FIELDS;
+  pthread_mutex_t ob_mtx;
+  int64_t ob_idhi;
+  int64_t ob_idlo;
+};				/* end struct object_hdgjirps_st */
 #endif /*HDGJIRPS_INCLUDED */
 /*end of file */
