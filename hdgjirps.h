@@ -229,6 +229,7 @@ struct boxdouble_hdgjirps_st
   double dblval;
 };
 
+unsigned hashstr_HDGJIRPS(const char*s);
 
 struct boxdouble_hdgjirps_st *make_box_double_HDGJIRPS (double v);
 struct boxdouble_hdgjirps_st *make_bxtra_double_HDGJIRPS (double v,
@@ -256,23 +257,26 @@ bool get_string_length_HDGJIRPS (void *ptr, const char **pstr,
 
 bool get_string_HDGJIRPS (void *ptr, const char **pstr);
 
-struct intvect_hdgjirps_st
-{
-  HDGJIRPS_HEADER_FIELDS;	//
-  intptr_t intarr[];
-};
+//- struct intvect_hdgjirps_st
+//- {
+//-   HDGJIRPS_HEADER_FIELDS;	//
+//-   intptr_t intarr[];
+//- };
+//-
+//- struct dblvect_hdgjirps_st
+//- {
+//-   HDGJIRPS_HEADER_FIELDS;	//
+//-   double dblarr[];
+//- };
 
-struct dblvect_hdgjirps_st
-{
-  HDGJIRPS_HEADER_FIELDS;	//
-  double dblarr[];
-};
-
+#define NAMEDROUT_LENGTH_HDGJIRPS 48
 struct namedrout_hdgjirps_st
 {
   HDGJIRPS_HEADER_FIELDS;	//
   void *routad;
-  char routnam[40];
+  const char routnam[NAMEDROUT_LENGTH_HDGJIRPS];
 };
+struct namedrout_hdgjirps_st *make_namedrout_HDGJIRPS (const char *str);
+bool get_namedrout_HDGJIRPS(const void*, void**pad, const char**pnam);
 #endif /*HDGJIRPS_INCLUDED */
 /*end of file */
