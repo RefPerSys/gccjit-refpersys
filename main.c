@@ -9,6 +9,8 @@
  *
  * Author(s):
  *      Basile Starynkevitch, France   <basile@starynkevitch.net>
+ *
+ * past indian contributors
  *      Abhishek Chakravarti, India    <abhishek@taranjali.org>
  *      Nimesh Neema, India            <nimeshneema@gmail.com>
  *
@@ -245,6 +247,8 @@ parse_program_option_HDGJIRPS (int argc, char **argv)
 	case 'v':		/* --version */
 	  printf ("%s version gitid %s built on %s\n", progname_HDGJIRPS,
 		  shortgitid_HDGJIRPS, __DATE__ "@" __TIME__);
+	  printf ("\t C version %ld, compiler %s\n", __STDC_VERSION__,
+		 __VERSION__);
 	  printf ("\t libunistring version: %d.%d.%d\n",
 		  _libunistring_version >> 16,
 		  0xff & (_libunistring_version >> 8),
@@ -337,11 +341,20 @@ getexec_HDGJIRPS (void)
 		    progname_HDGJIRPS, executable_HDGJIRPS, strerror (errno));
 }				/* end getexec_HDGJIRPS */
 
+static void* progdlh_HOGJIRPS;
+
+void*
+full_program_dlhandle_HOGJIRPS(void)
+{
+  return progdlh_HOGJIRPS;
+} /* end full_program_dlhandle_HOGJIRPS */
+
 int
 main (int argc, char **argv)
 {
   assert (argc > 0);
   progname_HDGJIRPS = argv[0];
+  progdlh_HOGJIRPS = dlopen(NULL, RTLD_LAZY);
   pthread_setname_np (pthread_self (), "main-rpsjit");
   gethostname (hostname_HDGJIRPS, sizeof (hostname_HDGJIRPS));
   getexec_HDGJIRPS ();
