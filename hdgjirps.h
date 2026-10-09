@@ -148,7 +148,7 @@ struct load_data_HDGJIRPS_st
 #define HDGJIRPS_FATAL_AT(Fil,Lin,Func,Fmt,...) \
    HDGJIRPS_FATAL_AT_BIS(Fil,Lin,Func,Fmt,##__VA_ARGS__)
 
-#define  HDGJIRPS_FATAL(Fmt,...)  HDGJIRPS_FATAL_AT(__FILE__,__LINE__,__FUNCTION__,Fmt,##__VA_ARGS__)
+#define HDGJIRPS_FATAL(Fmt,...)  HDGJIRPS_FATAL_AT(__FILE__,__LINE__,__FUNCTION__,Fmt,##__VA_ARGS__)
 
 
 #define HDGJIRPS_TWO_WORDS_ALIGNED __attribute__((aligned(2*sizeof(void*))))
@@ -176,7 +176,7 @@ enum scalar_typid_HDGJIRPS_en
   sca_boxed_twodoubles,
   sca_boxed_string,
   sca_boxed_namedrout,
-  sca__last
+  sca__lasttypid
 };
 
 extern void register_scalar_value_HDGJIRPS (void *ptr,
