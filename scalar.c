@@ -43,7 +43,7 @@ const char scalar_shortgit_HDGJIRPS[] = SHORTGITID;
 
 ///// boxed integers (intptr_t so 64 bits on AMD64)
 static_assert (alignof (struct boxint_hdgjirps_st) == (1 << 4));
-static_assert (sizeof (struct boxint_hdgjirps_st) < 4 * sizeof (intptr_t));
+static_assert (sizeof (struct boxint_hdgjirps_st) < 8 * sizeof (intptr_t));
 
 unsigned
 hashstr_HDGJIRPS (const char *s)
@@ -88,20 +88,6 @@ make_box_int_HDGJIRPS (intptr_t v)
 }				/* end make_box_int_HDGJIRPS */
 
 
-struct boxint_hdgjirps_st *
-make_bxtra_int_HDGJIRPS (intptr_t v, int32_t xtra)
-{
-  struct boxint_hdgjirps_st *p = MALLOC_HDGJIRPS (sizeof (*p));
-  if (!p)
-    HDGJIRPS_FATAL ("out of memory when boxing int %ld", (long) v);
-  p->typenum = sca_boxed_int;
-  p->gcmark = 0;
-  p->flag = 0;
-  p->xtranum = xtra;
-  p->intval = v;
-  return p;
-}				/* end make_bxtra_int_HDGJIRPS */
-
 bool
 get_int_HDGJIRPS (const void *ptr, intptr_t *p)
 {
@@ -114,22 +100,6 @@ get_int_HDGJIRPS (const void *ptr, intptr_t *p)
     *p = d->intval;
   return true;
 }				/* end get_int_HDGJIRPS */
-
-bool
-get_int_xtra_HDGJIRPS (const void *ptr, intptr_t *p, int32_t *x)
-{
-  if (!ptr || !is_valid_ptr_HDGJIRPS (ptr))
-    return false;
-  const struct boxint_hdgjirps_st *d = (struct boxint_hdgjirps_st *) ptr;
-  if (d->typenum != sca_boxed_int)
-    return false;
-  if (p)
-    *p = d->intval;
-  if (x)
-    *x = d->xtranum;
-  return true;
-}				/* end get_int_xtra_HDGJIRPS */
-
 
 
 
@@ -156,22 +126,6 @@ make_boxtwoints_HDGJIRPS (intptr_t v0, intptr_t v1)
 }				/* end make_boxtwoints_HDGJIRPS */
 
 
-struct boxtwoints_hdgjirps_st *
-make_bxtra_twoints_HDGJIRPS (intptr_t v0, intptr_t v1, int32_t xtra)
-{
-  struct boxtwoints_hdgjirps_st *p = MALLOC_HDGJIRPS (sizeof (*p));
-  if (!p)
-    HDGJIRPS_FATAL ("out of memory when boxing two ints %ld & %ld", (long) v0,
-		    (long) v1);
-  p->typenum = sca_boxed_twoints;
-  p->gcmark = 0;
-  p->flag = 0;
-  p->xtranum = xtra;
-  p->intpair[0] = v0;
-  p->intpair[1] = v1;
-  return p;
-}				/* end make_bxtra_twoints_HDGJIRPS */
-
 bool
 get_twoints_HDGJIRPS (const void *ptr, intptr_t *p0, intptr_t *p1)
 {
@@ -188,26 +142,6 @@ get_twoints_HDGJIRPS (const void *ptr, intptr_t *p0, intptr_t *p1)
   return true;
 }				/* end get_twoints_HDGJIRPS */
 
-bool
-get_twoints_xtra_HDGJIRPS (const void *ptr, intptr_t *p0, intptr_t *p1,
-			   int32_t *x)
-{
-  if (!ptr || !is_valid_ptr_HDGJIRPS (ptr))
-    return false;
-  const struct boxtwoints_hdgjirps_st *d =
-    (struct boxtwoints_hdgjirps_st *) ptr;
-  if (d->typenum != sca_boxed_twoints)
-    return false;
-  if (p0)
-    *p0 = d->intpair[0];
-  if (p1)
-    *p1 = d->intpair[1];
-  if (x)
-    *x = d->xtranum;
-  return true;
-}				/* end get_twoints_xtra_HDGJIRPS */
-
-
 
 
 
@@ -215,7 +149,7 @@ get_twoints_xtra_HDGJIRPS (const void *ptr, intptr_t *p0, intptr_t *p1,
 
 ///// boxed floating point doubles (double so IEEE74 - 64 bits on AMD64)
 static_assert (alignof (struct boxdouble_hdgjirps_st) == (1 << 4));
-static_assert (sizeof (struct boxdouble_hdgjirps_st) < 4 * sizeof (intptr_t));
+static_assert (sizeof (struct boxdouble_hdgjirps_st) < 8 * sizeof (intptr_t));
 
 struct boxdouble_hdgjirps_st *
 make_box_double_HDGJIRPS (double v)
@@ -232,20 +166,6 @@ make_box_double_HDGJIRPS (double v)
   return p;
 }				/* end make_box_double_HDGJIRPS */
 
-
-struct boxdouble_hdgjirps_st *
-make_bxtra_double_HDGJIRPS (double v, int32_t xtra)
-{
-  struct boxdouble_hdgjirps_st *p = MALLOC_HDGJIRPS (sizeof (*p));
-  if (!p)
-    HDGJIRPS_FATAL ("out of memory when boxing double %g", v);
-  p->typenum = sca_boxed_double;
-  p->gcmark = 0;
-  p->flag = 0;
-  p->xtranum = xtra;
-  p->dblval = v;
-  return p;
-}				/* end make_bxtra_double_HDGJIRPS */
 
 bool
 get_double_HDGJIRPS (const void *ptr, double *p)
@@ -377,15 +297,44 @@ make_namedrout_HDGJIRPS (const char *nam)
 bool
 get_namedrout_HDGJIRPS (const void *ptr, void **pad, const char **pnam)
 {
+  void *ad = NULL;
   if (!ptr || !is_valid_ptr_HDGJIRPS (ptr))
     return false;
-  const struct namedrout_hdgjirps_st *d
-    = (const struct namedrout_hdgjirps_st *) ptr;
+  struct namedrout_hdgjirps_st *d = (struct namedrout_hdgjirps_st *) ptr;
   if (d->typenum != sca_boxed_namedrout)
     return false;
+  assert (isalnum (d->routnam[0]) || d->routnam[0] == '_');
+  assert (strlen (d->routnam) < NAMEDROUT_LENGTH_HDGJIRPS);
   if (d->routad == NULL)
     {
+      ad = dlsym (full_program_dlhandle_HOGJIRPS (), d->routnam);
+      if (!ad)
+	{
+	  fprintf (stderr, "%s: missing symbol %s (%s) [%s:%d]\n",
+		   progname_HDGJIRPS, d->routnam, dlerror (),
+		   __FILE__, __LINE__ - 2);
+	  fflush (NULL);
+	  return false;
+	};
+      d->routad = ad;
     }
+  else
+    ad = d->routad;
+  if (pad)
+    *pad = ad;
+  if (pnam)
+    *pnam = d->routnam;
+  return true;
 }				/* end get_namedrout_HDGJIRPS */
+
+
+void
+register_scalar_value_HDGJIRPS (void *ptr,
+				enum scalar_typid_HDGJIRPS_en typcod)
+{
+  assert (ptr);
+  assert (typcod > sca__none && typcod < sca__last);
+#warning unimplemented register_scalar_value_HDGJIRPS
+}				/* end of register_scalar_value_HDGJIRPS */
 
 /// end of file gccjit-refpersys/scalar.c
