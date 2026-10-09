@@ -131,10 +131,12 @@ struct load_data_HDGJIRPS_st
 extern const uint32_t dump_magic_HDGJIRPS;
 struct dump_data_HDGJIRPS_st
 {
-  uint64_t dump_magic;		/* aload dump_magic_HDGJRPS */
+  uint32_t dump_magic;		/* always dump_magic_HDGJRPS */
+  uint16_t dump_indent;
   const char *dump_path;
   FILE *dump_file;
-  long dump_bol;		/* begin of line offset */
+  long dump_bol;		/* offset of last line */
+  void *dump_data;
 };				/* end struct dump_data_HDGJIRPS_st */
 
 #define HDGJIRPS_FATAL_AT_BIS(Fil,Lin,Func,Fmt,...) do {	\
