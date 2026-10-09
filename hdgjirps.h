@@ -152,7 +152,8 @@ struct load_data_HDGJIRPS_st
 
 
 #define HDGJIRPS_TWO_WORDS_ALIGNED __attribute__((aligned(2*sizeof(void*))))
-
+// by convention positive typenums are for scalar values and negative
+// ones are for composite values.
 #define HDGJIRPS_HEADER_FIELDS			\
   int16_t HDGJIRPS_TWO_WORDS_ALIGNED typenum;	\
   uint8_t  gcmark;				\
@@ -281,6 +282,20 @@ bool get_namedrout_HDGJIRPS (const void *, void **pad, const char **pnam);
 
 ////////////////////////////////////////////////////////////////
 /////// composite values
+
+//// composite types values for typenum
+enum composite_typid_HDGJIRPS_en
+{
+  comp__none,
+  comp_boxed_node,
+  comp_boxed_object,
+  comp__lasttypid
+};
+
+extern void register_composite_value_HDGJIRPS (void *ptr,
+					       enum
+					       composite_typid_HDGJIRPS_en
+					       typcod);
 
 struct object_hdgjirps_st;
 
