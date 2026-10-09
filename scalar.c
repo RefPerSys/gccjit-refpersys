@@ -414,7 +414,6 @@ register_scalar_value_HDGJIRPS (void *ptr,
   scalareg_add_HDGJIRPS ((struct header_hdgjirps_st *) ptr);
 end:
   pthread_mutex_unlock (&scalareg_mtx_HDGJIRPS);
-#warning unimplemented register_scalar_value_HDGJIRPS
 }				/* end of register_scalar_value_HDGJIRPS */
 
 /// end of file gccjit-refpersys/scalar.c
