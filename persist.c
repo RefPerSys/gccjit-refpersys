@@ -120,6 +120,13 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 }				/* end load_data_HDGJIRPS */
 
 const uint32_t dump_magic_HDGJIRPS = DUMPMAGIC_HDGJIRPS;
+static ssize_t dump_reader_HDGJIRPS (void *cookie, char *buffer, size_t size);
+static ssize_t dump_writer_HDGJIRPS (void *cookie, const char *buffer,
+				     size_t size);
+static int dump_seeker_HDGJIRPS (void *cookie, off64_t * position,
+				 int whence);
+static int dump_cleaner_HDGJIRPS (void *cookie);
+
 void
 write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab)
 {
@@ -137,14 +144,79 @@ write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab)
       if (strlen (backupath) > strlen (path))
 	rename (path, backupath);
     };
+  // see https://sourceware.org/glibc/manual/latest/html_node/Streams-and-Cookies.html
+#warning should probably use fopencookie
   filsta = fopen (path, "w");
   if (!filsta)
     HDGJIRPS_FATAL ("failed to open state file %s (%s)", path,
 		    strerror (errno));
+  cookie_io_functions_t iofun;
+  memset (&iofun, 0, sizeof (iofun));
+  iofun.read = dump_reader_HDGJIRPS;
+  iofun.write = dump_writer_HDGJIRPS;
+  iofun.seek = dump_seeker_HDGJIRPS;
+  iofun.close = dump_cleaner_HDGJIRPS;
+  FILE *cookf = fopencookie (&dd, "w", iofun);
+  if (!cookf)
+    HDGJIRPS_FATAL ("failed to open cookie file dd@%p (%s)", &dd,
+		    strerror (errno));
   dd.dump_magic = DUMPMAGIC_HDGJIRPS;
+  dd.dump_indent = 0;
   dd.dump_path = path;
   dd.dump_file = filsta;
   dd.dump_bol = 0;
+  dd.dump_data = NULL;
 #warning write_state_HDGJIRPS is incomplete and needs a better signature
   HDGJIRPS_FATAL ("unimplemented write_state_HDGJIRPS path=%s", path);
 }				/* end write_state_HDGJIRPS */
+
+static ssize_t
+dump_reader_HDGJIRPS (void *cookie, char *buffer, size_t size)
+{
+  ssize_t res = 0;
+  struct dump_data_HDGJIRPS_st *dd = (struct dump_data_HDGJIRPS_st *) cookie;
+  assert (dd && dd->dump_magic == DUMPMAGIC_HDGJIRPS);
+  assert (buffer);
+  assert (size > 0);
+#warning unimplimented dump_reader_HDGJIRPS
+  HDGJIRPS_FATAL ("unimplemented dump_reader_HDGJIRPS dd@%p", cookie);
+  return res;
+}				// end dump_reader_HDGJIRPS
+
+static ssize_t
+dump_writer_HDGJIRPS (void *cookie, const char *buffer, size_t size)
+{
+  ssize_t res = 0;
+  struct dump_data_HDGJIRPS_st *dd = (struct dump_data_HDGJIRPS_st *) cookie;
+  assert (dd && dd->dump_magic == DUMPMAGIC_HDGJIRPS);
+  assert (buffer);
+  assert (size > 0);
+#warning unimplimented dump_writer_HDGJIRPS
+  HDGJIRPS_FATAL ("unimplemented dump_writer_HDGJIRPS dd@%p", cookie);
+  return res;
+}				// end dump_writer_HDGJIRPS
+
+static int
+dump_seeker_HDGJIRPS (void *cookie, off64_t *position, int whence)
+{
+  int res = 0;
+  struct dump_data_HDGJIRPS_st *dd = (struct dump_data_HDGJIRPS_st *) cookie;
+  assert (dd && dd->dump_magic == DUMPMAGIC_HDGJIRPS);
+  assert (position);
+#warning unimplimented dump_seeker_HDGJIRPS
+  HDGJIRPS_FATAL ("unimplemented dump_seeker_HDGJIRPS dd@%p", cookie);
+  return res;
+}				/* end dump_seeker_HDGJIRPS */
+
+static int
+dump_cleaner_HDGJIRPS (void *cookie)
+{
+  int res = 0;
+  struct dump_data_HDGJIRPS_st *dd = (struct dump_data_HDGJIRPS_st *) cookie;
+  assert (dd && dd->dump_magic == DUMPMAGIC_HDGJIRPS);
+#warning unimplemented dump_cleaner_HDGJIRPS
+  HDGJIRPS_FATAL ("unimplemented dump_cleaner_HDGJIRPS dd@%p", cookie);
+  return res;
+}				/* end dump_cleaner_HDGJIRPS */
+
+/* end of file gccjit-refpersys/persist.c */
