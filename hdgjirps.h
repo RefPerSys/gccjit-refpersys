@@ -157,10 +157,8 @@ struct load_data_HDGJIRPS_st
   int16_t HDGJIRPS_TWO_WORDS_ALIGNED typenum;	\
   uint8_t  gcmark;				\
   uint8_t  flag;				\
-  union {					\
-    uint32_t length;				\
-    int32_t xtranum;				\
-  }
+  uint32_t length;				\
+  uint32_t xtranum
 
 struct header_hdgjirps_st
 {
@@ -177,9 +175,13 @@ enum scalar_typid_HDGJIRPS_en
   sca_boxed_double,
   sca_boxed_twodoubles,
   sca_boxed_string,
-  sca_boxed_namedrout
+  sca_boxed_namedrout,
+  sca__last
 };
 
+extern void register_scalar_value_HDGJIRPS (void *ptr,
+					    enum scalar_typid_HDGJIRPS_en
+					    typcod);
 
 
 inline bool
@@ -208,10 +210,7 @@ struct boxint_hdgjirps_st
   intptr_t intval;
 };
 struct boxint_hdgjirps_st *make_box_int_HDGJIRPS (intptr_t v);
-struct boxint_hdgjirps_st *make_bxtra_int_HDGJIRPS (intptr_t v, int32_t xtra);
 bool get_int_HDGJIRPS (const void *ptr, intptr_t * p);
-bool get_int_xtra_HDGJIRPS (const void *ptr, intptr_t * p, int32_t * x);
-
 struct boxtwoints_hdgjirps_st
 {
   HDGJIRPS_HEADER_FIELDS;	//
@@ -220,12 +219,7 @@ struct boxtwoints_hdgjirps_st
 
 struct boxtwoints_hdgjirps_st *make_boxtwoints_HDGJIRPS (intptr_t v0,
 							 intptr_t v1);
-struct boxtwoints_hdgjirps_st *make_bxtra_twoints_HDGJIRPS (intptr_t v0,
-							    intptr_t v1,
-							    int32_t xtra);
 bool get_twoints_HDGJIRPS (const void *ptr, intptr_t * p0, intptr_t * p1);
-bool get_twoints_xtra_HDGJIRPS (const void *ptr, intptr_t * p0, intptr_t * p1,
-				int32_t * xtra);
 
 
 
@@ -239,8 +233,6 @@ struct boxdouble_hdgjirps_st
 unsigned hashstr_HDGJIRPS (const char *s);
 
 struct boxdouble_hdgjirps_st *make_box_double_HDGJIRPS (double v);
-struct boxdouble_hdgjirps_st *make_bxtra_double_HDGJIRPS (double v,
-							  int32_t xtra);
 bool get_double_HDGJIRPS (const void *ptr, double *p);
 bool get_double_xtra_HDGJIRPS (const void *ptr, double *p, int32_t * x);
 
