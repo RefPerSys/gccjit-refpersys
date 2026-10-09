@@ -126,6 +126,17 @@ struct load_data_HDGJIRPS_st
   void *lda_end;
 };
 
+#define DUMPMAGIC_HDGJIRPS 0x3d4a10bf	/* 1028264127 */
+
+extern const uint32_t dump_magic_HDGJIRPS;
+struct dump_data_HDGJIRPS_st
+{
+  uint64_t dump_magic;		/* aload dump_magic_HDGJRPS */
+  const char *dump_path;
+  FILE *dump_file;
+  long dump_bol;		/* begin of line offset */
+};				/* end struct dump_data_HDGJIRPS_st */
+
 #define HDGJIRPS_FATAL_AT_BIS(Fil,Lin,Func,Fmt,...) do {	\
     char thrname##Lin[32];					\
     memset(thrname##Lin, 0, sizeof(thrname##Lin));		\

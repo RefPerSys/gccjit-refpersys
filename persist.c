@@ -39,9 +39,11 @@ const char persist_HDGJIRPS_git[] = SHORTGITID;
 
 #warning TODO: define a simple and human readable syntax of the persistent file
 
+static_assert (sizeof (FILE) < 32 * sizeof (void *));
+
 static void load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
 
-static void* loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
+static void *loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
 
 const char start_comment_HDGJIRPS[] = "#*START-GCCJIT-REFPERSYS";
 
@@ -117,13 +119,16 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 #warning incomplete load_data_HDGJIRPS should use ld
 }				/* end load_data_HDGJIRPS */
 
+const uint32_t dump_magic_HDGJIRPS = DUMPMAGIC_HDGJIRPS;
 void
 write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab)
 {
+  struct dump_data_HDGJIRPS_st dd = { };
   FILE *filsta = NULL;
   assert (path);
   assert (tabptr != NULL);
   assert (siztab > 0);
+  memset (&dd, 0, sizeof (dd));
   if (!access (path, F_OK))
     {
       char backupath[384];
@@ -136,6 +141,10 @@ write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab)
   if (!filsta)
     HDGJIRPS_FATAL ("failed to open state file %s (%s)", path,
 		    strerror (errno));
+  dd.dump_magic = DUMPMAGIC_HDGJIRPS;
+  dd.dump_path = path;
+  dd.dump_file = filsta;
+  dd.dump_bol = 0;
 #warning write_state_HDGJIRPS is incomplete and needs a better signature
   HDGJIRPS_FATAL ("unimplemented write_state_HDGJIRPS path=%s", path);
 }				/* end write_state_HDGJIRPS */
