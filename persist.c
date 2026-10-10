@@ -8,8 +8,6 @@
  *
  * Author(s):
  *      Basile Starynkevitch, France   <basile@starynkevitch.net>
- *      Abhishek Chakravarti, India    <abhishek@taranjali.org>
- *      Nimesh Neema, India            <nimeshneema@gmail.com>
  *
  *      © Copyright (C) 2019 - 2026 The Reflective Persistent System Team
  *      team@refpersys.org & http://refpersys.org/
@@ -52,45 +50,83 @@ const char start_comment_HDGJIRPS[] = "#*START-GCCJIT-REFPERSYS";
 void
 load_state_HDGJIRPS (const char *path, const void *start, const void *last)
 {
+  int lineno = 1;
   assert (path != NULL);
   assert (start != NULL);
   assert (last != NULL);
   assert (last > start);
-  assert (loadmagic_HDGJRPS == LOADMAGIC_HDGJRPS);
+  assert (loadmagic_HDGJIRPS == LOADMAGIC_HDGJIRPS);
   const char *startcomm =
     strnstr ((const char *) start, start_comment_HDGJIRPS,
 	     (const char *) last - (const char *) start);
   if (!startcomm)
     HDGJIRPS_FATAL ("load state file %s is lacking a start comment %s",
 		    path, start_comment_HDGJIRPS);
+  for (const char *p = start; p < startcomm; p++)
+    if (*p == '\n')
+      lineno++;
   if (startcomm > (const char *) start
       && startcomm[-1] != '\n' && startcomm[-1] != '\r')
-    HDGJIRPS_FATAL
-      ("load state file %s with start comment %s not at start of line", path,
-       start_comment_HDGJIRPS);
+    HDGJIRPS_FATAL ("load state file %s "
+		    "with start comment %s not at start of line#%d",
+		    path, start_comment_HDGJIRPS, lineno);
   const char *endcomm = startcomm + strlen (start_comment_HDGJIRPS);
   assert (endcomm < (const char *) last);
   struct load_data_HDGJIRPS_st ldata = { };
-  ldata.lda_magic = LOADMAGIC_HDGJRPS;
+  ldata.lda_magic = LOADMAGIC_HDGJIRPS;
   ldata.lda_path = path;
   ldata.lda_start = (void *) endcomm;
-  ldata.lda_cur = endcomm + 1;
+  ldata.lda_cur = (void*) (endcomm + 1);
   ldata.lda_end = (void *) last;
   load_data_HDGJIRPS (&ldata);
   if (verbose_HDGJIRPS)
     printf ("%s: loaded state %s\n", progname_HDGJIRPS, path);
 }				/* end load_state_HDGJIRPS */
 
+void
+load_skip_spaces_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
+{
+  if (!ld || ld->lda_magic != LOADMAGIC_HDGJIRPS)
+    HDGJIRPS_FATAL ("load_skip_spaces_HDGJIRPS bad ld@%p", ld);
+  while (ld->lda_cur < ld->lda_end && isspace (*(char *) (ld->lda_cur)))
+    {
+      if (*((char *) (ld->lda_cur)) == '\n')
+	ld->lda_lineno++;
+    };
+}				/* end load_skip_spaces_HDGJIRPS */
+
 static void *
 loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 {
-  if (!ld || ld->lda_magic != LOADMAGIC_HDGJRPS)
+  if (!ld || ld->lda_magic != LOADMAGIC_HDGJIRPS)
     return NULL;
   void *res = NULL;
   int pos = -1;
   intptr_t i = 0;
   long long il = 0;
   double d = 0;
+  load_skip_spaces_HDGJIRPS (ld);
+  if (ld->lda_cur >= ld->lda_end)
+    return NULL;
+  if (isdigit (*(char *) ld->lda_cur)
+      || ((*(char*)ld->lda_cur=='+' || *(char*)ld->lda_cur=='-')
+	  && isdigit (((char *) ld->lda_cur)[1])))
+    {
+      char*endint= NULL;
+      char*endflo= NULL;
+      long long lli= 0;
+      double f=NAN;
+      lli= strtoll((const char*)ld->lda_cur, &endint, 0);
+      f= strtod((const char*)ld->lda_cur, &endflo);
+      if (endint != NULL && endflo != NULL && endflo>endint) {
+	ld->lda_cur = endflo;
+	return make_box_double_HDGJIRPS(f);
+      }
+      else if (endint > (const char*)ld->lda_cur) {
+	ld->lda_cur = endint;
+	return make_box_int_HDGJIRPS((intptr_t)lli);
+      }
+    }
   ///https://stackoverflow.com/a/5796039/841108
   if (sscanf (ld->lda_cur, " INT%lli%n", &il, &pos) >= 2 && pos > 0)
     {
@@ -112,7 +148,7 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 void
 load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 {
-  assert (ld && ld->lda_magic == LOADMAGIC_HDGJRPS);
+  assert (ld && ld->lda_magic == LOADMAGIC_HDGJIRPS);
   fprintf (stderr,
 	   "load_data_HDGJIRPS unimplemented for path %s [%s:%d] git %s\n",
 	   ld->lda_path, __FILE__, __LINE__, persist_HDGJIRPS_git);
