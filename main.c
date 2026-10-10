@@ -248,7 +248,7 @@ parse_program_option_HDGJIRPS (int argc, char **argv)
 	  printf ("%s version gitid %s built on %s\n", progname_HDGJIRPS,
 		  shortgitid_HDGJIRPS, __DATE__ "@" __TIME__);
 	  printf ("\t C version %ld, compiler %s\n", __STDC_VERSION__,
-		 __VERSION__);
+		  __VERSION__);
 	  printf ("\t libunistring version: %d.%d.%d\n",
 		  _libunistring_version >> 16,
 		  0xff & (_libunistring_version >> 8),
@@ -314,10 +314,22 @@ load_file_HDGJIRPS (const char *ldpath)
 			   MAP_SHARED,	/* MAP_HUGETLB dont work here */
 			   ldfd, 0);
   if (ldad == MAP_FAILED)
-    HDGJIRPS_FATAL
-      ("%s failed to mmap fd#%d (%zd Kbytes) for loaded file %s (%s)",
-       progname_HDGJIRPS, ldfd, mmapsize >> 10, ldpath, strerror (errno));
+    HDGJIRPS_FATAL ("%s failed to mmap fd#%d (%zd Kbytes)"
+		    " for loaded file %s (%s)",
+		    progname_HDGJIRPS, ldfd, mmapsize >> 10, ldpath,
+		    strerror (errno));
   const void *ldend = (const char *) ldad + mmapsize;
+  if (ldsize % pgsize == 0)
+    {
+      const void *zad = mmap ((void *) ldend, pgsize, PROT_READ,
+			      MAP_FIXED | MAP_PRIVATE | MAP_ANON,	/* MAP_HUGETLB dont work here */
+			      -1, 0);
+      if (zad != ldend)
+	HDGJIRPS_FATAL ("%s failed to mmap zero page at %p"
+			" for loaded file %s (%s)",
+			progname_HDGJIRPS, ldend, ldpath, strerror (errno));
+    };
+  assert (*(const char *) ldend == (char) 0);
   if (verbose_HDGJIRPS)
     {
       printf ("%s mmaped loaded file %s (fd#%d) for %zd Kbytes @%p-%p\n",
@@ -341,20 +353,20 @@ getexec_HDGJIRPS (void)
 		    progname_HDGJIRPS, executable_HDGJIRPS, strerror (errno));
 }				/* end getexec_HDGJIRPS */
 
-static void* progdlh_HOGJIRPS;
+static void *progdlh_HOGJIRPS;
 
-void*
-full_program_dlhandle_HOGJIRPS(void)
+void *
+full_program_dlhandle_HOGJIRPS (void)
 {
   return progdlh_HOGJIRPS;
-} /* end full_program_dlhandle_HOGJIRPS */
+}				/* end full_program_dlhandle_HOGJIRPS */
 
 int
 main (int argc, char **argv)
 {
   assert (argc > 0);
   progname_HDGJIRPS = argv[0];
-  progdlh_HOGJIRPS = dlopen(NULL, RTLD_LAZY);
+  progdlh_HOGJIRPS = dlopen (NULL, RTLD_LAZY);
   pthread_setname_np (pthread_self (), "main-rpsjit");
   gethostname (hostname_HDGJIRPS, sizeof (hostname_HDGJIRPS));
   getexec_HDGJIRPS ();
