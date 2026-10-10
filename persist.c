@@ -240,7 +240,7 @@ dump_seeker_HDGJIRPS (void *cookie, off64_t *position, int whence)
   struct dump_data_HDGJIRPS_st *dd = (struct dump_data_HDGJIRPS_st *) cookie;
   assert (dd && dd->dump_magic == DUMPMAGIC_HDGJIRPS);
   assert (position);
-#warning unimplimented dump_seeker_HDGJIRPS
+#warning unimplemented dump_seeker_HDGJIRPS
   HDGJIRPS_FATAL ("unimplemented dump_seeker_HDGJIRPS dd@%p", cookie);
   return res;
 }				/* end dump_seeker_HDGJIRPS */
