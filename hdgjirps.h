@@ -40,6 +40,7 @@
 
 #include <stdlib.h>
 #include <stdalign.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdatomic.h>
 #include <unistd.h>
@@ -57,6 +58,7 @@
 #include <math.h>
 #include <zlib.h>
 #include <unistr.h>
+#include <math.h>
 #include <dlfcn.h>
 #include <pthread.h>
 #include <threads.h>
@@ -175,6 +177,7 @@ struct dump_data_HDGJIRPS_st
   uint8_t  gcmark;				\
   uint8_t  flag;				\
   uint32_t length;				\
+  uint32_t hash;                                \
   uint32_t xtranum
 
 struct header_hdgjirps_st
@@ -199,26 +202,6 @@ enum scalar_typid_HDGJIRPS_en
 extern void register_scalar_value_HDGJIRPS (void *ptr,
 					    enum scalar_typid_HDGJIRPS_en
 					    typcod);
-
-
-inline bool
-is_valid_ptr_HDGJIRPS (const void *ptr)
-{
-  if (((intptr_t) ptr & ~0xf) == 0)
-    return false;
-  const struct header_hdgjirps_st *had = ptr;
-  switch (had->typenum)
-    {
-    case (int) sca_boxed_int:
-    case (int) sca_boxed_twoints:
-    case (int) sca_boxed_double:
-    case (int) sca_boxed_twodoubles:
-    case (int) sca_boxed_string:
-    case (int) sca_boxed_namedrout:
-      return true;
-    };
-  return false;
-}				/* end is_valid_ptr_HDGJIRPS */
 
 
 struct boxint_hdgjirps_st
@@ -324,8 +307,14 @@ struct node_hdgjirps_st
   void *nod_sons[];
 };
 
-struct compvect_hdgjirps_st; /// in composite.c
-struct attrvect_hdgjirps_st; /// in composite.c
+struct node_hdgjirps_st *make_node_vect_HDGJIRPS (struct object_hdgjirps_st
+						  *ob, unsigned nbsons,
+						  void **sontab);
+struct node_hdgjirps_st *make_node_args_HDGJIRPS (struct object_hdgjirps_st
+						  *ob, ...);
+#define MAKE_VNODE_HDGJIRPS(Ob,...) make_node_args_HDGJIRPS((Ob), #__VA_ARGS__, NULL);
+struct compvect_hdgjirps_st;	/// in composite.c
+struct attrvect_hdgjirps_st;	/// in composite.c
 struct object_hdgjirps_st
 {
   HDGJIRPS_HEADER_FIELDS;
@@ -336,10 +325,37 @@ struct object_hdgjirps_st
   struct compvect_hdgjirps_st *ob_compv;
 };				/* end struct object_hdgjirps_st */
 
-extern struct object_hdgjirps_st*load_object_HDGJIRPS(struct load_data_HDGJIRPS_st*ld);
-extern struct object_hdgjirps_st*find_object_HDGJIRPS(uint32_t hi, uint64_t lo);
-extern struct object_hdgjirps_st*make_object_HDGJIRPS(void);
-extern uint32_t hash_object_HDGJIRPS(struct object_hdgjirps_st*ob);
+inline bool
+is_valid_ptr_HDGJIRPS (const void *ptr)
+{
+  if (((intptr_t) ptr & 0xf) != 0)
+    return false;
+  if (((intptr_t) ptr & ~0xf) == 0)
+    return false;
+  const struct header_hdgjirps_st *had = ptr;
+  switch (had->typenum)
+    {
+    case (int) sca_boxed_int:
+    case (int) sca_boxed_twoints:
+    case (int) sca_boxed_double:
+    case (int) sca_boxed_twodoubles:
+    case (int) sca_boxed_string:
+    case (int) sca_boxed_namedrout:
+    case (int) -comp_boxed_node:
+    case (int) -comp_boxed_set:
+    case (int) -comp_boxed_object:
+      return true;
+    };
+  return false;
+}				/* end is_valid_ptr_HDGJIRPS */
+
+extern struct object_hdgjirps_st *load_object_HDGJIRPS (struct
+							load_data_HDGJIRPS_st
+							*ld);
+extern struct object_hdgjirps_st *find_object_HDGJIRPS (uint32_t hi,
+							uint64_t lo);
+extern struct object_hdgjirps_st *make_object_HDGJIRPS (void);
+extern uint32_t hash_object_HDGJIRPS (struct object_hdgjirps_st *ob);
 
 #endif /*HDGJIRPS_INCLUDED */
-/*end of file */
+/*end of hdgjirps.h file */
