@@ -181,22 +181,6 @@ get_double_HDGJIRPS (const void *ptr, double *p)
   return true;
 }				/* end get_double_HDGJIRPS */
 
-bool
-get_double_xtra_HDGJIRPS (const void *ptr, double *p, int32_t *x)
-{
-  if (!ptr || !is_valid_ptr_HDGJIRPS (ptr))
-    return false;
-  const struct boxdouble_hdgjirps_st *d =
-    (struct boxdouble_hdgjirps_st *) ptr;
-  if (d->typenum != sca_boxed_double)
-    return false;
-  if (p)
-    *p = d->dblval;
-  if (x)
-    *x = d->xtranum;
-  return true;
-}				/* end get_double_xtra_HDGJIRPS */
-
 
 struct string_hdgjirps_st *
 make_string_HDGJIRPS (const char *str)
