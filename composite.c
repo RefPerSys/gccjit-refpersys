@@ -238,6 +238,40 @@ end:
 }				/* end object_add_HDGJIRPS */
 
 
+struct node_hdgjirps_st *
+make_node_vect_HDGJIRPS (struct object_hdgjirps_st *ob, unsigned nbsons,
+			 void **sontab)
+{
+  struct node_hdgjirps_st *res = NULL;
+  if (!ob || !is_valid_ptr_HDGJIRPS (ob))
+    return NULL;
+  if (ob->typenum != comp_boxed_object)
+    return NULL;
+  res = mallocx (sizeof (struct node_hdgjirps_st) + nbsons * sizeof (void *),
+		 MALLOCX_ZERO | MALLOCX_ALIGN (1 << 4));
+  uint32_t h = hash_object_HDGJIRPS (ob) ^ (nbsons & 0xfff);
+  for (unsigned ix = 0; ix < nbsons; ix++)
+    {
+      void *curson = sontab ? sontab[ix] : NULL;
+      if (curson && is_valid_ptr_HDGJIRPS (curson))
+	{
+	  struct header_hdgjirps_st *hd =
+	    (struct header_hdgjirps_st *) curson;
+	  h = (h * 1307 + ix) ^ (hd->hash);
+	  res->nod_sons[ix] = curson;
+	}
+      else
+	h = h + ix;
+    };
+  res->typenum = -(int) comp_boxed_node;
+  res->hash = h;
+  res->nod_obj = ob;
+  res->gcmark = 0;
+  res->flag = 0;
+  register_composite_value_HDGJIRPS (res, comp_boxed_node);
+  return res;
+} /* end make_node_vect_HDGJIRPS */
+
 struct object_hdgjirps_st *
 make_object_HDGJIRPS (void)
 {
@@ -270,6 +304,7 @@ make_object_HDGJIRPS (void)
       if (!resob)
 	goto end;
       resob->typenum = -(int) comp_boxed_object;
+      resob->hash = hash_obid_HDGJIRPS (hi, lo);
       resob->gcmark = 0;
       resob->flag = 0;
       resob->ob_idhi = hi;
