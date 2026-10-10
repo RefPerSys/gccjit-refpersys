@@ -49,7 +49,7 @@ clean:
 	$(RM) *.o obj/*.o *.i *~ gccjit-refpersys a.out
 
 gccjit-refpersys: $(OBJFILES)
-	$(CC) $(CFLAGS) global.c $(NONGLOBOBFILES) -lbsd -lgccjit -L/usr/local/lib  -lunistring  -lbacktrace -ldl -lreadline -ljemalloc -lz -o $@
+	$(CC) $(CFLAGS) global.c $(NONGLOBOBFILES) -lm -lbsd -lgccjit -L/usr/local/lib  -lunistring  -lbacktrace -ldl -lreadline -ljemalloc -lz -o $@
 
 
 
