@@ -126,6 +126,7 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 	ld->lda_cur = endint;
 	return make_box_int_HDGJIRPS((intptr_t)lli);
       }
+      return NULL;
     }
   ///https://stackoverflow.com/a/5796039/841108
   if (sscanf (ld->lda_cur, " INT%lli%n", &il, &pos) >= 2 && pos > 0)
@@ -135,7 +136,7 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
       ld->lda_cur += pos;
       return res;
     }
-  else if (sscanf (ld->lda_cur, " FLO%lg%n", &d, &pos) >= 2 && pos)
+  else if (sscanf (ld->lda_cur, " FLO%lg%n", &d, &pos) >= 2 && pos > 0)
     {
       res = make_box_double_HDGJIRPS (d);
       ld->lda_cur += pos;
