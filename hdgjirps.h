@@ -106,7 +106,7 @@ extern int64_t randomi64_HDGJIRPS (void);
 
 extern void *full_program_dlhandle_HOGJIRPS (void);
 
-#define LOADMAGIC_HDGJRPS 0x5feb03561	/*25747797345 */
+#define LOADMAGIC_HDGJIRPS 0x3eb03561	/* 1051735393 */
 
 /// This loading state is called after a successful mmap of path
 /// (start -> end)
@@ -116,15 +116,18 @@ load_state_HDGJIRPS (const char *path, const void *start, const void *last);
 extern void
 write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab);
 
-extern const uint64_t loadmagic_HDGJRPS;
+extern const uint32_t loadmagic_HDGJIRPS;
 struct load_data_HDGJIRPS_st
 {
-  uint64_t lda_magic;		/* aload loadmagic_HDGJRPS */
+  uint32_t lda_magic;		/* aload loadmagic_HDGJRPS */
+  uint32_t lda_lineno;
   const char *lda_path;
   void *lda_start;
   void *lda_cur;
   void *lda_end;
 };
+
+extern void load_skip_spaces_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
 
 #define DUMPMAGIC_HDGJIRPS 0x3d4a10bf	/* 1028264127 */
 

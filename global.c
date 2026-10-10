@@ -48,6 +48,6 @@ struct backtrace_state *backtrace_state_HDGJIRPS;
 const char shortgitid_HDGJIRPS[32] = SHORTGITID;
 pthread_mutex_t globmtx_HDGJIRPS = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 char executable_HDGJIRPS[128];
-const uint64_t loadmagic_HDGJRPS = LOADMAGIC_HDGJRPS;
+const uint32_t loadmagic_HDGJIRPS = LOADMAGIC_HDGJIRPS;
 
 /// end of file gccjit-refpersys/global.c
