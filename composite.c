@@ -270,7 +270,57 @@ make_node_vect_HDGJIRPS (struct object_hdgjirps_st *ob, unsigned nbsons,
   res->flag = 0;
   register_composite_value_HDGJIRPS (res, comp_boxed_node);
   return res;
-} /* end make_node_vect_HDGJIRPS */
+}				/* end make_node_vect_HDGJIRPS */
+
+struct node_hdgjirps_st *
+make_node_args_HDGJIRPS (struct object_hdgjirps_st *ob, ...)
+{
+  struct node_hdgjirps_st *nod = NULL;
+  int nbargs = 0;
+  va_list args;
+  const int small_len = 64;
+  void *smallarr[small_len];
+  void **bigptr = NULL;
+  memset (smallarr, 0, sizeof (smallarr));
+  va_start (args, ob);
+  for (;;)
+    {
+      void *curarg = va_arg (args, void *);
+      if (!curarg || !is_valid_ptr_HDGJIRPS (curarg))
+	break;
+      if (nbargs < small_len)
+	smallarr[nbargs] = curarg;
+      nbargs++;
+    }
+  va_end (args);
+  if (nbargs >= small_len)
+    {
+      bigptr = mallocx ((nbargs + 1) * sizeof (void *),
+			MALLOCX_ZERO | MALLOCX_ALIGN (1 << 4));
+      va_start (args, ob);
+      for (;;)
+	{
+	  void *curarg = va_arg (args, void *);
+	  if (!curarg || !is_valid_ptr_HDGJIRPS (curarg))
+	    break;
+	  bigptr[nbargs] = curarg;
+	  nbargs++;
+	};
+      va_end (args);
+    };
+  if (nbargs < small_len)
+    {
+      assert (bigptr == NULL);
+      nod = make_node_vect_HDGJIRPS (ob, nbargs, smallarr);
+    }
+  else
+    {
+      assert (bigptr != NULL);
+      nod = make_node_vect_HDGJIRPS (ob, nbargs, bigptr);
+      dallocx (bigptr, nbargs * sizeof (void *));
+    }
+  return nod;
+}				/* end make_node_args_HDGJIRPS */
 
 struct object_hdgjirps_st *
 make_object_HDGJIRPS (void)
