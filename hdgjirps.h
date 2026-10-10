@@ -304,6 +304,7 @@ enum composite_typid_HDGJIRPS_en
 {
   comp__none,
   comp_boxed_node,
+  comp_boxed_set,
   comp_boxed_object,
   comp__lasttypid
 };
@@ -314,6 +315,8 @@ extern void register_composite_value_HDGJIRPS (void *ptr,
 					       typcod);
 
 struct object_hdgjirps_st;
+struct set_hdgjirps_st;
+struct node_hdgjirps_st;
 
 struct node_hdgjirps_st
 {
@@ -322,12 +325,16 @@ struct node_hdgjirps_st
   void *nod_sons[];
 };
 
+struct compvect_hdgjirps_st;
+struct attrvect_hdgjirps_st;
 struct object_hdgjirps_st
 {
   HDGJIRPS_HEADER_FIELDS;
   pthread_mutex_t ob_mtx;
-  int64_t ob_idhi;
-  int64_t ob_idlo;
+  uint64_t ob_idhi;
+  uint64_t ob_idlo;
+  struct attrvect_hdgjirps_st *ob_attrv;
+  struct compvect_hdgjirps_st *ob_compv;
 };				/* end struct object_hdgjirps_st */
 #endif /*HDGJIRPS_INCLUDED */
 /*end of file */
