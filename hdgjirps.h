@@ -251,7 +251,6 @@ unsigned hashstr_HDGJIRPS (const char *s);
 
 struct boxdouble_hdgjirps_st *make_box_double_HDGJIRPS (double v);
 bool get_double_HDGJIRPS (const void *ptr, double *p);
-bool get_double_xtra_HDGJIRPS (const void *ptr, double *p, int32_t * x);
 
 
 //-  struct boxtwodbls_hdgjirps_st
@@ -325,16 +324,22 @@ struct node_hdgjirps_st
   void *nod_sons[];
 };
 
-struct compvect_hdgjirps_st;
-struct attrvect_hdgjirps_st;
+struct compvect_hdgjirps_st; /// in composite.c
+struct attrvect_hdgjirps_st; /// in composite.c
 struct object_hdgjirps_st
 {
   HDGJIRPS_HEADER_FIELDS;
   pthread_mutex_t ob_mtx;
-  uint64_t ob_idhi;
+  uint32_t ob_idhi;
   uint64_t ob_idlo;
   struct attrvect_hdgjirps_st *ob_attrv;
   struct compvect_hdgjirps_st *ob_compv;
 };				/* end struct object_hdgjirps_st */
+
+extern struct object_hdgjirps_st*load_object_HDGJIRPS(struct load_data_HDGJIRPS_st*ld);
+extern struct object_hdgjirps_st*find_object_HDGJIRPS(uint32_t hi, uint64_t lo);
+extern struct object_hdgjirps_st*make_object_HDGJIRPS(void);
+extern uint32_t hash_object_HDGJIRPS(struct object_hdgjirps_st*ob);
+
 #endif /*HDGJIRPS_INCLUDED */
 /*end of file */
