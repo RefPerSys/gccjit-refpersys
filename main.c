@@ -214,7 +214,7 @@ program_usage_HDGJIRPS (void)
   printf ("\t -V | --verbose         # verbose flag\n");
   printf ("\t -v | --version         # version info\n");
   printf ("\t -H | --help            # this help\n");
-  printf ("\t      --random          # prints a random id\n");
+  printf ("\t      --random          # prints a random 64bits\n");
   printf ("\t -l | --load <topfile>  # load heap from TOPFILE\n");
   printf
     ("%s is GPLv3+ licensed, so WITHOUT WARRANTY;\n"
