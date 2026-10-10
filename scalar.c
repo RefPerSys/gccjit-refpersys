@@ -83,7 +83,11 @@ make_box_int_HDGJIRPS (intptr_t v)
   p->gcmark = 0;
   p->flag = 0;
   p->xtranum = 0;
+  uint32_t h = (v ^ (v >> 25));
+  if (h == 0)
+    h = (v & 0xffff) + 1;
   p->intval = v;
+  p->hash = h;
   return p;
 }				/* end make_box_int_HDGJIRPS */
 
@@ -119,7 +123,13 @@ make_boxtwoints_HDGJIRPS (intptr_t v0, intptr_t v1)
   p->typenum = sca_boxed_twoints;
   p->gcmark = 0;
   p->flag = 0;
+  uint32_t h =
+    (uint32_t) (v0 * 347) ^ (uint32_t) (v1 * 397 +
+					((v0 & 0xfff) | (v1 & 0xfff)));
+  if (h == 0)
+    h = (v0 & 0xffff) + (v1 & 0x3ffff) + 3;
   p->xtranum = 0;
+  p->hash = h;
   p->intpair[0] = v0;
   p->intpair[1] = v1;
   return p;
@@ -162,6 +172,11 @@ make_box_double_HDGJIRPS (double v)
   p->gcmark = 0;
   p->flag = 0;
   p->xtranum = 0;
+  unsigned h =
+    ((uint32_t) rint (v)) ^ ((uint32_t) rint (3.0 * log (0.5 + fabs (v))));
+  if (h == 0)
+    h = 11;
+  p->hash = h;
   p->dblval = v;
   return p;
 }				/* end make_box_double_HDGJIRPS */
@@ -199,6 +214,7 @@ make_string_HDGJIRPS (const char *str)
   p->gcmark = 0;
   p->flag = 0;
   p->length = slen;
+  p->hash = hashstr_HDGJIRPS (str);
   memcpy (p->cstr, str, slen);
   return p;
 }				/* end make_string_HDGJIRPS */
@@ -217,6 +233,7 @@ make_sized_string_HDGJIRPS (const char *str, int bytesize)
   p->gcmark = 0;
   p->flag = 0;
   p->length = slen;
+  p->hash = hashstr_HDGJIRPS (str);
   memcpy (p->cstr, str, slen);
   return p;
 }				/* end make_sized_string_HDGJIRPS */
@@ -270,6 +287,7 @@ make_namedrout_HDGJIRPS (const char *nam)
   if (!p)
     return NULL;
   p->typenum = sca_boxed_namedrout;
+  p->hash = hashstr_HDGJIRPS (p->routnam);
   p->gcmark = 0;
   p->flag = 0;
   strcpy ((char *) p->routnam, nam);
@@ -304,6 +322,7 @@ get_namedrout_HDGJIRPS (const void *ptr, void **pad, const char **pnam)
     }
   else
     ad = d->routad;
+  d->hash = hashstr_HDGJIRPS (d->routnam);
   if (pad)
     *pad = ad;
   if (pnam)
