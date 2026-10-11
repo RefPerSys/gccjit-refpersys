@@ -116,11 +116,15 @@ extern bool uint64b36_HDGJIRPS (uint64_t i, char *buf, int bufsiz);
 
 #define LOADMAGIC_HDGJIRPS 0x3eb03561	/* 1051735393 */
 
+extern void load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
+extern void *loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
+extern struct object_hdgjirps_st *load_fill_object_HDGJIRPS (struct
+							     load_data_HDGJIRPS_st
+							     *ld);
 /// This loading state is called after a successful mmap of path
 /// (start -> end)
-extern void
-load_state_HDGJIRPS (const char *path, const char *start, const char *last);
-
+extern void load_state_HDGJIRPS (const char *path, const char *start,
+				 const char *last);
 
 extern struct object_hdgjirps_st *make_loaded_object_HDGJIRPS (struct
 							       load_data_HDGJIRPS_st

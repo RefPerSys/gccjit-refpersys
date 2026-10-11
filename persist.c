@@ -39,12 +39,6 @@ const char persist_HDGJIRPS_git[] = SHORTGITID;
 
 static_assert (sizeof (FILE) < 32 * sizeof (void *));
 
-static void load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
-
-static void *loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
-static struct object_hdgjirps_st *load_fill_object_HDGJIRPS (struct
-							     load_data_HDGJIRPS_st
-							     *ld);
 
 const char start_comment_HDGJIRPS[] = "#*START-GCCJIT-REFPERSYS";
 
@@ -98,7 +92,7 @@ load_skip_spaces_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
     };
 }				/* end load_skip_spaces_HDGJIRPS */
 
-static void *
+void *
 loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 {
   if (!ld || ld->lda_magic != LOADMAGIC_HDGJIRPS)
