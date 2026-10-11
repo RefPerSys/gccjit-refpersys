@@ -113,7 +113,7 @@ extern void *full_program_dlhandle_HOGJIRPS (void);
 /// This loading state is called after a successful mmap of path
 /// (start -> end)
 extern void
-load_state_HDGJIRPS (const char *path, const void *start, const void *last);
+load_state_HDGJIRPS (const char *path, const char *start, const char *last);
 
 extern void
 write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab);

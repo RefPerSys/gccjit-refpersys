@@ -287,8 +287,6 @@ parse_program_option_HDGJIRPS (int argc, char **argv)
 void
 load_file_HDGJIRPS (const char *ldpath)
 {
-  extern void load_state_HDGJIRPS (const char *path, const void *start,
-				   const void *last);
   struct stat ldstat = { };
   int ldfd = open (ldpath, R_OK);
   if (ldfd < 0)
@@ -299,44 +297,47 @@ load_file_HDGJIRPS (const char *ldpath)
   if (fstat (ldfd, &ldstat))
     HDGJIRPS_FATAL ("%s failed to fstat loaded file %s (%s) fd#%d",	//
 		    progname_HDGJIRPS, ldpath, strerror (errno), ldfd);
-  size_t ldsize = ldstat.st_size;
+  size_t filsize = ldstat.st_size;
   size_t pgsize = getpagesize ();
-  size_t memsize = (ldsize % pgsize) ? (1 + (ldsize | (pgsize - 1))) : ldsize;
-  size_t mmapsize = memsize;
+  size_t memsize = (filsize % pgsize) ? (1 + (filsize | (pgsize - 1)))
+    : filsize;
   if (verbose_HDGJIRPS)
     {
-      printf ("%s: [%s:%d] mmap mmapsize=%zd ldfd#%d ldsize=%zd ldpath:%s\n",
-	      progname_HDGJIRPS, __FILE__, __LINE__ - 1, mmapsize, ldfd,
-	      ldsize, ldpath);
+      printf ("%s: [%s:%d] mmap memsize=%zd ldfd#%d\n"
+	      " filsize=%zd ldpath:%s\n",
+	      progname_HDGJIRPS, __FILE__, __LINE__ - 1, memsize, ldfd,
+	      filsize, ldpath);
       fflush (NULL);
     }
-  const void *ldad = mmap (NULL, mmapsize, PROT_READ,
+  assert (memsize % pgsize == 0);
+  const void *ldad = mmap (NULL, memsize, PROT_READ,
 			   MAP_SHARED,	/* MAP_HUGETLB dont work here */
 			   ldfd, 0);
   if (ldad == MAP_FAILED)
     HDGJIRPS_FATAL ("%s failed to mmap fd#%d (%zd Kbytes)"
 		    " for loaded file %s (%s)",
-		    progname_HDGJIRPS, ldfd, mmapsize >> 10, ldpath,
+		    progname_HDGJIRPS, ldfd, memsize >> 10, ldpath,
 		    strerror (errno));
-  const void *ldend = (const char *) ldad + mmapsize;
-  if (ldsize % pgsize == 0)
+  const char *cldad = (const char *) ldad;
+  const char *cldend = cldad + filsize;
+  if (filsize % pgsize == 0)
     {
-      const void *zad = mmap ((void *) ldend, pgsize, PROT_READ,
+      const void *zad = mmap ((void *) cldend, pgsize, PROT_READ,
 			      MAP_FIXED | MAP_PRIVATE | MAP_ANON,	/* MAP_HUGETLB dont work here */
 			      -1, 0);
-      if (zad != ldend)
+      if (zad != cldend)
 	HDGJIRPS_FATAL ("%s failed to mmap zero page at %p"
 			" for loaded file %s (%s)",
-			progname_HDGJIRPS, ldend, ldpath, strerror (errno));
+			progname_HDGJIRPS, cldend, ldpath, strerror (errno));
     };
-  assert ((*((const char *) ldad) + ldsize) == (char) 0);
+  assert (cldad[filsize] == (char) 0);
   if (verbose_HDGJIRPS)
     {
       printf ("%s mmaped loaded file %s (fd#%d) for %zd Kbytes @%p-%p\n",
-	      progname_HDGJIRPS, ldpath, ldfd, mmapsize >> 10, ldad, ldend);
+	      progname_HDGJIRPS, ldpath, ldfd, memsize >> 10, ldad, cldend);
       fflush (NULL);
     };
-  load_state_HDGJIRPS (ldpath, ldad, ldend);
+  load_state_HDGJIRPS (ldpath, cldad, cldend);
 }				/* end load_file_HDGJIRPS */
 
 static void
