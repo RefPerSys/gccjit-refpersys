@@ -56,7 +56,7 @@ gccjit-refpersys: $(OBJFILES)
 test00: gccjit-refpersys GNUmakefile cold-load.sh
 	./cold-load.sh
 
-#obj/main.o: main.c |GNUmakefile hdgjirps.h toml-c.h
+#obj/main.o: main.c |GNUmakefile hdgjirps.h
 #	$(CC) $(CFLAGS) $< -o $@
-obj/%.o: %.c hdgjirps.h toml-c.h |GNUmakefile 
+obj/%.o: %.c hdgjirps.h  |GNUmakefile 
 	$(CC) $(CFLAGS) -c $< -o $@
