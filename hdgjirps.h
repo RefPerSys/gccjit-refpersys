@@ -106,7 +106,11 @@ emit_gplv3_notice_AT_HDGJIRPS (FILE * fout, const char *fil, int lin,
 extern int32_t randomi32_HDGJIRPS (void);
 extern int64_t randomi64_HDGJIRPS (void);
 
-extern void *full_program_dlhandle_HOGJIRPS (void);
+extern void *full_program_dlhandle_HDGJIRPS (void);
+
+/// convert an unsigned 64 bits  to its string representation in base 36
+/// the reverse is done by strtoll; return true if successful
+extern bool uint64b36_HDGJIRPS (uint64_t i, char *buf, int bufsiz);
 
 #define LOADMAGIC_HDGJIRPS 0x3eb03561	/* 1051735393 */
 

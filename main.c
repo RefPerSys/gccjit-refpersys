@@ -354,20 +354,54 @@ getexec_HDGJIRPS (void)
 		    progname_HDGJIRPS, executable_HDGJIRPS, strerror (errno));
 }				/* end getexec_HDGJIRPS */
 
-static void *progdlh_HOGJIRPS;
+static void *progdlh_HDGJIRPS;
 
 void *
-full_program_dlhandle_HOGJIRPS (void)
+full_program_dlhandle_HDGJIRPS (void)
 {
-  return progdlh_HOGJIRPS;
+  return progdlh_HDGJIRPS;
 }				/* end full_program_dlhandle_HOGJIRPS */
+
+
+bool
+uint64b36_HDGJIRPS (uint64_t i, char *buf, int bufsiz)
+{
+  if (!buf)
+    return false;
+  if (i == 0)
+    {
+      if (bufsiz <= 2)
+	return false;;
+      buf[0] = '0';
+      buf[1] = (char) 0;
+      return true;
+    };
+  char locbuf[48];
+  memset (locbuf, 0, sizeof (locbuf));
+  char *p = locbuf;
+  uint64_t n = i;
+  while (n != 0)
+    {
+      unsigned c = n % 36;
+      n = n / 36;
+      *p = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[c];
+      p++;
+    };
+  char *w = buf;
+  if (p - locbuf + 1 < bufsiz)
+    return false;
+  for (char *b = p - 1; b >= locbuf; b--)
+    *(w++) = *b;
+  return true;
+}				/* end uint64b36_HDGJIRPS */
+
 
 int
 main (int argc, char **argv)
 {
   assert (argc > 0);
   progname_HDGJIRPS = argv[0];
-  progdlh_HOGJIRPS = dlopen (NULL, RTLD_LAZY);
+  progdlh_HDGJIRPS = dlopen (NULL, RTLD_LAZY);
   pthread_setname_np (pthread_self (), "main-rpsjit");
   gethostname (hostname_HDGJIRPS, sizeof (hostname_HDGJIRPS));
   getexec_HDGJIRPS ();

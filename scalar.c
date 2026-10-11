@@ -275,7 +275,7 @@ make_namedrout_HDGJIRPS (const char *nam)
   size_t namlen = strlen (nam);
   if (namlen >= NAMEDROUT_LENGTH_HDGJIRPS)
     return NULL;
-  void *ad = dlsym (full_program_dlhandle_HOGJIRPS (), nam);
+  void *ad = dlsym (full_program_dlhandle_HDGJIRPS (), nam);
   if (!ad)
     {
       fprintf (stderr, "%s: missing symbol %s (%s) [%s:%d]\n",
@@ -309,7 +309,7 @@ get_namedrout_HDGJIRPS (const void *ptr, void **pad, const char **pnam)
   assert (strlen (d->routnam) < NAMEDROUT_LENGTH_HDGJIRPS);
   if (d->routad == NULL)
     {
-      ad = dlsym (full_program_dlhandle_HOGJIRPS (), d->routnam);
+      ad = dlsym (full_program_dlhandle_HDGJIRPS (), d->routnam);
       if (!ad)
 	{
 	  fprintf (stderr, "%s: missing symbol %s (%s) [%s:%d]\n",
