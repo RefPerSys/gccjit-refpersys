@@ -39,6 +39,8 @@
 
 const char composite_shortgit_HDGJIRPS[] = SHORTGITID;
 
+const uint32_t minhi_obid_HDGJIRPS = 0x400;
+const uint64_t minlo_obid_HDGJIRPS = 0x1000;
 
 static uint32_t hash_obid_HDGJIRPS (uint32_t hi, uint64_t lo);
 
@@ -148,7 +150,7 @@ hash_obid_HDGJIRPS (uint32_t hi, uint64_t lo)
     h = 1 + (lo & 0x7fffffff);
   assert (h != 0);
   return h;
-}
+}				/* end hash_obid_HDGJIRPS */
 
 uint32_t
 hash_object_HDGJIRPS (struct object_hdgjirps_st *ob)
@@ -346,7 +348,55 @@ make_object_HDGJIRPS (void)
     {
       uint32_t hi = randomi32_HDGJIRPS ();
       uint64_t lo = randomi64_HDGJIRPS ();
-      if (hi < 0x100 || lo < 0x100)
+      if (hi < minhi_obid_HDGJIRPS || lo < minlo_obid_HDGJIRPS)
+	continue;
+      if (find_object_HDGJIRPS (hi, lo))
+	continue;
+      resob = MALLOC_HDGJIRPS (sizeof (struct object_hdgjirps_st));
+      if (!resob)
+	goto end;
+      resob->typenum = -(int) comp_boxed_object;
+      resob->hash = hash_obid_HDGJIRPS (hi, lo);
+      resob->gcmark = 0;
+      resob->flag = 0;
+      resob->ob_idhi = hi;
+      resob->ob_idlo = lo;
+      object_add_HDGJIRPS (resob);
+    };
+end:
+  pthread_mutex_unlock (&object_mtx_HDGJIRPS);
+  return resob;
+}				/* end make_object_HDGJIRPS */
+
+
+
+
+
+struct object_hdgjirps_st *
+make_loaded_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ld,
+			     uint32_t hi, uint32_t lo)
+{
+  assert (ld && ld->lda_magic == LOADMAGIC_HDGJIRPS);
+  struct object_hdgjirps_st *resob = NULL;
+  pthread_mutex_lock (&object_mtx_HDGJIRPS);
+  if (4 * object_arrcnt_HDGJIRPS + 5 > 3 * object_arrsize_HDGJIRPS)
+    {
+      struct object_hdgjirps_st **oldarr = object_arrptr_HDGJIRPS;
+      unsigned oldcnt = object_arrcnt_HDGJIRPS;
+      unsigned oldsiz = object_arrsize_HDGJIRPS;
+      unsigned newsiz = 1 + ((4 * oldcnt / 3 + 20) | 0x3f);
+      object_arrptr_HDGJIRPS =
+	mallocx (newsiz * sizeof (void *),
+		 MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
+      object_arrcnt_HDGJIRPS = 0;
+      object_arrsize_HDGJIRPS = newsiz;
+      for (unsigned ix = 0; ix < oldsiz; ix++)
+	if (oldarr[ix] != NULL)
+	  object_add_HDGJIRPS (oldarr[ix]);
+    };
+  while (resob == NULL)
+    {
+      if (hi < minhi_obid_HDGJIRPS || lo < minlo_obid_HDGJIRPS)
 	continue;
       if (find_object_HDGJIRPS (hi, lo))
 	continue;

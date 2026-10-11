@@ -87,6 +87,8 @@ extern char full_source_main_HDGJIRPS[];
 extern char executable_HDGJIRPS[128];
 extern int verbose_HDGJIRPS;
 extern pthread_mutex_t globmtx_HDGJIRPS;
+struct load_data_HDGJIRPS_st;
+
 
 extern double wallclock_real_time_HDGJIRPS (void);
 extern double monotonic_real_time_HDGJIRPS (void);
@@ -118,6 +120,13 @@ extern bool uint64b36_HDGJIRPS (uint64_t i, char *buf, int bufsiz);
 /// (start -> end)
 extern void
 load_state_HDGJIRPS (const char *path, const char *start, const char *last);
+
+
+extern struct object_hdgjirps_st *make_loaded_object_HDGJIRPS (struct
+							       load_data_HDGJIRPS_st
+							       *ld,
+							       uint32_t hi,
+							       uint32_t lo);
 
 extern void
 write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab);
@@ -299,6 +308,9 @@ extern void register_composite_value_HDGJIRPS (void *ptr,
 					       enum
 					       composite_typid_HDGJIRPS_en
 					       typcod);
+
+extern const uint32_t minhi_obid_HDGJIRPS;
+extern const uint64_t minlo_obid_HDGJIRPS;
 
 struct object_hdgjirps_st;
 struct set_hdgjirps_st;
