@@ -92,6 +92,101 @@ load_skip_spaces_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
     };
 }				/* end load_skip_spaces_HDGJIRPS */
 
+#if 0 /* borowwed from nwcc.sourceforge.net file token.c"*/
+
+/*
+ * Function parses the escape sequence pointed to by s and returns
+ * the result. The type argument indicates whether the function is
+ * called on a string or character constant. -1 is returned on
+ * failure (bad format.)
+ *
+ * XXX this is not aware of cross-compilation... So in the event that
+ * we're going to support a system with 16- or 32-bit bytes (not
+ * infinitely unlikely), it will have to be adapted as necessary.
+ * This should also affect the preprocessor as far as character
+ * constants are concerned
+ */
+static int 
+get_escape_sequence(const char *s, int type, int *badseq) {
+	int	rc = -1;
+
+	*badseq = 0;
+	if (isdigit((unsigned char)*s)) {
+		/* Octal constant */
+		if (s[0] == '0' && isdigit((unsigned char)s[1]) == 0) {
+			/* Null constant '\0' */
+			return 0;
+		}
+		if (s[0] == '0') ++s;
+		if (sscanf(s, type == TOK_STRING_LITERAL ? "%3o" : "%o",
+					(unsigned *)&rc) != 1) {
+			lexerror("Invalid octal constant.");
+			*badseq = 1;
+			return -1;
+		}
+	} else if (tolower((unsigned char)*s) == 'x') {
+		/* Is hexadecimal constant */
+		if (sscanf(s+1, type == TOK_STRING_LITERAL ? "%2x" : "%x",
+					(unsigned *)&rc) != 1) {
+			lexerror("Invalid hexadecimal constant.");
+			*badseq = 1;
+			return -1;
+		}
+	} else {
+		/* Must be other escape sequence */
+		static struct {
+			char	ch;
+			char	seq;
+		} esc[] = {
+			{ 'n', '\n' },
+			{ 'r', '\r' },
+			{ 't', '\t' },
+			{ 'v', '\v' },
+			{ 'b', '\b' },
+			{ 'a', '\a' },
+			{ 'f', '\f' },
+			{ '\\', '\\' },
+			{ '\'', '\''},
+			{ '\"', '\"'},
+			{ '\?', '\?'},
+			{ 0, 0		}
+		};
+		int	i;
+		for (i = 0; esc[i].ch != 0; ++i) {
+			if (s[0] == esc[i].ch) {
+				rc = esc[i].seq;
+				if (s[1] != 0 && type == TOK_CHAR_LITERAL) {
+					if (s[1] != '\'') {
+						lexwarning("Multiple characters "
+							"in character constant"
+							" - ignoring excess"
+							"characters.");
+					}
+				}
+				break;
+			}
+		}
+		if (esc[i].ch == 0) {
+			if (s[0] == '%') {
+				lexwarning("`\\%%' is not a valid escape "
+					"sequence in ISO C");
+			} else {
+				lexerror("Invalid escape sequence.");
+			}
+		}
+	}
+
+	if (type == TOK_CHAR_LITERAL
+		&& (rc > UCHAR_MAX || rc < CHAR_MIN)) {
+		lexwarning("Literal out of character range.");
+	}
+	rc = (char)rc;
+	return rc;
+}
+
+#endif /* borowed from "nwcc.sourceforge.net" file token.c */
+
+//// this function is adapted from nwcc
 void *
 loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 {
@@ -127,8 +222,17 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 	}
       return NULL;
     }
+  else if (*(char*)ld->lda_cur == '\"') {
+    char smbuf[64];
+    memset (smbuf, 0, sizeof(smbuf));
+    if (sscanf(ld->lda_cur, "\"%60[^\n\r\f\"]\"%n", smbuf, &pos) >= 1
+	&& pos>2) {
+      ld->lda_cur += pos;
+      return make_string_HDGJIRPS(smbuf);
+    }
+  }
   ///https://stackoverflow.com/a/5796039/841108
-  if (sscanf (ld->lda_cur, "INT%lli%n", &il, &pos) >= 2 && pos > 0)
+  else if (sscanf (ld->lda_cur, "INT%lli%n", &il, &pos) >= 2 && pos > 0)
     {
       i = (intptr_t) il;
       res = make_box_int_HDGJIRPS (i);
