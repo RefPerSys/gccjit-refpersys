@@ -274,7 +274,15 @@ parse_program_option_HDGJIRPS (int argc, char **argv)
 	  loadpath_HDGJIRPS = optarg;
 	  break;
 	case random_optHDGJIRPS:
-	  printf ("%ld\n", (long) randomi64_HDGJIRPS ());
+	  {
+	    uint64_t r = randomi64_HDGJIRPS ();
+	    char buf[40];
+	    memset (buf, 0, sizeof (buf));
+	    uint64b36_HDGJIRPS (r, buf, sizeof (buf) - 1);
+	    printf ("%lld = %s\n", (long long) r, buf);
+	    assert (buf[0] != (char) 0);
+	    assert ((uint64_t) strtol (buf, NULL, 36) == r);
+	  }
 	  break;
 	default:
 	  break;
@@ -388,10 +396,12 @@ uint64b36_HDGJIRPS (uint64_t i, char *buf, int bufsiz)
       p++;
     };
   char *w = buf;
-  if (p - locbuf + 1 < bufsiz)
+  if (p - locbuf + 1 > bufsiz)
     return false;
   for (char *b = p - 1; b >= locbuf; b--)
     *(w++) = *b;
+  *w = 0;
+  assert (strlen (buf) > 0 && (int) strlen (buf) < bufsiz);
   return true;
 }				/* end uint64b36_HDGJIRPS */
 
