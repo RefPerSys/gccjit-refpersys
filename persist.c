@@ -48,7 +48,7 @@ const char start_comment_HDGJIRPS[] = "#*START-GCCJIT-REFPERSYS";
 /// This loading state is called after a successful mmap of path
 /// (start -> end)
 void
-load_state_HDGJIRPS (const char *path, const void *start, const void *last)
+load_state_HDGJIRPS (const char *path, const char *start, const char *last)
 {
   int lineno = 1;
   assert (path != NULL);
@@ -76,7 +76,7 @@ load_state_HDGJIRPS (const char *path, const void *start, const void *last)
   ldata.lda_magic = LOADMAGIC_HDGJIRPS;
   ldata.lda_path = path;
   ldata.lda_start = (void *) endcomm;
-  ldata.lda_cur = (void*) (endcomm + 1);
+  ldata.lda_cur = (void *) (endcomm + 1);
   ldata.lda_end = (void *) last;
   load_data_HDGJIRPS (&ldata);
   if (verbose_HDGJIRPS)
@@ -109,23 +109,25 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
   if (ld->lda_cur >= ld->lda_end)
     return NULL;
   if (isdigit (*(char *) ld->lda_cur)
-      || ((*(char*)ld->lda_cur=='+' || *(char*)ld->lda_cur=='-')
+      || ((*(char *) ld->lda_cur == '+' || *(char *) ld->lda_cur == '-')
 	  && isdigit (((char *) ld->lda_cur)[1])))
     {
-      char*endint= NULL;
-      char*endflo= NULL;
-      long long lli= 0;
-      double f=NAN;
-      lli= strtoll((const char*)ld->lda_cur, &endint, 0);
-      f= strtod((const char*)ld->lda_cur, &endflo);
-      if (endint != NULL && endflo != NULL && endflo>endint) {
-	ld->lda_cur = endflo;
-	return make_box_double_HDGJIRPS(f);
-      }
-      else if (endint > (const char*)ld->lda_cur) {
-	ld->lda_cur = endint;
-	return make_box_int_HDGJIRPS((intptr_t)lli);
-      }
+      char *endint = NULL;
+      char *endflo = NULL;
+      long long lli = 0;
+      double f = NAN;
+      lli = strtoll ((const char *) ld->lda_cur, &endint, 0);
+      f = strtod ((const char *) ld->lda_cur, &endflo);
+      if (endint != NULL && endflo != NULL && endflo > endint)
+	{
+	  ld->lda_cur = endflo;
+	  return make_box_double_HDGJIRPS (f);
+	}
+      else if (endint > (const char *) ld->lda_cur)
+	{
+	  ld->lda_cur = endint;
+	  return make_box_int_HDGJIRPS ((intptr_t) lli);
+	}
       return NULL;
     }
   ///https://stackoverflow.com/a/5796039/841108
