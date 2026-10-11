@@ -73,6 +73,8 @@
 
 #include <libgccjit.h>		/* see gcc.gnu.org/onlinedocs/jit/ */
 
+typedef struct _object_HDGJIRPS_st Obj_HDGJIRPS;
+
 extern gcc_jit_context *jitctx_HDGJIRPS;
 extern const char *progname_HDGJIRPS;
 extern const char *loadpath_HDGJIRPS;
@@ -118,19 +120,16 @@ extern bool uint64b36_HDGJIRPS (uint64_t i, char *buf, int bufsiz);
 
 extern void load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
 extern void *loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
-extern struct object_hdgjirps_st *load_fill_object_HDGJIRPS (struct
-							     load_data_HDGJIRPS_st
-							     *ld);
+extern void load_fill_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ld,
+				       Obj_HDGJIRPS * pob);
 /// This loading state is called after a successful mmap of path
 /// (start -> end)
 extern void load_state_HDGJIRPS (const char *path, const char *start,
 				 const char *last);
 
-extern struct object_hdgjirps_st *make_loaded_object_HDGJIRPS (struct
-							       load_data_HDGJIRPS_st
-							       *ld,
-							       uint32_t hi,
-							       uint32_t lo);
+extern Obj_HDGJIRPS *make_loaded_object_HDGJIRPS (struct load_data_HDGJIRPS_st
+						  *ld, uint32_t hi,
+						  uint32_t lo);
 
 extern void
 write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab);
@@ -316,26 +315,24 @@ extern void register_composite_value_HDGJIRPS (void *ptr,
 extern const uint32_t minhi_obid_HDGJIRPS;
 extern const uint64_t minlo_obid_HDGJIRPS;
 
-struct object_hdgjirps_st;
 struct set_hdgjirps_st;
 struct node_hdgjirps_st;
 
 struct node_hdgjirps_st
 {
   HDGJIRPS_HEADER_FIELDS;
-  struct object_hdgjirps_st *nod_obj;
+  Obj_HDGJIRPS *nod_obj;
   void *nod_sons[];
 };
 
-struct node_hdgjirps_st *make_node_vect_HDGJIRPS (struct object_hdgjirps_st
-						  *ob, unsigned nbsons,
+struct node_hdgjirps_st *make_node_vect_HDGJIRPS (Obj_HDGJIRPS
+						  * ob, unsigned nbsons,
 						  void **sontab);
-struct node_hdgjirps_st *make_node_args_HDGJIRPS (struct object_hdgjirps_st
-						  *ob, ...);
+struct node_hdgjirps_st *make_node_args_HDGJIRPS (Obj_HDGJIRPS * ob, ...);
 #define MAKE_VNODE_HDGJIRPS(Ob,...) make_node_args_HDGJIRPS((Ob), #__VA_ARGS__, NULL);
 struct compvect_hdgjirps_st;	/// in composite.c
 struct attrvect_hdgjirps_st;	/// in composite.c
-struct object_hdgjirps_st
+struct _object_HDGJIRPS_st	// aliased as Obj_HDGJIRPS
 {
   HDGJIRPS_HEADER_FIELDS;
   pthread_mutex_t ob_mtx;
@@ -343,7 +340,7 @@ struct object_hdgjirps_st
   uint64_t ob_idlo;
   struct attrvect_hdgjirps_st *ob_attrv;
   struct compvect_hdgjirps_st *ob_compv;
-};				/* end struct object_hdgjirps_st */
+};				/* end struct _object_hdgjirps_st a.k.a Obj_HDGJIRPS */
 
 inline bool
 is_valid_ptr_HDGJIRPS (const void *ptr)
@@ -369,13 +366,10 @@ is_valid_ptr_HDGJIRPS (const void *ptr)
   return false;
 }				/* end is_valid_ptr_HDGJIRPS */
 
-extern struct object_hdgjirps_st *load_object_HDGJIRPS (struct
-							load_data_HDGJIRPS_st
-							*ld);
-extern struct object_hdgjirps_st *find_object_HDGJIRPS (uint32_t hi,
-							uint64_t lo);
-extern struct object_hdgjirps_st *make_object_HDGJIRPS (void);
-extern uint32_t hash_object_HDGJIRPS (struct object_hdgjirps_st *ob);
+extern Obj_HDGJIRPS *load_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
+extern Obj_HDGJIRPS *find_object_HDGJIRPS (uint32_t hi, uint64_t lo);
+extern Obj_HDGJIRPS *make_object_HDGJIRPS (void);
+extern uint32_t hash_object_HDGJIRPS (Obj_HDGJIRPS * ob);
 
 #endif /*HDGJIRPS_INCLUDED */
 /*end of hdgjirps.h file */

@@ -54,10 +54,10 @@ static inline void comporeg_add_HDGJIRPS (struct header_hdgjirps_st *h);
 static pthread_mutex_t object_mtx_HDGJIRPS
   = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
-static struct object_hdgjirps_st **object_arrptr_HDGJIRPS;
+static Obj_HDGJIRPS **object_arrptr_HDGJIRPS;
 static unsigned object_arrcnt_HDGJIRPS;
 static unsigned object_arrsize_HDGJIRPS;
-static inline void object_add_HDGJIRPS (struct object_hdgjirps_st *pob);
+static inline void object_add_HDGJIRPS (Obj_HDGJIRPS * pob);
 
 void
 comporeg_add_HDGJIRPS (struct header_hdgjirps_st *h)
@@ -153,7 +153,7 @@ hash_obid_HDGJIRPS (uint32_t hi, uint64_t lo)
 }				/* end hash_obid_HDGJIRPS */
 
 uint32_t
-hash_object_HDGJIRPS (struct object_hdgjirps_st *ob)
+hash_object_HDGJIRPS (Obj_HDGJIRPS *ob)
 {
   if (!ob)
     return 0;
@@ -164,10 +164,10 @@ hash_object_HDGJIRPS (struct object_hdgjirps_st *ob)
   return hash_obid_HDGJIRPS (ob->ob_idhi, ob->ob_idlo);
 }				/* end hash_object_HDGJIRPS */
 
-struct object_hdgjirps_st *
+Obj_HDGJIRPS *
 find_object_HDGJIRPS (uint32_t hi, uint64_t lo)
 {
-  struct object_hdgjirps_st *resob = NULL;
+  Obj_HDGJIRPS *resob = NULL;
   if (hi == 0 || lo == 0)
     return NULL;
   uint32_t h = hash_obid_HDGJIRPS (hi, lo);
@@ -180,7 +180,7 @@ find_object_HDGJIRPS (uint32_t hi, uint64_t lo)
   unsigned begix = h % object_arrsize_HDGJIRPS;
   for (unsigned ix = begix; ix < object_arrsize_HDGJIRPS; ix++)
     {
-      struct object_hdgjirps_st *curob = object_arrptr_HDGJIRPS[ix];
+      Obj_HDGJIRPS *curob = object_arrptr_HDGJIRPS[ix];
       if (!curob)
 	break;
       if (curob->ob_idhi == hi && curob->ob_idlo == lo)
@@ -191,7 +191,7 @@ find_object_HDGJIRPS (uint32_t hi, uint64_t lo)
     };
   for (unsigned ix = 0; ix < begix; ix++)
     {
-      struct object_hdgjirps_st *curob = object_arrptr_HDGJIRPS[ix];
+      Obj_HDGJIRPS *curob = object_arrptr_HDGJIRPS[ix];
       if (!curob)
 	break;
       if (curob->ob_idhi == hi && curob->ob_idlo == lo)
@@ -206,7 +206,7 @@ end:
 }				/* end find_object_HDGJIRPS */
 
 void
-object_add_HDGJIRPS (struct object_hdgjirps_st *pob)
+object_add_HDGJIRPS (Obj_HDGJIRPS *pob)
 {
   assert (is_valid_ptr_HDGJIRPS (pob));
   assert (pob->typenum == -comp_boxed_object);
@@ -241,15 +241,14 @@ end:
 
 
 struct node_hdgjirps_st *
-make_node_vect_HDGJIRPS (struct object_hdgjirps_st *ob, unsigned nbsons,
-			 void **sontab)
+make_node_vect_HDGJIRPS (Obj_HDGJIRPS *ob, unsigned nbsons, void **sontab)
 {
   struct node_hdgjirps_st *res = NULL;
   if (!ob || !is_valid_ptr_HDGJIRPS (ob))
     return NULL;
   if (ob->typenum != comp_boxed_object)
     return NULL;
-  res = mallocx (sizeof (struct node_hdgjirps_st) + nbsons * sizeof (void *),
+  res = mallocx (sizeof (Obj_HDGJIRPS) + nbsons * sizeof (void *),
 		 MALLOCX_ZERO | MALLOCX_ALIGN (1 << 4));
   uint32_t h = hash_object_HDGJIRPS (ob) ^ (nbsons & 0xfff);
   for (unsigned ix = 0; ix < nbsons; ix++)
@@ -275,7 +274,7 @@ make_node_vect_HDGJIRPS (struct object_hdgjirps_st *ob, unsigned nbsons,
 }				/* end make_node_vect_HDGJIRPS */
 
 struct node_hdgjirps_st *
-make_node_args_HDGJIRPS (struct object_hdgjirps_st *ob, ...)
+make_node_args_HDGJIRPS (Obj_HDGJIRPS *ob, ...)
 {
   struct node_hdgjirps_st *nod = NULL;
   int nbargs = 0;
@@ -324,14 +323,14 @@ make_node_args_HDGJIRPS (struct object_hdgjirps_st *ob, ...)
   return nod;
 }				/* end make_node_args_HDGJIRPS */
 
-struct object_hdgjirps_st *
+Obj_HDGJIRPS *
 make_object_HDGJIRPS (void)
 {
-  struct object_hdgjirps_st *resob = NULL;
+  Obj_HDGJIRPS *resob = NULL;
   pthread_mutex_lock (&object_mtx_HDGJIRPS);
   if (4 * object_arrcnt_HDGJIRPS + 5 > 3 * object_arrsize_HDGJIRPS)
     {
-      struct object_hdgjirps_st **oldarr = object_arrptr_HDGJIRPS;
+      Obj_HDGJIRPS **oldarr = object_arrptr_HDGJIRPS;
       unsigned oldcnt = object_arrcnt_HDGJIRPS;
       unsigned oldsiz = object_arrsize_HDGJIRPS;
       unsigned newsiz = 1 + ((4 * oldcnt / 3 + 20) | 0x3f);
@@ -352,7 +351,7 @@ make_object_HDGJIRPS (void)
 	continue;
       if (find_object_HDGJIRPS (hi, lo))
 	continue;
-      resob = MALLOC_HDGJIRPS (sizeof (struct object_hdgjirps_st));
+      resob = MALLOC_HDGJIRPS (sizeof (Obj_HDGJIRPS));
       if (!resob)
 	goto end;
       resob->typenum = -(int) comp_boxed_object;
@@ -372,16 +371,16 @@ end:
 
 
 
-struct object_hdgjirps_st *
+Obj_HDGJIRPS *
 make_loaded_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ld,
 			     uint32_t hi, uint32_t lo)
 {
   assert (ld && ld->lda_magic == LOADMAGIC_HDGJIRPS);
-  struct object_hdgjirps_st *resob = NULL;
+  Obj_HDGJIRPS *resob = NULL;
   pthread_mutex_lock (&object_mtx_HDGJIRPS);
   if (4 * object_arrcnt_HDGJIRPS + 5 > 3 * object_arrsize_HDGJIRPS)
     {
-      struct object_hdgjirps_st **oldarr = object_arrptr_HDGJIRPS;
+      Obj_HDGJIRPS **oldarr = object_arrptr_HDGJIRPS;
       unsigned oldcnt = object_arrcnt_HDGJIRPS;
       unsigned oldsiz = object_arrsize_HDGJIRPS;
       unsigned newsiz = 1 + ((4 * oldcnt / 3 + 20) | 0x3f);
@@ -400,7 +399,7 @@ make_loaded_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ld,
 	continue;
       if (find_object_HDGJIRPS (hi, lo))
 	continue;
-      resob = MALLOC_HDGJIRPS (sizeof (struct object_hdgjirps_st));
+      resob = MALLOC_HDGJIRPS (sizeof (Obj_HDGJIRPS));
       if (!resob)
 	goto end;
       resob->typenum = -(int) comp_boxed_object;

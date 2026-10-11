@@ -154,7 +154,7 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 	lo = strtol (endhi + 1, &endlo, 36);
       if (hi > 0 && lo > 0 && endlo)
 	{
-	  struct object_hdgjirps_st *pob = find_object_HDGJIRPS (hi, lo);
+	  Obj_HDGJIRPS *pob = find_object_HDGJIRPS (hi, lo);
 	  if (!pob)
 	    HDGJIRPS_FATAL
 	      ("invalid object reference %s in loaded file %s:%d",
@@ -210,7 +210,7 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 		}
 	      else
 		{
-		  struct object_hdgjirps_st *newob =
+		  Obj_HDGJIRPS *newob =
 		    make_loaded_object_HDGJIRPS (ld, hi, lo);
 		  if (!newob)
 		    continue;
@@ -223,7 +223,22 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 		       bufhi, buflo, &pos) > 2 && pos > 0
 	       && (char *) ld->lda_cur + pos <= eol)
 	{
-	};
+	  bufhi[sizeof (bufhi) - 1] = (char) 0;
+	  buflo[sizeof (buflo) - 1] = (char) 0;
+	  uint32_t hi = 0;
+	  uint64_t lo = 0;
+	  hi = (uint32_t) strtol (bufhi, NULL, 36);
+	  lo = (uint64_t) strtol (buflo, NULL, 36);
+	  if (hi > 0 && lo > 0)
+	    {
+	      Obj_HDGJIRPS *pob = find_object_HDGJIRPS (hi, lo);
+	      if (!pob)
+		HDGJIRPS_FATAL ("cannot fill object (_%s_%s) at %s:%d",
+				bufhi, buflo, ld->lda_path, ld->lda_lineno);
+	      ld->lda_cur += pos;
+	      load_fill_object_HDGJIRPS (ld, pob);
+	    };
+	}
     };
   fprintf (stderr,
 	   "load_data_HDGJIRPS unimplemented for path %s [%s:%d] git %s\n",
@@ -233,12 +248,13 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 
 
 
-struct object_hdgjirps_st *
-load_fill_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
+void
+load_fill_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ld,
+			   Obj_HDGJIRPS *pob)
 {
 #warning unimplemented load_fill_object_HDGJIRPS
-  HDGJIRPS_FATAL ("unimplemented load_fill_object_HDGJIRPS at %s:%d",
-		  ld->lda_path, ld->lda_lineno);
+  HDGJIRPS_FATAL ("unimplemented load_fill_object_HDGJIRPS at %s:%d (pob@%p)",
+		  ld->lda_path, ld->lda_lineno, pob);
 }				/* end load_fill_object_HDGJIRPS */
 
 const uint32_t dump_magic_HDGJIRPS = DUMPMAGIC_HDGJIRPS;
