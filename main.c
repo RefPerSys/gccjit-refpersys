@@ -329,7 +329,7 @@ load_file_HDGJIRPS (const char *ldpath)
 			" for loaded file %s (%s)",
 			progname_HDGJIRPS, ldend, ldpath, strerror (errno));
     };
-  assert (*(const char *) ldend == (char) 0);
+  assert ((*((const char *) ldad) + ldsize) == (char) 0);
   if (verbose_HDGJIRPS)
     {
       printf ("%s mmaped loaded file %s (fd#%d) for %zd Kbytes @%p-%p\n",
