@@ -7,3 +7,4 @@ useless stuff
 see persist.c file routine load_state_RPS and start_comment_RPS
 
 #*START-GCCJIT-REFPERSYS
+MAKOBJ_1WPRD63GJB9S3_KBU3FE
