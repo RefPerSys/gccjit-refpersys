@@ -92,56 +92,68 @@ load_skip_spaces_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
     };
 }				/* end load_skip_spaces_HDGJIRPS */
 
-#if 0
 /* Code borowed from nwcc.sourceforge.net file token.c */
 
 /*
- * Function parses the escape sequence pointed to by s and returns
- * the result. The type argument indicates whether the function is
- * called on a string or character constant. -1 is returned on
- * failure (bad format.)
- *
- * XXX this is not aware of cross-compilation... So in the event that
- * we're going to support a system with 16- or 32-bit bytes (not
- * infinitely unlikely), it will have to be adapted as necessary.
- * This should also affect the preprocessor as far as character
- * constants are concerned
+ * Function parses the escape sequence (following a backslash \ ...)
+ * pointed to by *ps and returns the result. The instring argument
+ * indicates whether the function is called on a string or character
+ * constant. -1 is returned on failure (bad format.) On success the
+ * *ps is updated.
  */
-static int
-get_escape_sequence (const char *s, int type, bool *badseq)
+int
+get_escape_sequence_HDGHIRPS (const char **ps, bool instring, bool *badseq)
 {
   int rc = -1;
-
+  int pos = -1;
   *badseq = false;
+  assert (ps != NULL);
+  const char *s = *ps;
   if (isdigit ((unsigned char) *s))
     {
       /* Octal constant */
       if (s[0] == '0' && isdigit ((unsigned char) s[1]) == 0)
 	{
+	  *ps = s + 1;
 	  /* Null constant '\0' */
 	  return 0;
 	}
       if (s[0] == '0')
 	++s;
-      if (sscanf (s, type == TOK_STRING_LITERAL ? "%3o" : "%o",
-		  (unsigned *) &rc) != 1)
+      if (sscanf (s, instring ? "%3o%n" : "%o%n",
+		  (unsigned *) &rc, &pos) < 1 || pos<0)
 	{
-	  lexerror ("Invalid octal constant.");
-	  *badseq = true;
+	  if (badseq)
+	    *badseq = true;
+	  HDGJIRPS_WARNING ("bad escape sequence %s", s);
 	  return -1;
 	}
+      if (pos > 0)
+	*ps = s + pos;
+      return rc;
     }
   else if (tolower ((unsigned char) *s) == 'x')
     {
       /* Is hexadecimal constant */
-      if (sscanf (s + 1, type == TOK_STRING_LITERAL ? "%2x" : "%x",
-		  (unsigned *) &rc) != 1)
+      if (sscanf (s + 1, instring ? "%2x%n" : "%x%n",
+		  (unsigned *) &rc, &pos) < 1)
 	{
-	  lexerror ("Invalid hexadecimal constant.");
-	  *badseq = true;
+	  HDGJIRPS_WARNING ("Invalid hexadecimal constant %s", s);
+	  if (badseq)
+	    *badseq = true;
 	  return -1;
 	}
     }
+  else if (*s == 'u') {
+      if (sscanf (s + 1, "%u4x%n",
+		  (unsigned *) &rc, &pos) < 1 || pos<=0)
+	{
+	  HDGJIRPS_WARNING ("Invalid hexadecimal escape %s", s);
+	  if (badseq)
+	    *badseq = true;
+	  return -1;
+	}
+  }
   else
     {
       /* Must be other escape sequence */
@@ -170,13 +182,13 @@ get_escape_sequence (const char *s, int type, bool *badseq)
 	  if (s[0] == esc[i].ch)
 	    {
 	      rc = esc[i].seq;
-	      if (s[1] != 0 && type == TOK_CHAR_LITERAL)
+	      if (s[1] != 0 && !instring)
 		{
 		  if (s[1] != '\'')
 		    {
-		      lexwarning ("Multiple characters "
-				  "in character constant"
-				  " - ignoring excess" "characters.");
+		      HDGJIRPS_WARNING ("Multiple characters "
+					"in character constant %s"
+					" - ignoring excess characters.", s);
 		    }
 		}
 	      break;
@@ -186,24 +198,31 @@ get_escape_sequence (const char *s, int type, bool *badseq)
 	{
 	  if (s[0] == '%')
 	    {
-	      lexwarning ("`\\%%' is not a valid escape "
-			  "sequence in ISO C");
+	      HDGJIRPS_WARNING ("`\\%%' is not a valid escape in %s", s);
+	      if (badseq)
+		*badseq = true;
+	      return -1;
 	    }
 	  else
 	    {
-	      lexerror ("Invalid escape sequence.");
+	      HDGJIRPS_WARNING ("Invalid escape sequence. %s", s);
+	      if (badseq)
+		*badseq = true;
+	      return -1;
 	    }
 	}
     }
 
-  if (type == TOK_CHAR_LITERAL && (rc > UCHAR_MAX || rc < CHAR_MIN))
+  if (!instring && (rc > UCHAR_MAX || rc < CHAR_MIN))
     {
-      lexwarning ("Literal out of character range.");
+      HDGJIRPS_WARNING ("Literal out of character range. %s", s);
+      if (badseq)
+	*badseq = true;
+      return -1;
     }
   rc = (char) rc;
   return rc;
-}
-#endif /* borowed from "nwcc.sourceforge.net" file token.c */
+}				/* end get_escape_sequence_HDGHIRPS */
 
 
 

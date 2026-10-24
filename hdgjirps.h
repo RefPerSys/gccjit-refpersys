@@ -214,6 +214,8 @@ extern void breakpoint_at_HDGJIRPS (const char *fil, int lin, char kind);
 #define HDGJIRPS_WARNING(Fmt,...) \
   HDGJIRPS_WARNING_AT(__FILE__,__LINE__,__FUNCTION__,Fmt,##__VA_ARGS__)
 
+extern int get_escape_sequence_HDGHIRPS (const char **ps, bool instring,
+					 bool *badseq);
 
 #define HDGJIRPS_TWO_WORDS_ALIGNED __attribute__((aligned(2*sizeof(void*))))
 // by convention positive typenums are for scalar values and negative
