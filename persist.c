@@ -75,6 +75,7 @@ load_state_HDGJIRPS (const char *path, const char *start, const char *last)
   ldata.lda_start = (void *) endcomm;
   ldata.lda_cur = (void *) (endcomm + 1);
   ldata.lda_end = (void *) last;
+#warning should initialize the stack of ldata
   load_data_HDGJIRPS (&ldata);
   if (verbose_HDGJIRPS)
     printf ("%s: loaded state %s\n", progname_HDGJIRPS, path);
