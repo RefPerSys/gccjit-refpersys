@@ -153,6 +153,26 @@ get_escape_sequence_HDGHIRPS (const char **ps, bool instring, bool *badseq)
 	    *badseq = true;
 	  return -1;
 	}
+      if (badseq)
+	*badseq = false;
+
+      *ps = s + pos +1;
+      return rc;
+  }
+  else if (*s == 'U') {
+      if (sscanf (s + 1, "%u8x%n",
+		  (unsigned *) &rc, &pos) < 1 || pos<=0)
+	{
+	  HDGJIRPS_WARNING ("Invalid hexadecimal escape %s", s);
+	  if (badseq)
+	    *badseq = true;
+	  return -1;
+	}
+      if (badseq)
+	*badseq = false;
+
+      *ps = s + pos +1;
+      return rc;
   }
   else
     {

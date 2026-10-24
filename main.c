@@ -354,6 +354,7 @@ load_file_HDGJIRPS (const char *ldpath)
 static void
 getexec_HDGJIRPS (void)
 {
+  static unsigned nbcall;
   ssize_t s = readlink ("/proc/self/exe",
 			executable_HDGJIRPS,
 			sizeof (executable_HDGJIRPS) - 1);
@@ -363,6 +364,13 @@ getexec_HDGJIRPS (void)
   if (access (executable_HDGJIRPS, R_OK | X_OK))
     HDGJIRPS_FATAL ("%s has bad executable %s (%s)",
 		    progname_HDGJIRPS, executable_HDGJIRPS, strerror (errno));
+  if (nbcall++ == 0 && verbose_HDGJIRPS)
+    {
+      printf ("%s executable (git %s) is %s\n", progname_HDGJIRPS,
+	      shortgitid_HDGJIRPS, executable_HDGJIRPS);
+      fflush (NULL);
+    }
+
 }				/* end getexec_HDGJIRPS */
 
 static void *progdlh_HDGJIRPS;
