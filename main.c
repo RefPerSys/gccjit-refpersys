@@ -342,8 +342,10 @@ load_file_HDGJIRPS (const char *ldpath)
   assert (cldad[filsize] == (char) 0);
   if (verbose_HDGJIRPS)
     {
-      printf ("%s mmaped loaded file %s (fd#%d) for %zd Kbytes @%p-%p\n",
-	      progname_HDGJIRPS, ldpath, ldfd, memsize >> 10, ldad, cldend);
+      printf ("%s mmaped loaded file %s (fd#%d) for %zd Kbytes @%p-%p (%p)\n"
+	      "[%s:%d]\n",
+	      progname_HDGJIRPS, ldpath, ldfd, memsize >> 10, ldad, cldend,
+	      (const char *) ldad + memsize, __FILE__, __LINE__ - 2);
       fflush (NULL);
     };
   load_state_HDGJIRPS (ldpath, cldad, cldend);
