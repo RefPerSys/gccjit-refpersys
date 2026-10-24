@@ -160,6 +160,8 @@ struct dump_data_HDGJIRPS_st
   void *dump_data;
 };				/* end struct dump_data_HDGJIRPS_st */
 
+extern void breakpoint_at_HDGJIRPS (const char *fil, int lin, char kind);
+
 #define HDGJIRPS_FATAL_AT_BIS(Fil,Lin,Func,Fmt,...) do {	\
     char thrname##Lin[32];					\
     memset(thrname##Lin, 0, sizeof(thrname##Lin));		\
@@ -177,12 +179,40 @@ struct dump_data_HDGJIRPS_st
       backtrace_print (backtrace_state_HDGJIRPS, 1,		\
 		       stderr);					\
     fflush(NULL);						\
+    breakpoint_at_HDGJIRPS((Fil),(Lin), 'F');                   \
     abort(); } while(0)
 
 #define HDGJIRPS_FATAL_AT(Fil,Lin,Func,Fmt,...) \
    HDGJIRPS_FATAL_AT_BIS(Fil,Lin,Func,Fmt,##__VA_ARGS__)
 
 #define HDGJIRPS_FATAL(Fmt,...)  HDGJIRPS_FATAL_AT(__FILE__,__LINE__,__FUNCTION__,Fmt,##__VA_ARGS__)
+
+
+#define HDGJIRPS_WARNING_AT_BIS(Fil,Lin,Func,Fmt,...) do {	\
+    char thrname##Lin[32];					\
+    memset(thrname##Lin, 0, sizeof(thrname##Lin));		\
+    pthread_getname_np(pthread_self(), thrname##Lin,		\
+                       sizeof(thrname##Lin));			\
+    fprintf (stderr, "%s:%d:%s [%s]", (Fil), (Lin),		\
+             (Func), thrname##Lin);				\
+    fprintf (stderr, "WARNING\n");				\
+    fprintf (stderr, Fmt "\n", ##__VA_ARGS__);			\
+    fprintf (stderr, "%s: shortgit %s pid %d\n",		\
+             progname_HDGJIRPS, shortgitid_HDGJIRPS,		\
+             (int)getpid());					\
+    fflush (stderr);						\
+    if (backtrace_state_HDGJIRPS)				\
+      backtrace_print (backtrace_state_HDGJIRPS, 1,		\
+		       stderr);					\
+    fflush(NULL);						\
+    breakpoint_at_HDGJIRPS((Fil),(Lin), 'W');                   \
+    } while(0)
+
+#define HDGJIRPS_WARNING_AT(Fil,Lin,Func,Fmt,...) \
+   HDGJIRPS_WARNING_AT_BIS(Fil,Lin,Func,Fmt,##__VA_ARGS__)
+
+#define HDGJIRPS_WARNING(Fmt,...) \
+  HDGJIRPS_WARNING_AT(__FILE__,__LINE__,__FUNCTION__,Fmt,##__VA_ARGS__)
 
 
 #define HDGJIRPS_TWO_WORDS_ALIGNED __attribute__((aligned(2*sizeof(void*))))
