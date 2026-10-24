@@ -102,7 +102,7 @@ extern double thread_cpu_time_HDGJIRPS (void);
   mallocx((Siz),		    \
 	  MALLOCX_ZERO|MALLOCX_LG_ALIGN(4));
 extern void
-emit_gplv3_notice_AT_HDGJIRPS (FILE * fout, const char *fil, int lin,
+emit_gplv3_notice_AT_HDGJIRPS (FILE *fout, const char *fil, int lin,
 			       const char *fromfun, const char *path,
 			       const char *linprefix, const char *linsuffix,
 			       char *explain);
@@ -121,7 +121,7 @@ extern bool uint64b36_HDGJIRPS (uint64_t i, char *buf, int bufsiz);
 extern void load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
 extern void *loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
 extern void load_fill_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ld,
-				       Obj_HDGJIRPS * pob);
+				       Obj_HDGJIRPS *pob);
 /// This loading state is called after a successful mmap of path
 /// (start -> end)
 extern void load_state_HDGJIRPS (const char *path, const char *start,
@@ -356,9 +356,9 @@ struct node_hdgjirps_st
 };
 
 struct node_hdgjirps_st *make_node_vect_HDGJIRPS (Obj_HDGJIRPS
-						  * ob, unsigned nbsons,
+						  *ob, unsigned nbsons,
 						  void **sontab);
-struct node_hdgjirps_st *make_node_args_HDGJIRPS (Obj_HDGJIRPS * ob, ...);
+struct node_hdgjirps_st *make_node_args_HDGJIRPS (Obj_HDGJIRPS *ob, ...);
 #define MAKE_VNODE_HDGJIRPS(Ob,...) make_node_args_HDGJIRPS((Ob), #__VA_ARGS__, NULL);
 struct compvect_hdgjirps_st;	/// in composite.c
 struct attrvect_hdgjirps_st;	/// in composite.c
@@ -399,7 +399,7 @@ is_valid_ptr_HDGJIRPS (const void *ptr)
 extern Obj_HDGJIRPS *load_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
 extern Obj_HDGJIRPS *find_object_HDGJIRPS (uint32_t hi, uint64_t lo);
 extern Obj_HDGJIRPS *make_object_HDGJIRPS (void);
-extern uint32_t hash_object_HDGJIRPS (Obj_HDGJIRPS * ob);
+extern uint32_t hash_object_HDGJIRPS (Obj_HDGJIRPS *ob);
 
 #endif /*HDGJIRPS_INCLUDED */
 /*end of hdgjirps.h file */

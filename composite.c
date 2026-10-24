@@ -57,7 +57,7 @@ static pthread_mutex_t object_mtx_HDGJIRPS
 static Obj_HDGJIRPS **object_arrptr_HDGJIRPS;
 static unsigned object_arrcnt_HDGJIRPS;
 static unsigned object_arrsize_HDGJIRPS;
-static inline void object_add_HDGJIRPS (Obj_HDGJIRPS * pob);
+static inline void object_add_HDGJIRPS (Obj_HDGJIRPS *pob);
 
 void
 comporeg_add_HDGJIRPS (struct header_hdgjirps_st *h)

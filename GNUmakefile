@@ -30,7 +30,7 @@
 
 export
 #CC=/usr/bin/gcc-14
-CC=/usr/bin/gcc
+CC=gcc
 GITID:= $(shell ./do-generate-gitid.sh)
 SHORTGITID:= $(shell ./do-generate-gitid.sh -s)
 SOURCEDIR:= $(shell /bin/pwd)
@@ -40,7 +40,8 @@ CFILES:=$(wildcard *.c)
 OBJFILES:=$(patsubst %.c, obj/%.o, $(CFILES))
 NONGLOBOBFILES=$(patsubst %.c, obj/%.o, $(filter-out global.c, $(CFILES)))
 RM= /bin/rm -vf
-.PHONY: all clean tests test00
+INDENT= indent
+.PHONY: all clean tests indent test00
 .SUFFIXES: .c
 
 all: gccjit-refpersys
@@ -51,7 +52,8 @@ clean:
 gccjit-refpersys: $(OBJFILES)
 	$(CC) $(CFLAGS) global.c $(NONGLOBOBFILES) -lm -lbsd -lgccjit -L/usr/local/lib  -lunistring  -lbacktrace -ldl -lreadline -ljemalloc -lz -o $@
 
-
+indent: GNUmakefile $(wildcard *.[ch]) .indent.pro
+	for f in *.c *.h ; do $(INDENT) -v $$f ; done
 
 test00: gccjit-refpersys GNUmakefile cold-load.sh
 	./cold-load.sh
