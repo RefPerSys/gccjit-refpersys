@@ -143,6 +143,9 @@ struct load_data_HDGJIRPS_st
   void *lda_start;
   void *lda_cur;
   void *lda_end;
+  /* todo: we probably want a stack of values and a load protocol
+     inspired by concepts from FORTH, PDF, PostScript, NeWS stack
+     operations */
 };
 
 extern void load_skip_spaces_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);

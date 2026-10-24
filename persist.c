@@ -121,7 +121,7 @@ get_escape_sequence_HDGHIRPS (const char **ps, bool instring, bool *badseq)
       if (s[0] == '0')
 	++s;
       if (sscanf (s, instring ? "%3o%n" : "%o%n",
-		  (unsigned *) &rc, &pos) < 1 || pos<0)
+		  (unsigned *) &rc, &pos) < 1 || pos < 0)
 	{
 	  if (badseq)
 	    *badseq = true;
@@ -144,9 +144,9 @@ get_escape_sequence_HDGHIRPS (const char **ps, bool instring, bool *badseq)
 	  return -1;
 	}
     }
-  else if (*s == 'u') {
-      if (sscanf (s + 1, "%u4x%n",
-		  (unsigned *) &rc, &pos) < 1 || pos<=0)
+  else if (*s == 'u')
+    {
+      if (sscanf (s + 1, "%u4x%n", (unsigned *) &rc, &pos) < 1 || pos <= 0)
 	{
 	  HDGJIRPS_WARNING ("Invalid hexadecimal escape %s", s);
 	  if (badseq)
@@ -156,12 +156,12 @@ get_escape_sequence_HDGHIRPS (const char **ps, bool instring, bool *badseq)
       if (badseq)
 	*badseq = false;
 
-      *ps = s + pos +1;
+      *ps = s + pos + 1;
       return rc;
-  }
-  else if (*s == 'U') {
-      if (sscanf (s + 1, "%u8x%n",
-		  (unsigned *) &rc, &pos) < 1 || pos<=0)
+    }
+  else if (*s == 'U')
+    {
+      if (sscanf (s + 1, "%u8x%n", (unsigned *) &rc, &pos) < 1 || pos <= 0)
 	{
 	  HDGJIRPS_WARNING ("Invalid hexadecimal escape %s", s);
 	  if (badseq)
@@ -171,9 +171,9 @@ get_escape_sequence_HDGHIRPS (const char **ps, bool instring, bool *badseq)
       if (badseq)
 	*badseq = false;
 
-      *ps = s + pos +1;
+      *ps = s + pos + 1;
       return rc;
-  }
+    }
   else
     {
       /* Must be other escape sequence */
@@ -286,12 +286,14 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
     {
       char smbuf[64];
       memset (smbuf, 0, sizeof (smbuf));
-      if (sscanf (ld->lda_cur, "\"%60[^\n\r\f\"]\"%n", smbuf, &pos) >= 1
+      if (sscanf (ld->lda_cur, "\"%60[^\\\n\r\f\"]\"%n", smbuf, &pos) >= 1
 	  && pos > 2)
 	{
 	  ld->lda_cur += pos;
 	  return make_string_HDGJIRPS (smbuf);
 	}
+#warning need to use get_escape_sequence_HDGHIRPS to parse a string
+#warning need to accept raw escaped string à la C++
     }
   ///https://stackoverflow.com/a/5796039/841108
   else if (sscanf (ld->lda_cur, "INT%lli%n", &il, &pos) >= 2 && pos > 0)
@@ -405,6 +407,8 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 	      load_fill_object_HDGJIRPS (ld, pob);
 	    };
 	}
+      /* todo: define a load stack and some operations to handle it,
+	 with ideas inspired by PostScript, PDF, FORTH, or NeWS */
     };
   fprintf (stderr,
 	   "load_data_HDGJIRPS unimplemented for path %s [%s:%d] git %s\n",
