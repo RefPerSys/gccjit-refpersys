@@ -292,6 +292,7 @@ parse_program_option_HDGJIRPS (int argc, char **argv)
 }				/* end parse_program_option_HDGJIRPS */
 
 
+
 void
 load_file_HDGJIRPS (const char *ldpath)
 {
@@ -311,7 +312,7 @@ load_file_HDGJIRPS (const char *ldpath)
     : filsize;
   if (verbose_HDGJIRPS)
     {
-      printf ("%s: [%s:%d] mmap memsize=%zd ldfd#%d\n"
+      printf ("%s: [%s:%d] mmap memsize=%zd ldfd#%d"
 	      " filsize=%zd ldpath:%s\n",
 	      progname_HDGJIRPS, __FILE__, __LINE__ - 1, memsize, ldfd,
 	      filsize, ldpath);
@@ -405,6 +406,16 @@ uint64b36_HDGJIRPS (uint64_t i, char *buf, int bufsiz)
   return true;
 }				/* end uint64b36_HDGJIRPS */
 
+void
+breakpoint_at_HDGJIRPS (const char *fil, int lin, char kind)
+{
+  assert (fil);
+  assert (lin > 0);
+  assert (isalpha (kind));
+  if (!fil || lin <= 0 || !kind)
+    abort ();
+  asm volatile ("nop; nop; nop; nop");
+}				/* end breakpoint_at_HDGJIRPS */
 
 int
 main (int argc, char **argv)
