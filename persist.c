@@ -249,13 +249,14 @@ get_escape_sequence_HDGHIRPS (const char **ps, bool instring, bool *badseq)
 		*badseq = true;
 	      return -1;
 	    };
-	  int ulen = u8_mbtouc(&uc, (const uint8_t*)s, clen);
-	  if (ulen>0 && uc_is_print(uc)) {
-	    if (badseq)
-	      *badseq = false;
-	    *ps = s + ulen + 1;
-	    return uc;
-	  }
+	  int ulen = u8_mbtouc (&uc, (const uint8_t *) s, clen);
+	  if (ulen > 0 && uc_is_print (uc))
+	    {
+	      if (badseq)
+		*badseq = false;
+	      *ps = s + ulen + 1;
+	      return uc;
+	    }
 #warning missing code here to handle UTF8 in strings
 	}
     }
@@ -319,8 +320,39 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 	  ld->lda_cur += pos;
 	  return make_string_HDGJIRPS (smbuf);
 	}
-#warning need to use get_escape_sequence_HDGHIRPS to parse a string
-#warning need to accept raw escaped string à la C++
+      else
+	{
+	  const char *eol = strchr ((const char *) ld->lda_cur, '\n');
+	  char *buf = NULL;
+	  unsigned bufsiz = 0;
+	  char smallbuf[80];
+	  memset (smallbuf, 0, sizeof (smallbuf));
+	  if (!eol)
+	    eol = ld->lda_end;
+	  assert (eol >= (const char *) ld->lda_cur
+		  && (const char *) eol <= (const char *) ld->lda_end);
+	  if (eol - (const char *) ld->lda_cur < (long) sizeof (smallbuf))
+	    buf = smallbuf;
+	  else
+	    {
+	      bool stop = true;
+	      bufsiz = ((2 * sizeof (smallbuf) + 10) | 0xf) + 1;
+	      buf = mallocx (bufsiz, MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
+	      memset (buf, 0, bufsiz);
+	      do
+		{
+		  int u =
+		    get_escape_sequence_HDGHIRPS ((const char **)
+						  &ld->lda_cur,
+						  true, &stop);
+		  if (u > 0)
+		    {
+#warning should UTF8 encode u and append it in buf...
+		    }
+		}
+	      while (!stop && ld->lda_cur < ld->lda_end);
+	    }
+	}
     }
   ///https://stackoverflow.com/a/5796039/841108
   else if (sscanf (ld->lda_cur, "INT%lli%n", &il, &pos) >= 2 && pos > 0)
