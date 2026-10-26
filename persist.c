@@ -4,6 +4,7 @@
  *
  * Description:
  *      This file is part of the Reflective Persistent System.
+ *      the variant aiming to use libgccjit from gcc.gnu.org
  *      It is implementing persistence (in a single textual file)
  *
  * Author(s):
@@ -177,6 +178,7 @@ get_escape_sequence_HDGHIRPS (const char **ps, bool instring, bool *badseq)
     }
   else
     {
+      bool foundesc = false;
       /* Must be other escape sequence */
       static struct
       {
@@ -202,6 +204,7 @@ get_escape_sequence_HDGHIRPS (const char **ps, bool instring, bool *badseq)
 	{
 	  if (s[0] == esc[i].ch)
 	    {
+	      foundesc = true;
 	      rc = esc[i].seq;
 	      if (s[1] != 0 && !instring)
 		{
@@ -231,6 +234,21 @@ get_escape_sequence_HDGHIRPS (const char **ps, bool instring, bool *badseq)
 		*badseq = true;
 	      return -1;
 	    }
+	};
+      if (!foundesc)
+	{
+	  int minlen = 0;
+	  for (i = 0; i < 8 && s[i] != (char) 0; i++)
+	    minlen++;
+	  int clen = u8_mblen ((const uint8_t *) s, minlen);
+	  if (clen < 0)
+	    {
+	      HDGJIRPS_WARNING ("Invalid UTF8 sequence. %.8s", s);
+	      if (badseq)
+		*badseq = true;
+	      return -1;
+	    };
+#warning missing code here to handle UTF8 in strings
 	}
     }
 
@@ -409,7 +427,7 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 	    };
 	}
       /* todo: define a load stack and some operations to handle it,
-	 with ideas inspired by PostScript, PDF, FORTH, or NeWS */
+         with ideas inspired by PostScript, PDF, FORTH, or NeWS */
     };
   fprintf (stderr,
 	   "load_data_HDGJIRPS unimplemented for path %s [%s:%d] git %s\n",
