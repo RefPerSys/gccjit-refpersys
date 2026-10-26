@@ -67,6 +67,7 @@
 #include <unistring/version.h>
 #include <gnu/libc-version.h>
 #include "unistr.h"		/* www.gnu.org/software/libunistring */
+#include "unictype.h"		/* www.gnu.org/software/libunistring */
 #include "jemalloc/jemalloc.h"	/* see jemalloc.net */
 #include <bsd/string.h>		/* for strnstr(3) */
 #include <string.h>

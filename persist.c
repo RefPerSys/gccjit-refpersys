@@ -238,6 +238,7 @@ get_escape_sequence_HDGHIRPS (const char **ps, bool instring, bool *badseq)
       if (!foundesc)
 	{
 	  int minlen = 0;
+	  ucs4_t uc = 0;
 	  for (i = 0; i < 8 && s[i] != (char) 0; i++)
 	    minlen++;
 	  int clen = u8_mblen ((const uint8_t *) s, minlen);
@@ -248,6 +249,13 @@ get_escape_sequence_HDGHIRPS (const char **ps, bool instring, bool *badseq)
 		*badseq = true;
 	      return -1;
 	    };
+	  int ulen = u8_mbtouc(&uc, (const uint8_t*)s, clen);
+	  if (ulen>0 && uc_is_print(uc)) {
+	    if (badseq)
+	      *badseq = false;
+	    *ps = s + ulen + 1;
+	    return uc;
+	  }
 #warning missing code here to handle UTF8 in strings
 	}
     }
