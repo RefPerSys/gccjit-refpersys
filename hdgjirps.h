@@ -144,7 +144,10 @@ struct load_data_HDGJIRPS_st
   void *lda_start;
   void *lda_cur;
   void *lda_end;
-#warning add a stack "void**lda_stack; uint32_t lda_sizstack; uint32_t lda_topstack;"
+  void **lda_stack;
+  uint32_t lda_sizstack;
+  uint32_t lda_topstack;
+#warning add a stack
   /* todo: we probably want a stack of values and a load protocol
      inspired by concepts from FORTH, PDF, PostScript, NeWS stack
      operations */
