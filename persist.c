@@ -77,7 +77,8 @@ load_state_HDGJIRPS (const char *path, const char *start, const char *last)
   ldata.lda_cur = (void *) (endcomm + 1);
   ldata.lda_end = (void *) last;
   const unsigned ldstacksiz = 1024;
-  ldata.lda_stack = mallocx (ldstacksiz, MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
+  ldata.lda_stack =
+    mallocx (ldstacksiz, MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
   ldata.lda_sizstack = ldstacksiz;
   ldata.lda_topstack = 0;
 #warning should use the stack of ldata
@@ -400,24 +401,24 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 }				/* end loaded_value_HDGJIRPS */
 
 void
-load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
+load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
 {
-  assert (ld && ld->lda_magic == LOADMAGIC_HDGJIRPS);
-  assert (ld->lda_path != NULL);
-  while (ld->lda_cur < ld->lda_end)
+  assert (ldp && ldp->lda_magic == LOADMAGIC_HDGJIRPS);
+  assert (ldp->lda_path != NULL);
+  while (ldp->lda_cur < ldp->lda_end)
     {
       int pos = -1;
       char bufhi[32] = { };
       char buflo[32] = { };
       memset (bufhi, 0, sizeof (bufhi));
       memset (buflo, 0, sizeof (buflo));
-      load_skip_spaces_HDGJIRPS (ld);
-      const char *eol = strchr (ld->lda_cur, '\n');
+      load_skip_spaces_HDGJIRPS (ldp);
+      const char *eol = strchr (ldp->lda_cur, '\n');
       if (!eol)
-	eol = ld->lda_end;
-      if (sscanf (ld->lda_cur, "MAKOBJ_%30[0-9A-Z]_%30[0-9A-Z]%n",
+	eol = ldp->lda_end;
+      if (sscanf (ldp->lda_cur, "MAKOBJ_%30[0-9A-Z]_%30[0-9A-Z]%n",
 		  bufhi, buflo, &pos) > 2 && pos > 0
-	  && (char *) ld->lda_cur + pos <= eol)
+	  && (char *) ldp->lda_cur + pos <= eol)
 	{
 	  bufhi[sizeof (bufhi) - 1] = (char) 0;
 	  buflo[sizeof (buflo) - 1] = (char) 0;
@@ -431,7 +432,7 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 		{
 		  fprintf (stderr,
 			   "load_data_HDGJIRPS at %s:%d cannot create existing object\n",
-			   ld->lda_path, ld->lda_lineno);
+			   ldp->lda_path, ldp->lda_lineno);
 		  fprintf (stderr,
 			   " (hi=%d=%s, lo=%ld=%s) [%s:%d]\n",
 			   (int) hi, bufhi, (long) lo, buflo, __FILE__,
@@ -442,7 +443,7 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 	      else
 		{
 		  Obj_HDGJIRPS *newob =
-		    make_loaded_object_HDGJIRPS (ld, hi, lo);
+		    make_loaded_object_HDGJIRPS (ldp, hi, lo);
 		  if (!newob)
 		    continue;
 		  register_composite_value_HDGJIRPS (newob,
@@ -450,9 +451,9 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 		};
 	    }
 	}
-      else if (sscanf (ld->lda_cur, "FILLOBJ_%30[0-9A-Z]_%30[0-9A-Z]%n",
+      else if (sscanf (ldp->lda_cur, "FILLOBJ_%30[0-9A-Z]_%30[0-9A-Z]%n",
 		       bufhi, buflo, &pos) > 2 && pos > 0
-	       && (char *) ld->lda_cur + pos <= eol)
+	       && (char *) ldp->lda_cur + pos <= eol)
 	{
 	  bufhi[sizeof (bufhi) - 1] = (char) 0;
 	  buflo[sizeof (buflo) - 1] = (char) 0;
@@ -465,9 +466,9 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 	      Obj_HDGJIRPS *pob = find_object_HDGJIRPS (hi, lo);
 	      if (!pob)
 		HDGJIRPS_FATAL ("cannot fill object (_%s_%s) at %s:%d",
-				bufhi, buflo, ld->lda_path, ld->lda_lineno);
-	      ld->lda_cur += pos;
-	      load_fill_object_HDGJIRPS (ld, pob);
+				bufhi, buflo, ldp->lda_path, ldp->lda_lineno);
+	      ldp->lda_cur += pos;
+	      load_fill_object_HDGJIRPS (ldp, pob);
 	    };
 	}
       /* todo: define a load stack and some operations to handle it,
@@ -475,20 +476,21 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
     };
   fprintf (stderr,
 	   "load_data_HDGJIRPS unimplemented for path %s [%s:%d] git %s\n",
-	   ld->lda_path, __FILE__, __LINE__, persist_HDGJIRPS_git);
-#warning incomplete load_data_HDGJIRPS should use ld
+	   ldp->lda_path, __FILE__, __LINE__, persist_HDGJIRPS_git);
+#warning incomplete load_data_HDGJIRPS should use ldp
 }				/* end load_data_HDGJIRPS */
 
 
 
 void
-load_fill_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ld,
+load_fill_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp,
 			   Obj_HDGJIRPS *pob)
 {
-  assert (ld && ld->lda_magic == LOADMAGIC_HDGJIRPS);
+  assert (ldp && ldp->lda_magic == LOADMAGIC_HDGJIRPS);
 #warning unimplemented load_fill_object_HDGJIRPS
-  HDGJIRPS_FATAL ("unimplemented load_fill_object_HDGJIRPS"
-		  " at %s:%d (pob@%p)", ld->lda_path, ld->lda_lineno, pob);
+  HDGJIRPS_FATAL ("unimplemented load_fill_object_HDGJIRPS ldp@%p"
+		  " at %s:%d (pob@%p)",
+		  ldp, ldp->lda_path, ldp->lda_lineno, pob);
 }				/* end load_fill_object_HDGJIRPS */
 
 const uint32_t dump_magic_HDGJIRPS = DUMPMAGIC_HDGJIRPS;
