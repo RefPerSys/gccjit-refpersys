@@ -350,8 +350,19 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 		    get_escape_sequence_HDGHIRPS ((const char **)
 						  &ld->lda_cur,
 						  true, &stop);
-		  if (u > 0)
+		  if (u > 0 && !stop)
 		    {
+		      char minbuf[8];
+		      memset (minbuf, 0, sizeof (minbuf));
+		      int siz = u8_uctomb ((uint8_t *) minbuf, (ucs4_t) u,
+					   (ptrdiff_t) sizeof (minbuf));
+		      if (siz > 0 && siz + strlen (buf) < bufsiz)
+			strcat (buf, minbuf);
+		      else
+			{
+#warning incomplete code...
+			}
+
 #warning should UTF8 encode u and append it in buf...
 		    }
 		}
