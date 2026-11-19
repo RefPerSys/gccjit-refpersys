@@ -484,12 +484,16 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
 	}
 #warning load_data_HDGJIRPS incomplete
       else
-	HDGJIRPS_WARNING ("incomplete load_data_HDGJIRPS @%s:%d line:%s",
-			  ldp->lda_path, ldp->lda_lineno,
-			  (const char *) ldp->lda_cur);
-      /* todo: define a load stack and some operations to handle it,
-         with ideas inspired by PostScript, PDF, FORTH, or NeWS */
+	{
+	  HDGJIRPS_WARNING ("incomplete load_data_HDGJIRPS @%s:%d line:%s",
+			    ldp->lda_path, ldp->lda_lineno,
+			    (const char *) ldp->lda_cur);
+	  /* todo: define a load stack and some operations to handle it,
+	     with ideas inspired by PostScript, PDF, FORTH, or NeWS */
+	  goto end;
+	}
     };
+end:
   fprintf (stderr,
 	   "load_data_HDGJIRPS unimplemented for path %s [%s:%d] git %s\n",
 	   ldp->lda_path, __FILE__, __LINE__, persist_HDGJIRPS_git);
