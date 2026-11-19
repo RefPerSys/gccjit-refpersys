@@ -482,6 +482,11 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
 	      load_fill_object_HDGJIRPS (ldp, pob);
 	    };
 	}
+#warning load_data_HDGJIRPS incomplete
+      else
+	HDGJIRPS_WARNING ("incomplete load_data_HDGJIRPS @%s:%d line:%s",
+			  ldp->lda_path, ldp->lda_lineno,
+			  (const char *) ldp->lda_cur);
       /* todo: define a load stack and some operations to handle it,
          with ideas inspired by PostScript, PDF, FORTH, or NeWS */
     };
