@@ -66,7 +66,7 @@ comporeg_add_HDGJIRPS (struct header_hdgjirps_st *h)
   int16_t curtypnum = -(h->typenum);
   if (curtypnum <= (int) comp__none || curtypnum > (int) comp__lasttypid)
     HDGJIRPS_FATAL ("corrupted composite @%p of typenum#%d",
-		    (void *) h, (int) curtypnum);
+                    (void *) h, (int) curtypnum);
   uintptr_t n = ((uintptr_t) h) ^ (((uintptr_t) h) >> 9);
   void **arr = comporeg_arrptr_HDGJIRPS[curtypnum];
   unsigned siz = comporeg_arrsize_HDGJIRPS[curtypnum];
@@ -77,29 +77,29 @@ comporeg_add_HDGJIRPS (struct header_hdgjirps_st *h)
   for (unsigned ix = lim; ix < siz; ix++)
     {
       if (!arr[ix])
-	{
-	  arr[ix] = (void *) h;
-	  comporeg_arrcnt_HDGJIRPS[curtypnum]++;
-	  return;
-	}
+        {
+          arr[ix] = (void *) h;
+          comporeg_arrcnt_HDGJIRPS[curtypnum]++;
+          return;
+        }
     };
   for (unsigned ix = 0; ix < lim; ix++)
     {
       if (!arr[ix])
-	{
-	  arr[ix] = (void *) h;
-	  comporeg_arrcnt_HDGJIRPS[curtypnum]++;
-	  return;
-	}
+        {
+          arr[ix] = (void *) h;
+          comporeg_arrcnt_HDGJIRPS[curtypnum]++;
+          return;
+        }
     };
   /// not supposed to be reached:
   HDGJIRPS_FATAL ("corrupted composite array @%p of typenum#%d",
-		  arr, (int) curtypnum);
-}				/* end  comporeg_add_HDGJIRPS */
+                  arr, (int) curtypnum);
+}                               /* end  comporeg_add_HDGJIRPS */
 
 void
 register_composite_value_HDGJIRPS (void *ptr,
-				   enum composite_typid_HDGJIRPS_en typcod)
+                                   enum composite_typid_HDGJIRPS_en typcod)
 {
   bool needgrow = false;
   assert (typcod > comp__none && typcod < comp__lasttypid);
@@ -119,27 +119,27 @@ register_composite_value_HDGJIRPS (void *ptr,
   if (needgrow)
     {
       unsigned newsiz =
-	((4 * comporeg_arrcnt_HDGJIRPS[typcod] + 100) | 0x1f) + 1;
+        ((4 * comporeg_arrcnt_HDGJIRPS[typcod] + 100) | 0x1f) + 1;
       if (newsiz > INT_MAX / sizeof (void *))
-	HDGJIRPS_FATAL ("out of memory when registering composite value @%p"
-			" of type#%d", ptr, (int) typcod);
+        HDGJIRPS_FATAL ("out of memory when registering composite value @%p"
+                        " of type#%d", ptr, (int) typcod);
       assert (newsiz > comporeg_arrsize_HDGJIRPS[typcod]);
       comporeg_arrptr_HDGJIRPS[typcod]
-	= mallocx (newsiz * sizeof (void *),
-		   MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
+        = mallocx (newsiz * sizeof (void *),
+                   MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
       comporeg_arrsize_HDGJIRPS[typcod] = newsiz;
       comporeg_arrcnt_HDGJIRPS[typcod] = 0;
       for (unsigned oldix = 0; oldix < oldsize; oldix++)
-	{
-	  if (oldarr[oldix])
-	    comporeg_add_HDGJIRPS ((struct header_hdgjirps_st *)
-				   oldarr[oldix]);
-	};
+        {
+          if (oldarr[oldix])
+            comporeg_add_HDGJIRPS ((struct header_hdgjirps_st *)
+                                   oldarr[oldix]);
+        };
     };
   comporeg_add_HDGJIRPS ((struct header_hdgjirps_st *) ptr);
 end:
   pthread_mutex_unlock (&comporeg_mtx_HDGJIRPS);
-}				/* end of register_composite_value_HDGJIRPS */
+}                               /* end of register_composite_value_HDGJIRPS */
 
 uint32_t
 hash_obid_HDGJIRPS (uint32_t hi, uint64_t lo)
@@ -150,7 +150,7 @@ hash_obid_HDGJIRPS (uint32_t hi, uint64_t lo)
     h = 1 + (lo & 0x7fffffff);
   assert (h != 0);
   return h;
-}				/* end hash_obid_HDGJIRPS */
+}                               /* end hash_obid_HDGJIRPS */
 
 uint32_t
 hash_object_HDGJIRPS (Obj_HDGJIRPS *ob)
@@ -162,7 +162,7 @@ hash_object_HDGJIRPS (Obj_HDGJIRPS *ob)
   if (ob->typenum != -(int) comp_boxed_object)
     return 0;
   return hash_obid_HDGJIRPS (ob->ob_idhi, ob->ob_idlo);
-}				/* end hash_object_HDGJIRPS */
+}                               /* end hash_object_HDGJIRPS */
 
 Obj_HDGJIRPS *
 find_object_HDGJIRPS (uint32_t hi, uint64_t lo)
@@ -182,28 +182,28 @@ find_object_HDGJIRPS (uint32_t hi, uint64_t lo)
     {
       Obj_HDGJIRPS *curob = object_arrptr_HDGJIRPS[ix];
       if (!curob)
-	break;
+        break;
       if (curob->ob_idhi == hi && curob->ob_idlo == lo)
-	{
-	  resob = curob;
-	  goto end;
-	};
+        {
+          resob = curob;
+          goto end;
+        };
     };
   for (unsigned ix = 0; ix < begix; ix++)
     {
       Obj_HDGJIRPS *curob = object_arrptr_HDGJIRPS[ix];
       if (!curob)
-	break;
+        break;
       if (curob->ob_idhi == hi && curob->ob_idlo == lo)
-	{
-	  resob = curob;
-	  goto end;
-	};
+        {
+          resob = curob;
+          goto end;
+        };
     };
 end:
   pthread_mutex_unlock (&object_mtx_HDGJIRPS);
   return resob;
-}				/* end find_object_HDGJIRPS */
+}                               /* end find_object_HDGJIRPS */
 
 void
 object_add_HDGJIRPS (Obj_HDGJIRPS *pob)
@@ -220,24 +220,24 @@ object_add_HDGJIRPS (Obj_HDGJIRPS *pob)
   for (unsigned ix = startix; ix < object_arrsize_HDGJIRPS; ix++)
     {
       if (!object_arrptr_HDGJIRPS[ix])
-	{
-	  object_arrcnt_HDGJIRPS++;
-	  object_arrptr_HDGJIRPS[ix] = pob;
-	  goto end;
-	};
+        {
+          object_arrcnt_HDGJIRPS++;
+          object_arrptr_HDGJIRPS[ix] = pob;
+          goto end;
+        };
     };
   for (unsigned ix = 0; ix < startix; ix++)
     {
       if (!object_arrptr_HDGJIRPS[ix])
-	{
-	  object_arrcnt_HDGJIRPS++;
-	  object_arrptr_HDGJIRPS[ix] = pob;
-	  goto end;
-	};
+        {
+          object_arrcnt_HDGJIRPS++;
+          object_arrptr_HDGJIRPS[ix] = pob;
+          goto end;
+        };
     }
 end:
   pthread_mutex_unlock (&object_mtx_HDGJIRPS);
-}				/* end object_add_HDGJIRPS */
+}                               /* end object_add_HDGJIRPS */
 
 
 struct node_hdgjirps_st *
@@ -249,20 +249,20 @@ make_node_vect_HDGJIRPS (Obj_HDGJIRPS *ob, unsigned nbsons, void **sontab)
   if (ob->typenum != comp_boxed_object)
     return NULL;
   res = mallocx (sizeof (Obj_HDGJIRPS) + nbsons * sizeof (void *),
-		 MALLOCX_ZERO | MALLOCX_ALIGN (1 << 4));
+                 MALLOCX_ZERO | MALLOCX_ALIGN (1 << 4));
   uint32_t h = hash_object_HDGJIRPS (ob) ^ (nbsons & 0xfff);
   for (unsigned ix = 0; ix < nbsons; ix++)
     {
       void *curson = sontab ? sontab[ix] : NULL;
       if (curson && is_valid_ptr_HDGJIRPS (curson))
-	{
-	  struct header_hdgjirps_st *hd =
-	    (struct header_hdgjirps_st *) curson;
-	  h = (h * 1307 + ix) ^ (hd->hash);
-	  res->nod_sons[ix] = curson;
-	}
+        {
+          struct header_hdgjirps_st *hd =
+            (struct header_hdgjirps_st *) curson;
+          h = (h * 1307 + ix) ^ (hd->hash);
+          res->nod_sons[ix] = curson;
+        }
       else
-	h = h + ix;
+        h = h + ix;
     };
   res->typenum = -(int) comp_boxed_node;
   res->hash = h;
@@ -271,7 +271,7 @@ make_node_vect_HDGJIRPS (Obj_HDGJIRPS *ob, unsigned nbsons, void **sontab)
   res->flag = 0;
   register_composite_value_HDGJIRPS (res, comp_boxed_node);
   return res;
-}				/* end make_node_vect_HDGJIRPS */
+}                               /* end make_node_vect_HDGJIRPS */
 
 struct node_hdgjirps_st *
 make_node_args_HDGJIRPS (Obj_HDGJIRPS *ob, ...)
@@ -288,25 +288,25 @@ make_node_args_HDGJIRPS (Obj_HDGJIRPS *ob, ...)
     {
       void *curarg = va_arg (args, void *);
       if (!curarg || !is_valid_ptr_HDGJIRPS (curarg))
-	break;
+        break;
       if (nbargs < small_len)
-	smallarr[nbargs] = curarg;
+        smallarr[nbargs] = curarg;
       nbargs++;
     }
   va_end (args);
   if (nbargs >= small_len)
     {
       bigptr = mallocx ((nbargs + 1) * sizeof (void *),
-			MALLOCX_ZERO | MALLOCX_ALIGN (1 << 4));
+                        MALLOCX_ZERO | MALLOCX_ALIGN (1 << 4));
       va_start (args, ob);
       for (;;)
-	{
-	  void *curarg = va_arg (args, void *);
-	  if (!curarg || !is_valid_ptr_HDGJIRPS (curarg))
-	    break;
-	  bigptr[nbargs] = curarg;
-	  nbargs++;
-	};
+        {
+          void *curarg = va_arg (args, void *);
+          if (!curarg || !is_valid_ptr_HDGJIRPS (curarg))
+            break;
+          bigptr[nbargs] = curarg;
+          nbargs++;
+        };
       va_end (args);
     };
   if (nbargs < small_len)
@@ -321,7 +321,7 @@ make_node_args_HDGJIRPS (Obj_HDGJIRPS *ob, ...)
       dallocx (bigptr, nbargs * sizeof (void *));
     }
   return nod;
-}				/* end make_node_args_HDGJIRPS */
+}                               /* end make_node_args_HDGJIRPS */
 
 Obj_HDGJIRPS *
 make_object_HDGJIRPS (void)
@@ -335,25 +335,25 @@ make_object_HDGJIRPS (void)
       unsigned oldsiz = object_arrsize_HDGJIRPS;
       unsigned newsiz = 1 + ((4 * oldcnt / 3 + 20) | 0x3f);
       object_arrptr_HDGJIRPS =
-	mallocx (newsiz * sizeof (void *),
-		 MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
+        mallocx (newsiz * sizeof (void *),
+                 MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
       object_arrcnt_HDGJIRPS = 0;
       object_arrsize_HDGJIRPS = newsiz;
       for (unsigned ix = 0; ix < oldsiz; ix++)
-	if (oldarr[ix] != NULL)
-	  object_add_HDGJIRPS (oldarr[ix]);
+        if (oldarr[ix] != NULL)
+          object_add_HDGJIRPS (oldarr[ix]);
     };
   while (resob == NULL)
     {
       uint32_t hi = randomi32_HDGJIRPS ();
       uint64_t lo = randomi64_HDGJIRPS ();
       if (hi < minhi_obid_HDGJIRPS || lo < minlo_obid_HDGJIRPS)
-	continue;
+        continue;
       if (find_object_HDGJIRPS (hi, lo))
-	continue;
+        continue;
       resob = MALLOC_HDGJIRPS (sizeof (Obj_HDGJIRPS));
       if (!resob)
-	goto end;
+        goto end;
       resob->typenum = -(int) comp_boxed_object;
       resob->hash = hash_obid_HDGJIRPS (hi, lo);
       resob->gcmark = 0;
@@ -365,7 +365,7 @@ make_object_HDGJIRPS (void)
 end:
   pthread_mutex_unlock (&object_mtx_HDGJIRPS);
   return resob;
-}				/* end make_object_HDGJIRPS */
+}                               /* end make_object_HDGJIRPS */
 
 
 
@@ -373,7 +373,7 @@ end:
 
 Obj_HDGJIRPS *
 make_loaded_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ld,
-			     uint32_t hi, uint32_t lo)
+                             uint32_t hi, uint32_t lo)
 {
   assert (ld && ld->lda_magic == LOADMAGIC_HDGJIRPS);
   Obj_HDGJIRPS *resob = NULL;
@@ -385,23 +385,23 @@ make_loaded_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ld,
       unsigned oldsiz = object_arrsize_HDGJIRPS;
       unsigned newsiz = 1 + ((4 * oldcnt / 3 + 20) | 0x3f);
       object_arrptr_HDGJIRPS =
-	mallocx (newsiz * sizeof (void *),
-		 MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
+        mallocx (newsiz * sizeof (void *),
+                 MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
       object_arrcnt_HDGJIRPS = 0;
       object_arrsize_HDGJIRPS = newsiz;
       for (unsigned ix = 0; ix < oldsiz; ix++)
-	if (oldarr[ix] != NULL)
-	  object_add_HDGJIRPS (oldarr[ix]);
+        if (oldarr[ix] != NULL)
+          object_add_HDGJIRPS (oldarr[ix]);
     };
   while (resob == NULL)
     {
       if (hi < minhi_obid_HDGJIRPS || lo < minlo_obid_HDGJIRPS)
-	continue;
+        continue;
       if (find_object_HDGJIRPS (hi, lo))
-	continue;
+        continue;
       resob = MALLOC_HDGJIRPS (sizeof (Obj_HDGJIRPS));
       if (!resob)
-	goto end;
+        goto end;
       resob->typenum = -(int) comp_boxed_object;
       resob->hash = hash_obid_HDGJIRPS (hi, lo);
       resob->gcmark = 0;
@@ -413,6 +413,6 @@ make_loaded_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ld,
 end:
   pthread_mutex_unlock (&object_mtx_HDGJIRPS);
   return resob;
-}				/* end make_object_HDGJIRPS */
+}                               /* end make_object_HDGJIRPS */
 
 /* end of file gccjit-refpersys/composite.c */

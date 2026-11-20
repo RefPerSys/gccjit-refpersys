@@ -66,13 +66,13 @@
 #include <readline/readline.h>
 #include <unistring/version.h>
 #include <gnu/libc-version.h>
-#include "unistr.h"		/* www.gnu.org/software/libunistring */
-#include "unictype.h"		/* www.gnu.org/software/libunistring */
-#include "jemalloc/jemalloc.h"	/* see jemalloc.net */
-#include <bsd/string.h>		/* for strnstr(3) */
+#include "unistr.h"             /* www.gnu.org/software/libunistring */
+#include "unictype.h"           /* www.gnu.org/software/libunistring */
+#include "jemalloc/jemalloc.h"  /* see jemalloc.net */
+#include <bsd/string.h>         /* for strnstr(3) */
 #include <string.h>
 
-#include <libgccjit.h>		/* see gcc.gnu.org/onlinedocs/jit/ */
+#include <libgccjit.h>          /* see gcc.gnu.org/onlinedocs/jit/ */
 
 typedef struct _object_HDGJIRPS_st Obj_HDGJIRPS;
 
@@ -104,9 +104,9 @@ extern double thread_cpu_time_HDGJIRPS (void);
 	  MALLOCX_ZERO|MALLOCX_LG_ALIGN(4));
 extern void
 emit_gplv3_notice_AT_HDGJIRPS (FILE *fout, const char *fil, int lin,
-			       const char *fromfun, const char *path,
-			       const char *linprefix, const char *linsuffix,
-			       char *explain);
+                               const char *fromfun, const char *path,
+                               const char *linprefix, const char *linsuffix,
+                               char *explain);
 
 extern int32_t randomi32_HDGJIRPS (void);
 extern int64_t randomi64_HDGJIRPS (void);
@@ -117,20 +117,20 @@ extern void *full_program_dlhandle_HDGJIRPS (void);
 /// the reverse is done by strtoll; return true if successful
 extern bool uint64b36_HDGJIRPS (uint64_t i, char *buf, int bufsiz);
 
-#define LOADMAGIC_HDGJIRPS 0x3eb03561	/* 1051735393 */
+#define LOADMAGIC_HDGJIRPS 0x3eb03561   /* 1051735393 */
 
 extern void load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
 extern void *loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
 extern void load_fill_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ld,
-				       Obj_HDGJIRPS *pob);
+                                       Obj_HDGJIRPS *pob);
 /// This loading state is called after a successful mmap of path
 /// (start -> end)
 extern void load_state_HDGJIRPS (const char *path, const char *start,
-				 const char *last);
+                                 const char *last);
 
 extern Obj_HDGJIRPS *make_loaded_object_HDGJIRPS (struct load_data_HDGJIRPS_st
-						  *ld, uint32_t hi,
-						  uint32_t lo);
+                                                  *ld, uint32_t hi,
+                                                  uint32_t lo);
 
 extern void
 write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab);
@@ -138,7 +138,7 @@ write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab);
 extern const uint32_t loadmagic_HDGJIRPS;
 struct load_data_HDGJIRPS_st
 {
-  uint32_t lda_magic;		/* aload loadmagic_HDGJRPS */
+  uint32_t lda_magic;           /* aload loadmagic_HDGJRPS */
   uint32_t lda_lineno;
   const char *lda_path;
   void *lda_start;
@@ -155,18 +155,18 @@ struct load_data_HDGJIRPS_st
 
 extern void load_skip_spaces_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
 
-#define DUMPMAGIC_HDGJIRPS 0x3d4a10bf	/* 1028264127 */
+#define DUMPMAGIC_HDGJIRPS 0x3d4a10bf   /* 1028264127 */
 
 extern const uint32_t dump_magic_HDGJIRPS;
 struct dump_data_HDGJIRPS_st
 {
-  uint32_t dump_magic;		/* always dump_magic_HDGJRPS */
+  uint32_t dump_magic;          /* always dump_magic_HDGJRPS */
   uint16_t dump_indent;
   const char *dump_path;
   FILE *dump_file;
-  long dump_bol;		/* offset of last line */
+  long dump_bol;                /* offset of last line */
   void *dump_data;
-};				/* end struct dump_data_HDGJIRPS_st */
+};                              /* end struct dump_data_HDGJIRPS_st */
 
 extern void breakpoint_at_HDGJIRPS (const char *fil, int lin, char kind);
 
@@ -223,7 +223,7 @@ extern void breakpoint_at_HDGJIRPS (const char *fil, int lin, char kind);
   HDGJIRPS_WARNING_AT(__FILE__,__LINE__,__FUNCTION__,Fmt,##__VA_ARGS__)
 
 extern int get_escape_sequence_HDGHIRPS (const char **ps, bool instring,
-					 bool *badseq);
+                                         bool *badseq);
 
 #define HDGJIRPS_TWO_WORDS_ALIGNED __attribute__((aligned(2*sizeof(void*))))
 // by convention positive typenums are for scalar values and negative
@@ -256,25 +256,25 @@ enum scalar_typid_HDGJIRPS_en
 };
 
 extern void register_scalar_value_HDGJIRPS (void *ptr,
-					    enum scalar_typid_HDGJIRPS_en
-					    typcod);
+                                            enum scalar_typid_HDGJIRPS_en
+                                            typcod);
 
 
 struct boxint_hdgjirps_st
 {
-  HDGJIRPS_HEADER_FIELDS;	//
+  HDGJIRPS_HEADER_FIELDS;       //
   intptr_t intval;
 };
 struct boxint_hdgjirps_st *make_box_int_HDGJIRPS (intptr_t v);
 bool get_int_HDGJIRPS (const void *ptr, intptr_t * p);
 struct boxtwoints_hdgjirps_st
 {
-  HDGJIRPS_HEADER_FIELDS;	//
+  HDGJIRPS_HEADER_FIELDS;       //
   intptr_t intpair[2];
 };
 
 struct boxtwoints_hdgjirps_st *make_boxtwoints_HDGJIRPS (intptr_t v0,
-							 intptr_t v1);
+                                                         intptr_t v1);
 bool get_twoints_HDGJIRPS (const void *ptr, intptr_t * p0, intptr_t * p1);
 
 
@@ -282,7 +282,7 @@ bool get_twoints_HDGJIRPS (const void *ptr, intptr_t * p0, intptr_t * p1);
 
 struct boxdouble_hdgjirps_st
 {
-  HDGJIRPS_HEADER_FIELDS;	//
+  HDGJIRPS_HEADER_FIELDS;       //
   double dblval;
 };
 
@@ -300,14 +300,14 @@ bool get_double_HDGJIRPS (const void *ptr, double *p);
 
 struct string_hdgjirps_st
 {
-  HDGJIRPS_HEADER_FIELDS;	//
+  HDGJIRPS_HEADER_FIELDS;       //
   char cstr[];
 };
 struct string_hdgjirps_st *make_string_HDGJIRPS (const char *str);
 struct string_hdgjirps_st *make_sized_string_HDGJIRPS (const char *str,
-						       int bytesize);
+                                                       int bytesize);
 bool get_string_length_HDGJIRPS (void *ptr, const char **pstr,
-				 unsigned *pslen);
+                                 unsigned *pslen);
 
 bool get_string_HDGJIRPS (void *ptr, const char **pstr);
 
@@ -326,7 +326,7 @@ bool get_string_HDGJIRPS (void *ptr, const char **pstr);
 #define NAMEDROUT_LENGTH_HDGJIRPS 48
 struct namedrout_hdgjirps_st
 {
-  HDGJIRPS_HEADER_FIELDS;	//
+  HDGJIRPS_HEADER_FIELDS;       //
   void *routad;
   const char routnam[NAMEDROUT_LENGTH_HDGJIRPS];
 };
@@ -348,9 +348,9 @@ enum composite_typid_HDGJIRPS_en
 };
 
 extern void register_composite_value_HDGJIRPS (void *ptr,
-					       enum
-					       composite_typid_HDGJIRPS_en
-					       typcod);
+                                               enum
+                                               composite_typid_HDGJIRPS_en
+                                               typcod);
 
 extern const uint32_t minhi_obid_HDGJIRPS;
 extern const uint64_t minlo_obid_HDGJIRPS;
@@ -366,13 +366,13 @@ struct node_hdgjirps_st
 };
 
 struct node_hdgjirps_st *make_node_vect_HDGJIRPS (Obj_HDGJIRPS
-						  *ob, unsigned nbsons,
-						  void **sontab);
+                                                  *ob, unsigned nbsons,
+                                                  void **sontab);
 struct node_hdgjirps_st *make_node_args_HDGJIRPS (Obj_HDGJIRPS *ob, ...);
 #define MAKE_VNODE_HDGJIRPS(Ob,...) make_node_args_HDGJIRPS((Ob), #__VA_ARGS__, NULL);
-struct compvect_hdgjirps_st;	/// in composite.c
-struct attrvect_hdgjirps_st;	/// in composite.c
-struct _object_HDGJIRPS_st	// aliased as Obj_HDGJIRPS
+struct compvect_hdgjirps_st;    /// in composite.c
+struct attrvect_hdgjirps_st;    /// in composite.c
+struct _object_HDGJIRPS_st      // aliased as Obj_HDGJIRPS
 {
   HDGJIRPS_HEADER_FIELDS;
   pthread_mutex_t ob_mtx;
@@ -380,7 +380,7 @@ struct _object_HDGJIRPS_st	// aliased as Obj_HDGJIRPS
   uint64_t ob_idlo;
   struct attrvect_hdgjirps_st *ob_attrv;
   struct compvect_hdgjirps_st *ob_compv;
-};				/* end struct _object_hdgjirps_st a.k.a Obj_HDGJIRPS */
+};                              /* end struct _object_hdgjirps_st a.k.a Obj_HDGJIRPS */
 
 inline bool
 is_valid_ptr_HDGJIRPS (const void *ptr)
@@ -404,7 +404,7 @@ is_valid_ptr_HDGJIRPS (const void *ptr)
       return true;
     };
   return false;
-}				/* end is_valid_ptr_HDGJIRPS */
+}                               /* end is_valid_ptr_HDGJIRPS */
 
 extern Obj_HDGJIRPS *load_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
 extern Obj_HDGJIRPS *find_object_HDGJIRPS (uint32_t hi, uint64_t lo);

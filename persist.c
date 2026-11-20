@@ -56,18 +56,19 @@ load_state_HDGJIRPS (const char *path, const char *start, const char *last)
   assert (loadmagic_HDGJIRPS == LOADMAGIC_HDGJIRPS);
   const char *startcomm =
     strnstr ((const char *) start, start_comment_HDGJIRPS,
-	     (const char *) last - (const char *) start);
+             (const char *) last - (const char *) start);
   if (!startcomm)
-    HDGJIRPS_FATAL ("load state file %s is lacking a start comment %s",
-		    path, start_comment_HDGJIRPS);
+    HDGJIRPS_FATAL
+      ("load state file %s is lacking a start comment %s",
+       path, start_comment_HDGJIRPS);
   for (const char *p = start; p < startcomm; p++)
     if (*p == '\n')
       lineno++;
   if (startcomm > (const char *) start
       && startcomm[-1] != '\n' && startcomm[-1] != '\r')
     HDGJIRPS_FATAL ("load state file %s "
-		    "with start comment %s not at start of line#%d",
-		    path, start_comment_HDGJIRPS, lineno);
+                    "with start comment %s not at start of line#%d",
+                    path, start_comment_HDGJIRPS, lineno);
   const char *endcomm = startcomm + strlen (start_comment_HDGJIRPS);
   assert (endcomm < (const char *) last);
   struct load_data_HDGJIRPS_st ldata = { };
@@ -76,6 +77,7 @@ load_state_HDGJIRPS (const char *path, const char *start, const char *last)
   ldata.lda_start = (void *) endcomm;
   ldata.lda_cur = (void *) (endcomm + 1);
   ldata.lda_end = (void *) last;
+  ldata.lda_lineno = lineno;
   const unsigned ldstacksiz = 1024;
   ldata.lda_stack =
     mallocx (ldstacksiz, MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
@@ -84,8 +86,10 @@ load_state_HDGJIRPS (const char *path, const char *start, const char *last)
 #warning should use the stack of ldata
   load_data_HDGJIRPS (&ldata);
   if (verbose_HDGJIRPS)
-    printf ("%s: loaded state %s\n", progname_HDGJIRPS, path);
-}				/* end load_state_HDGJIRPS */
+    printf ("%s: loaded state %s (%d lines)\n",
+            progname_HDGJIRPS, path, ldata.lda_lineno);
+  fflush (NULL);
+}                               /* end load_state_HDGJIRPS */
 
 void
 load_skip_spaces_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
@@ -95,9 +99,9 @@ load_skip_spaces_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
   while (ld->lda_cur < ld->lda_end && isspace (*(char *) (ld->lda_cur)))
     {
       if (*((char *) (ld->lda_cur)) == '\n')
-	ld->lda_lineno++;
+        ld->lda_lineno++;
     };
-}				/* end load_skip_spaces_HDGJIRPS */
+}                               /* end load_skip_spaces_HDGJIRPS */
 
 /* Code borowed from nwcc.sourceforge.net file token.c */
 
@@ -120,48 +124,48 @@ get_escape_sequence_HDGHIRPS (const char **ps, bool instring, bool *badseq)
     {
       /* Octal constant */
       if (s[0] == '0' && isdigit ((unsigned char) s[1]) == 0)
-	{
-	  *ps = s + 1;
-	  /* Null constant '\0' */
-	  return 0;
-	}
+        {
+          *ps = s + 1;
+          /* Null constant '\0' */
+          return 0;
+        }
       if (s[0] == '0')
-	++s;
+        ++s;
       if (sscanf (s, instring ? "%3o%n" : "%o%n",
-		  (unsigned *) &rc, &pos) < 1 || pos < 0)
-	{
-	  if (badseq)
-	    *badseq = true;
-	  HDGJIRPS_WARNING ("bad escape sequence %s", s);
-	  return -1;
-	}
+                  (unsigned *) &rc, &pos) < 1 || pos < 0)
+        {
+          if (badseq)
+            *badseq = true;
+          HDGJIRPS_WARNING ("bad escape sequence %s", s);
+          return -1;
+        }
       if (pos > 0)
-	*ps = s + pos;
+        *ps = s + pos;
       return rc;
     }
   else if (tolower ((unsigned char) *s) == 'x')
     {
       /* Is hexadecimal constant */
       if (sscanf (s + 1, instring ? "%2x%n" : "%x%n",
-		  (unsigned *) &rc, &pos) < 1)
-	{
-	  HDGJIRPS_WARNING ("Invalid hexadecimal constant %s", s);
-	  if (badseq)
-	    *badseq = true;
-	  return -1;
-	}
+                  (unsigned *) &rc, &pos) < 1)
+        {
+          HDGJIRPS_WARNING ("Invalid hexadecimal constant %s", s);
+          if (badseq)
+            *badseq = true;
+          return -1;
+        }
     }
   else if (*s == 'u')
     {
       if (sscanf (s + 1, "%u4x%n", (unsigned *) &rc, &pos) < 1 || pos <= 0)
-	{
-	  HDGJIRPS_WARNING ("Invalid hexadecimal escape %s", s);
-	  if (badseq)
-	    *badseq = true;
-	  return -1;
-	}
+        {
+          HDGJIRPS_WARNING ("Invalid hexadecimal escape %s", s);
+          if (badseq)
+            *badseq = true;
+          return -1;
+        }
       if (badseq)
-	*badseq = false;
+        *badseq = false;
 
       *ps = s + pos + 1;
       return rc;
@@ -169,14 +173,14 @@ get_escape_sequence_HDGHIRPS (const char **ps, bool instring, bool *badseq)
   else if (*s == 'U')
     {
       if (sscanf (s + 1, "%u8x%n", (unsigned *) &rc, &pos) < 1 || pos <= 0)
-	{
-	  HDGJIRPS_WARNING ("Invalid hexadecimal escape %s", s);
-	  if (badseq)
-	    *badseq = true;
-	  return -1;
-	}
+        {
+          HDGJIRPS_WARNING ("Invalid hexadecimal escape %s", s);
+          if (badseq)
+            *badseq = true;
+          return -1;
+        }
       if (badseq)
-	*badseq = false;
+        *badseq = false;
 
       *ps = s + pos + 1;
       return rc;
@@ -187,95 +191,95 @@ get_escape_sequence_HDGHIRPS (const char **ps, bool instring, bool *badseq)
       /* Must be other escape sequence */
       static struct
       {
-	char ch;
-	char seq;
+        char ch;
+        char seq;
       } esc[] = {
-	{'n', '\n'},
-	{'r', '\r'},
-	{'t', '\t'},
-	{'v', '\v'},
-	{'b', '\b'},
-	{'a', '\a'},
-	{'f', '\f'},
-	{'Q', '\''},
-	{'\\', '\\'},
-	{'\'', '\''},
-	{'\"', '\"'},
-	{'\?', '\?'},
-	{0, 0}
+        {'n', '\n'},
+        {'r', '\r'},
+        {'t', '\t'},
+        {'v', '\v'},
+        {'b', '\b'},
+        {'a', '\a'},
+        {'f', '\f'},
+        {'Q', '\''},
+        {'\\', '\\'},
+        {'\'', '\''},
+        {'\"', '\"'},
+        {'\?', '\?'},
+        {0, 0}
       };
       int i;
       for (i = 0; esc[i].ch != 0; ++i)
-	{
-	  if (s[0] == esc[i].ch)
-	    {
-	      foundesc = true;
-	      rc = esc[i].seq;
-	      if (s[1] != 0 && !instring)
-		{
-		  if (s[1] != '\'')
-		    {
-		      HDGJIRPS_WARNING ("Multiple characters "
-					"in character constant %s"
-					" - ignoring excess characters.", s);
-		    }
-		}
-	      break;
-	    }
-	}
+        {
+          if (s[0] == esc[i].ch)
+            {
+              foundesc = true;
+              rc = esc[i].seq;
+              if (s[1] != 0 && !instring)
+                {
+                  if (s[1] != '\'')
+                    {
+                      HDGJIRPS_WARNING ("Multiple characters "
+                                        "in character constant %s"
+                                        " - ignoring excess characters.", s);
+                    }
+                }
+              break;
+            }
+        }
       if (esc[i].ch == 0)
-	{
-	  if (s[0] == '%')
-	    {
-	      HDGJIRPS_WARNING ("`\\%%' is not a valid escape in %s", s);
-	      if (badseq)
-		*badseq = true;
-	      return -1;
-	    }
-	  else
-	    {
-	      HDGJIRPS_WARNING ("Invalid escape sequence. %s", s);
-	      if (badseq)
-		*badseq = true;
-	      return -1;
-	    }
-	};
+        {
+          if (s[0] == '%')
+            {
+              HDGJIRPS_WARNING ("`\\%%' is not a valid escape in %s", s);
+              if (badseq)
+                *badseq = true;
+              return -1;
+            }
+          else
+            {
+              HDGJIRPS_WARNING ("Invalid escape sequence. %s", s);
+              if (badseq)
+                *badseq = true;
+              return -1;
+            }
+        };
       if (!foundesc)
-	{
-	  int minlen = 0;
-	  ucs4_t uc = 0;
-	  for (i = 0; i < 8 && s[i] != (char) 0; i++)
-	    minlen++;
-	  int clen = u8_mblen ((const uint8_t *) s, minlen);
-	  if (clen < 0)
-	    {
-	      HDGJIRPS_WARNING ("Invalid UTF8 sequence. %.8s", s);
-	      if (badseq)
-		*badseq = true;
-	      return -1;
-	    };
-	  int ulen = u8_mbtouc (&uc, (const uint8_t *) s, clen);
-	  if (ulen > 0 && uc_is_print (uc))
-	    {
-	      if (badseq)
-		*badseq = false;
-	      *ps = s + ulen + 1;
-	      return uc;
-	    }
+        {
+          int minlen = 0;
+          ucs4_t uc = 0;
+          for (i = 0; i < 8 && s[i] != (char) 0; i++)
+            minlen++;
+          int clen = u8_mblen ((const uint8_t *) s, minlen);
+          if (clen < 0)
+            {
+              HDGJIRPS_WARNING ("Invalid UTF8 sequence. %.8s", s);
+              if (badseq)
+                *badseq = true;
+              return -1;
+            };
+          int ulen = u8_mbtouc (&uc, (const uint8_t *) s, clen);
+          if (ulen > 0 && uc_is_print (uc))
+            {
+              if (badseq)
+                *badseq = false;
+              *ps = s + ulen + 1;
+              return uc;
+            }
 #warning missing code here to handle UTF8 in strings
-	}
+        }
     }
 
   if (!instring && (rc > UCHAR_MAX || rc < CHAR_MIN))
     {
       HDGJIRPS_WARNING ("Literal out of character range. %s", s);
       if (badseq)
-	*badseq = true;
+        *badseq = true;
       return -1;
     }
   rc = (char) rc;
   return rc;
-}				/* end get_escape_sequence_HDGHIRPS */
+}                               /* end get_escape_sequence_HDGHIRPS */
 
 
 
@@ -295,7 +299,7 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
     return NULL;
   if (isdigit (*(char *) ld->lda_cur)
       || ((*(char *) ld->lda_cur == '+' || *(char *) ld->lda_cur == '-')
-	  && isdigit (((char *) ld->lda_cur)[1])))
+          && isdigit (((char *) ld->lda_cur)[1])))
     {
       char *endint = NULL;
       char *endflo = NULL;
@@ -304,15 +308,15 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
       lli = strtoll ((const char *) ld->lda_cur, &endint, 0);
       f = strtod ((const char *) ld->lda_cur, &endflo);
       if (endint != NULL && endflo != NULL && endflo > endint)
-	{
-	  ld->lda_cur = endflo;
-	  return make_box_double_HDGJIRPS (f);
-	}
+        {
+          ld->lda_cur = endflo;
+          return make_box_double_HDGJIRPS (f);
+        }
       else if (endint > (const char *) ld->lda_cur)
-	{
-	  ld->lda_cur = endint;
-	  return make_box_int_HDGJIRPS ((intptr_t) lli);
-	}
+        {
+          ld->lda_cur = endint;
+          return make_box_int_HDGJIRPS ((intptr_t) lli);
+        }
       return NULL;
     }
   else if (*(char *) ld->lda_cur == '\"')
@@ -320,56 +324,78 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
       char smbuf[64];
       memset (smbuf, 0, sizeof (smbuf));
       if (sscanf (ld->lda_cur, "\"%60[^\\\n\r\f\"]\"%n", smbuf, &pos) >= 1
-	  && pos > 2)
-	{
-	  ld->lda_cur += pos;
-	  return make_string_HDGJIRPS (smbuf);
-	}
+          && pos > 2)
+        {
+          ld->lda_cur += pos;
+          return make_string_HDGJIRPS (smbuf);
+        }
       else
-	{
-	  const char *eol = strchr ((const char *) ld->lda_cur, '\n');
-	  char *buf = NULL;
-	  unsigned bufsiz = 0;
-	  char smallbuf[80];
-	  memset (smallbuf, 0, sizeof (smallbuf));
-	  if (!eol)
-	    eol = ld->lda_end;
-	  assert (eol >= (const char *) ld->lda_cur
-		  && (const char *) eol <= (const char *) ld->lda_end);
-	  if (eol - (const char *) ld->lda_cur < (long) sizeof (smallbuf))
-	    buf = smallbuf;
-	  else
-	    {
-	      bool stop = true;
-	      bufsiz = ((2 * sizeof (smallbuf) + 10) | 0xf) + 1;
-	      buf = mallocx (bufsiz, MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
-	      memset (buf, 0, bufsiz);
-	      do
-		{
-		  int u =
-		    get_escape_sequence_HDGHIRPS ((const char **)
-						  &ld->lda_cur,
-						  true, &stop);
-		  if (u > 0 && !stop)
-		    {
-		      char minbuf[8];
-		      memset (minbuf, 0, sizeof (minbuf));
-		      int siz = u8_uctomb ((uint8_t *) minbuf, (ucs4_t) u,
-					   (ptrdiff_t) sizeof (minbuf));
-		      if (siz > 0 && siz + strlen (buf) < bufsiz)
-			strcat (buf, minbuf);
-		      else
-			{
-#warning incomplete code...
-			}
-
-#warning should UTF8 encode u and append it in buf...
-		    }
-		}
-	      while (!stop && ld->lda_cur < ld->lda_end);
-	    }
-	}
-    }
+        {
+          const char *eol = strchr ((const char *) ld->lda_cur, '\n');
+          char *buf = NULL;
+          unsigned bufsiz = 0;
+          unsigned buflen = 0;
+          char smallbuf[80];
+          memset (smallbuf, 0, sizeof (smallbuf));
+          if (!eol)
+            eol = ld->lda_end;
+          assert (eol >= (const char *) ld->lda_cur
+                  && (const char *) eol <= (const char *) ld->lda_end);
+          if (eol - (const char *) ld->lda_cur < (long) sizeof (smallbuf) - 2)
+            buf = smallbuf;
+          else
+            {
+              bool stop = true;
+              bufsiz = ((2 * sizeof (smallbuf) + 10) | 0xf) + 1;
+              buf = mallocx (bufsiz, MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
+              //useless since using MALLOCX_ZERO: memset (buf, 0, bufsiz);
+              do
+                {
+                  int u =
+                    get_escape_sequence_HDGHIRPS ((const char **)
+                                                  &ld->lda_cur,
+                                                  true, &stop);
+                  /// the escaped NULL \0 is forbidden
+                  if (u == 0 && !stop)
+                    {
+                      HDGJIRPS_FATAL ("in %s:%d the null byte is forbidden",
+                                      ld->lda_path, ld->lda_lineno);
+                    };
+                  if (u > 0 && !stop)
+                    {
+                      char minbuf[8];
+                      memset (minbuf, 0, sizeof (minbuf));
+                      int siz = u8_uctomb ((uint8_t *) minbuf, (ucs4_t) u,
+                                           (ptrdiff_t) sizeof (minbuf));
+                      if (siz > 0 && siz + strlen (buf) < bufsiz)
+                        {
+                          strncpy (buf + buflen, minbuf, siz);
+                          buflen += siz;
+                        }
+                      else
+                        {
+                          unsigned newbufsiz
+                            = ((5 * bufsiz / 4 + 50) | 0x1f) + 1;
+                          assert (newbufsiz + 2 >= sizeof (minbuf));
+                          const char *oldbuf = buf;
+                          char *newbuf = mallocx (newbufsiz,
+                                                  MALLOCX_ZERO |
+                                                  MALLOCX_ALIGN (1 << 8));
+                          memcpy (newbuf, oldbuf, buflen);
+                          if (oldbuf != smallbuf)
+                            {
+                              /// perhaps dallocx should be used?
+                              free_sized ((void *) oldbuf, bufsiz);
+                              oldbuf = NULL;
+                            };
+                          buf = newbuf;
+                        }
+                    }
+                }
+              while (!stop && ld->lda_cur < ld->lda_end);
+            }
+        }
+    }                           /* end literal string */
   ///https://stackoverflow.com/a/5796039/841108
   else if (sscanf (ld->lda_cur, "INT%lli%n", &il, &pos) >= 2 && pos > 0)
     {
@@ -392,24 +418,24 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
       char *endlo = NULL;
       long lh = strtol (ld->lda_cur + pos, &endhi, 36);
       if (lh < UINT32_MAX)
-	hi = lh;
+        hi = lh;
       if (hi > 0 && endhi && endhi[0] == '_')
-	lo = strtol (endhi + 1, &endlo, 36);
+        lo = strtol (endhi + 1, &endlo, 36);
       if (hi > 0 && lo > 0 && endlo)
-	{
-	  Obj_HDGJIRPS *pob = find_object_HDGJIRPS (hi, lo);
-	  if (!pob)
-	    HDGJIRPS_FATAL
-	      ("invalid object reference %s in loaded file %s:%d",
-	       (const char *) (ld->lda_cur), ld->lda_path, ld->lda_lineno);
-	  res = pob;
-	  ld->lda_cur = endlo;
-	  return res;
-	}
+        {
+          Obj_HDGJIRPS *pob = find_object_HDGJIRPS (hi, lo);
+          if (!pob)
+            HDGJIRPS_FATAL
+              ("invalid object reference %s in loaded file %s:%d",
+               (const char *) (ld->lda_cur), ld->lda_path, ld->lda_lineno);
+          res = pob;
+          ld->lda_cur = endlo;
+          return res;
+        }
     }
 #warning loaded_value_HDGJIRPS very incomplete
   return NULL;
-}				/* end loaded_value_HDGJIRPS */
+}                               /* end loaded_value_HDGJIRPS */
 
 void
 load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
@@ -426,100 +452,100 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
       load_skip_spaces_HDGJIRPS (ldp);
       const char *eol = strchr (ldp->lda_cur, '\n');
       if (!eol)
-	eol = ldp->lda_end;
+        eol = ldp->lda_end;
       if (sscanf (ldp->lda_cur, "MAKOBJ_%30[0-9A-Z]_%30[0-9A-Z]%n",
-		  bufhi, buflo, &pos) > 2 && pos > 0
-	  && (char *) ldp->lda_cur + pos <= eol)
-	{
-	  bufhi[sizeof (bufhi) - 1] = (char) 0;
-	  buflo[sizeof (buflo) - 1] = (char) 0;
-	  uint32_t hi = 0;
-	  uint64_t lo = 0;
-	  hi = (uint32_t) strtol (bufhi, NULL, 36);
-	  lo = (uint64_t) strtol (buflo, NULL, 36);
-	  if (hi > 0 && lo > 0)
-	    {
-	      if (find_object_HDGJIRPS (hi, lo))
-		{
-		  fprintf (stderr,
-			   "load_data_HDGJIRPS at %s:%d cannot create existing object\n",
-			   ldp->lda_path, ldp->lda_lineno);
-		  fprintf (stderr,
-			   " (hi=%d=%s, lo=%ld=%s) [%s:%d]\n",
-			   (int) hi, bufhi, (long) lo, buflo, __FILE__,
-			   __LINE__);
-		  fflush (stderr);
-		  continue;
-		}
-	      else
-		{
-		  Obj_HDGJIRPS *newob =
-		    make_loaded_object_HDGJIRPS (ldp, hi, lo);
-		  if (!newob)
-		    continue;
-		  register_composite_value_HDGJIRPS (newob,
-						     comp_boxed_object);
-		};
-	    }
-	}
+                  bufhi, buflo, &pos) > 2 && pos > 0
+          && (char *) ldp->lda_cur + pos <= eol)
+        {
+          bufhi[sizeof (bufhi) - 1] = (char) 0;
+          buflo[sizeof (buflo) - 1] = (char) 0;
+          uint32_t hi = 0;
+          uint64_t lo = 0;
+          hi = (uint32_t) strtol (bufhi, NULL, 36);
+          lo = (uint64_t) strtol (buflo, NULL, 36);
+          if (hi > 0 && lo > 0)
+            {
+              if (find_object_HDGJIRPS (hi, lo))
+                {
+                  fprintf (stderr,
+                           "load_data_HDGJIRPS at %s:%d cannot create existing object\n",
+                           ldp->lda_path, ldp->lda_lineno);
+                  fprintf (stderr,
+                           " (hi=%d=%s, lo=%ld=%s) [%s:%d]\n",
+                           (int) hi, bufhi, (long) lo, buflo, __FILE__,
+                           __LINE__);
+                  fflush (stderr);
+                  continue;
+                }
+              else
+                {
+                  Obj_HDGJIRPS *newob =
+                    make_loaded_object_HDGJIRPS (ldp, hi, lo);
+                  if (!newob)
+                    continue;
+                  register_composite_value_HDGJIRPS (newob,
+                                                     comp_boxed_object);
+                };
+            }
+        }
       else if (sscanf (ldp->lda_cur, "FILLOBJ_%30[0-9A-Z]_%30[0-9A-Z]%n",
-		       bufhi, buflo, &pos) > 2 && pos > 0
-	       && (char *) ldp->lda_cur + pos <= eol)
-	{
-	  bufhi[sizeof (bufhi) - 1] = (char) 0;
-	  buflo[sizeof (buflo) - 1] = (char) 0;
-	  uint32_t hi = 0;
-	  uint64_t lo = 0;
-	  hi = (uint32_t) strtol (bufhi, NULL, 36);
-	  lo = (uint64_t) strtol (buflo, NULL, 36);
-	  if (hi > 0 && lo > 0)
-	    {
-	      Obj_HDGJIRPS *pob = find_object_HDGJIRPS (hi, lo);
-	      if (!pob)
-		HDGJIRPS_FATAL ("cannot fill object (_%s_%s) at %s:%d",
-				bufhi, buflo, ldp->lda_path, ldp->lda_lineno);
-	      ldp->lda_cur += pos;
-	      load_fill_object_HDGJIRPS (ldp, pob);
-	    };
-	}
+                       bufhi, buflo, &pos) > 2 && pos > 0
+               && (char *) ldp->lda_cur + pos <= eol)
+        {
+          bufhi[sizeof (bufhi) - 1] = (char) 0;
+          buflo[sizeof (buflo) - 1] = (char) 0;
+          uint32_t hi = 0;
+          uint64_t lo = 0;
+          hi = (uint32_t) strtol (bufhi, NULL, 36);
+          lo = (uint64_t) strtol (buflo, NULL, 36);
+          if (hi > 0 && lo > 0)
+            {
+              Obj_HDGJIRPS *pob = find_object_HDGJIRPS (hi, lo);
+              if (!pob)
+                HDGJIRPS_FATAL ("cannot fill object (_%s_%s) at %s:%d",
+                                bufhi, buflo, ldp->lda_path, ldp->lda_lineno);
+              ldp->lda_cur += pos;
+              load_fill_object_HDGJIRPS (ldp, pob);
+            };
+        }
 #warning load_data_HDGJIRPS incomplete
       else
-	{
-	  HDGJIRPS_WARNING ("incomplete load_data_HDGJIRPS @%s:%d line:%s",
-			    ldp->lda_path, ldp->lda_lineno,
-			    (const char *) ldp->lda_cur);
-	  /* todo: define a load stack and some operations to handle it,
-	     with ideas inspired by PostScript, PDF, FORTH, or NeWS */
-	  goto end;
-	}
+        {
+          HDGJIRPS_WARNING ("incomplete load_data_HDGJIRPS @%s:%d line:%s",
+                            ldp->lda_path, ldp->lda_lineno,
+                            (const char *) ldp->lda_cur);
+          /* todo: define a load stack and some operations to handle it,
+             with ideas inspired by PostScript, PDF, FORTH, or NeWS */
+          goto end;
+        }
     };
 end:
   fprintf (stderr,
-	   "load_data_HDGJIRPS unimplemented for path %s [%s:%d] git %s\n",
-	   ldp->lda_path, __FILE__, __LINE__, persist_HDGJIRPS_git);
+           "load_data_HDGJIRPS unimplemented for path %s [%s:%d] git %s\n",
+           ldp->lda_path, __FILE__, __LINE__, persist_HDGJIRPS_git);
 #warning incomplete load_data_HDGJIRPS should use ldp
-}				/* end load_data_HDGJIRPS */
+}                               /* end load_data_HDGJIRPS */
 
 
 
 void
 load_fill_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp,
-			   Obj_HDGJIRPS *pob)
+                           Obj_HDGJIRPS *pob)
 {
   assert (ldp && ldp->lda_magic == LOADMAGIC_HDGJIRPS);
 #warning unimplemented load_fill_object_HDGJIRPS
   HDGJIRPS_FATAL ("unimplemented load_fill_object_HDGJIRPS ldp@%p"
-		  " at %s:%d (pob@%p)",
-		  ldp, ldp->lda_path, ldp->lda_lineno, pob);
-}				/* end load_fill_object_HDGJIRPS */
+                  " at %s:%d (pob@%p)",
+                  ldp, ldp->lda_path, ldp->lda_lineno, pob);
+}                               /* end load_fill_object_HDGJIRPS */
 
 const uint32_t dump_magic_HDGJIRPS = DUMPMAGIC_HDGJIRPS;
 
 static ssize_t dump_reader_HDGJIRPS (void *cookie, char *buffer, size_t size);
 static ssize_t dump_writer_HDGJIRPS (void *cookie, const char *buffer,
-				     size_t size);
+                                     size_t size);
 static int dump_seeker_HDGJIRPS (void *cookie, off64_t * position,
-				 int whence);
+                                 int whence);
 static int dump_cleaner_HDGJIRPS (void *cookie);
 
 void
@@ -537,14 +563,14 @@ write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab)
       memset (backupath, 0, sizeof (backupath));
       snprintf (backupath, sizeof (backupath) - 4, "%s~", path);
       if (strlen (backupath) > strlen (path))
-	rename (path, backupath);
+        rename (path, backupath);
     };
   // see https://sourceware.org/glibc/manual/latest/html_node/Streams-and-Cookies.html
 #warning should probably use fopencookie
   filsta = fopen (path, "w");
   if (!filsta)
     HDGJIRPS_FATAL ("failed to open state file %s (%s)", path,
-		    strerror (errno));
+                    strerror (errno));
   cookie_io_functions_t iofun;
   memset (&iofun, 0, sizeof (iofun));
   iofun.read = dump_reader_HDGJIRPS;
@@ -554,7 +580,7 @@ write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab)
   FILE *cookf = fopencookie (&dd, "w", iofun);
   if (!cookf)
     HDGJIRPS_FATAL ("failed to open cookie file dd@%p (%s)", &dd,
-		    strerror (errno));
+                    strerror (errno));
   dd.dump_magic = DUMPMAGIC_HDGJIRPS;
   dd.dump_indent = 0;
   dd.dump_path = path;
@@ -563,7 +589,7 @@ write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab)
   dd.dump_data = NULL;
 #warning write_state_HDGJIRPS is incomplete and needs a better signature
   HDGJIRPS_FATAL ("unimplemented write_state_HDGJIRPS path=%s", path);
-}				/* end write_state_HDGJIRPS */
+}                               /* end write_state_HDGJIRPS */
 
 static ssize_t
 dump_reader_HDGJIRPS (void *cookie, char *buffer, size_t size)
@@ -576,7 +602,7 @@ dump_reader_HDGJIRPS (void *cookie, char *buffer, size_t size)
 #warning unimplemented dump_reader_HDGJIRPS
   HDGJIRPS_FATAL ("unimplemented dump_reader_HDGJIRPS dd@%p", cookie);
   return res;
-}				// end dump_reader_HDGJIRPS
+}                               // end dump_reader_HDGJIRPS
 
 static ssize_t
 dump_writer_HDGJIRPS (void *cookie, const char *buffer, size_t size)
@@ -589,7 +615,7 @@ dump_writer_HDGJIRPS (void *cookie, const char *buffer, size_t size)
 #warning unimplemented dump_writer_HDGJIRPS
   HDGJIRPS_FATAL ("unimplemented dump_writer_HDGJIRPS dd@%p", cookie);
   return res;
-}				// end dump_writer_HDGJIRPS
+}                               // end dump_writer_HDGJIRPS
 
 static int
 dump_seeker_HDGJIRPS (void *cookie, off64_t *position, int whence)
@@ -601,7 +627,7 @@ dump_seeker_HDGJIRPS (void *cookie, off64_t *position, int whence)
 #warning unimplemented dump_seeker_HDGJIRPS
   HDGJIRPS_FATAL ("unimplemented dump_seeker_HDGJIRPS dd@%p", cookie);
   return res;
-}				/* end dump_seeker_HDGJIRPS */
+}                               /* end dump_seeker_HDGJIRPS */
 
 static int
 dump_cleaner_HDGJIRPS (void *cookie)
@@ -612,6 +638,6 @@ dump_cleaner_HDGJIRPS (void *cookie)
 #warning unimplemented dump_cleaner_HDGJIRPS
   HDGJIRPS_FATAL ("unimplemented dump_cleaner_HDGJIRPS dd@%p", cookie);
   return res;
-}				/* end dump_cleaner_HDGJIRPS */
+}                               /* end dump_cleaner_HDGJIRPS */
 
 /* end of file gccjit-refpersys/persist.c */

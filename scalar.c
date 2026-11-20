@@ -59,18 +59,18 @@ hashstr_HDGJIRPS (const char *s)
       ucs4_t uc = 0;
       int l = u8_mbtoucr (&uc, us, s + bytlen - (char *) us);
       if (l < 0)
-	HDGJIRPS_FATAL ("corrupted UTF8 string %s", s);
+        HDGJIRPS_FATAL ("corrupted UTF8 string %s", s);
       cnt++;
       us += l;
       if (cnt % 2 == 0)
-	h = ((h * 443) ^ (uc * 347)) + (cnt & 0xff);
+        h = ((h * 443) ^ (uc * 347)) + (cnt & 0xff);
       else
-	h = ((h * 311) ^ (uc * 359 + cnt % 17));
+        h = ((h * 311) ^ (uc * 359 + cnt % 17));
     };
   if (h == 0)
     h = bytlen + 1;
   return h;
-}				/* end  hashstr_HDGJIRPS */
+}                               /* end  hashstr_HDGJIRPS */
 
 struct boxint_hdgjirps_st *
 make_box_int_HDGJIRPS (intptr_t v)
@@ -89,7 +89,7 @@ make_box_int_HDGJIRPS (intptr_t v)
   p->intval = v;
   p->hash = h;
   return p;
-}				/* end make_box_int_HDGJIRPS */
+}                               /* end make_box_int_HDGJIRPS */
 
 
 bool
@@ -103,14 +103,14 @@ get_int_HDGJIRPS (const void *ptr, intptr_t *p)
   if (p)
     *p = d->intval;
   return true;
-}				/* end get_int_HDGJIRPS */
+}                               /* end get_int_HDGJIRPS */
 
 
 
 ///// boxed pair of integers
 static_assert (alignof (struct boxtwoints_hdgjirps_st) == (1 << 4));
 static_assert (sizeof (struct boxtwoints_hdgjirps_st) <
-	       8 * sizeof (intptr_t));
+               8 * sizeof (intptr_t));
 
 struct boxtwoints_hdgjirps_st *
 make_boxtwoints_HDGJIRPS (intptr_t v0, intptr_t v1)
@@ -119,13 +119,13 @@ make_boxtwoints_HDGJIRPS (intptr_t v0, intptr_t v1)
   struct boxtwoints_hdgjirps_st *p = MALLOC_HDGJIRPS (sizeof (*p));
   if (!p)
     HDGJIRPS_FATAL ("out of memory when boxing two ints %ld & %ld",
-		    (long) v0, (long) v1);
+                    (long) v0, (long) v1);
   p->typenum = sca_boxed_twoints;
   p->gcmark = 0;
   p->flag = 0;
   uint32_t h =
     (uint32_t) (v0 * 347) ^ (uint32_t) (v1 * 397 +
-					((v0 & 0xfff) | (v1 & 0xfff)));
+                                        ((v0 & 0xfff) | (v1 & 0xfff)));
   if (h == 0)
     h = (v0 & 0xffff) + (v1 & 0x3ffff) + 3;
   p->xtranum = 0;
@@ -133,7 +133,7 @@ make_boxtwoints_HDGJIRPS (intptr_t v0, intptr_t v1)
   p->intpair[0] = v0;
   p->intpair[1] = v1;
   return p;
-}				/* end make_boxtwoints_HDGJIRPS */
+}                               /* end make_boxtwoints_HDGJIRPS */
 
 
 bool
@@ -150,7 +150,7 @@ get_twoints_HDGJIRPS (const void *ptr, intptr_t *p0, intptr_t *p1)
   if (p1)
     *p1 = d->intpair[1];
   return true;
-}				/* end get_twoints_HDGJIRPS */
+}                               /* end get_twoints_HDGJIRPS */
 
 
 
@@ -179,7 +179,7 @@ make_box_double_HDGJIRPS (double v)
   p->hash = h;
   p->dblval = v;
   return p;
-}				/* end make_box_double_HDGJIRPS */
+}                               /* end make_box_double_HDGJIRPS */
 
 
 bool
@@ -194,7 +194,7 @@ get_double_HDGJIRPS (const void *ptr, double *p)
   if (p)
     *p = d->dblval;
   return true;
-}				/* end get_double_HDGJIRPS */
+}                               /* end get_double_HDGJIRPS */
 
 
 struct string_hdgjirps_st *
@@ -217,7 +217,7 @@ make_string_HDGJIRPS (const char *str)
   p->hash = hashstr_HDGJIRPS (str);
   memcpy (p->cstr, str, slen);
   return p;
-}				/* end make_string_HDGJIRPS */
+}                               /* end make_string_HDGJIRPS */
 
 struct string_hdgjirps_st *
 make_sized_string_HDGJIRPS (const char *str, int bytesize)
@@ -236,7 +236,7 @@ make_sized_string_HDGJIRPS (const char *str, int bytesize)
   p->hash = hashstr_HDGJIRPS (str);
   memcpy (p->cstr, str, slen);
   return p;
-}				/* end make_sized_string_HDGJIRPS */
+}                               /* end make_sized_string_HDGJIRPS */
 
 bool
 get_string_length_HDGJIRPS (void *ptr, const char **pstr, unsigned *pslen)
@@ -251,7 +251,7 @@ get_string_length_HDGJIRPS (void *ptr, const char **pstr, unsigned *pslen)
   if (pslen)
     *pslen = d->length;
   return true;
-}				/* end get_string_length_HDGJIRPS */
+}                               /* end get_string_length_HDGJIRPS */
 
 bool
 get_string_HDGJIRPS (void *ptr, const char **pstr)
@@ -264,7 +264,7 @@ get_string_HDGJIRPS (void *ptr, const char **pstr)
   if (pstr)
     *pstr = d->cstr;
   return true;
-}				/* end get_string_HDGJIRPS */
+}                               /* end get_string_HDGJIRPS */
 
 static_assert (sizeof (void *) == sizeof (&fopen));
 struct namedrout_hdgjirps_st *
@@ -279,7 +279,7 @@ make_namedrout_HDGJIRPS (const char *nam)
   if (!ad)
     {
       fprintf (stderr, "%s: missing symbol %s (%s) [%s:%d]\n",
-	       progname_HDGJIRPS, nam, dlerror (), __FILE__, __LINE__);
+               progname_HDGJIRPS, nam, dlerror (), __FILE__, __LINE__);
       fflush (NULL);
       return NULL;
     };
@@ -293,7 +293,7 @@ make_namedrout_HDGJIRPS (const char *nam)
   strcpy ((char *) p->routnam, nam);
   p->routad = ad;
   return p;
-}				/* end make_namedrout_HDGJIRPS */
+}                               /* end make_namedrout_HDGJIRPS */
 
 
 bool
@@ -311,13 +311,13 @@ get_namedrout_HDGJIRPS (const void *ptr, void **pad, const char **pnam)
     {
       ad = dlsym (full_program_dlhandle_HDGJIRPS (), d->routnam);
       if (!ad)
-	{
-	  fprintf (stderr, "%s: missing symbol %s (%s) [%s:%d]\n",
-		   progname_HDGJIRPS, d->routnam, dlerror (),
-		   __FILE__, __LINE__ - 2);
-	  fflush (NULL);
-	  return false;
-	};
+        {
+          fprintf (stderr, "%s: missing symbol %s (%s) [%s:%d]\n",
+                   progname_HDGJIRPS, d->routnam, dlerror (),
+                   __FILE__, __LINE__ - 2);
+          fflush (NULL);
+          return false;
+        };
       d->routad = ad;
     }
   else
@@ -328,7 +328,7 @@ get_namedrout_HDGJIRPS (const void *ptr, void **pad, const char **pnam)
   if (pnam)
     *pnam = d->routnam;
   return true;
-}				/* end get_namedrout_HDGJIRPS */
+}                               /* end get_namedrout_HDGJIRPS */
 
 
 static pthread_mutex_t scalareg_mtx_HDGJIRPS = PTHREAD_MUTEX_INITIALIZER;
@@ -344,7 +344,7 @@ scalareg_add_HDGJIRPS (struct header_hdgjirps_st *h)
   int16_t curtypnum = h->typenum;
   if (curtypnum <= (int) sca__none || curtypnum > (int) sca__lasttypid)
     HDGJIRPS_FATAL ("corrupted scalar @%p of typenum#%d",
-		    (void *) h, (int) curtypnum);
+                    (void *) h, (int) curtypnum);
   uintptr_t n = ((uintptr_t) h) ^ (((uintptr_t) h) >> 9);
   void **arr = scalareg_arrptr_HDGJIRPS[curtypnum];
   unsigned siz = scalareg_arrsize_HDGJIRPS[curtypnum];
@@ -355,29 +355,29 @@ scalareg_add_HDGJIRPS (struct header_hdgjirps_st *h)
   for (unsigned ix = lim; ix < siz; ix++)
     {
       if (!arr[ix])
-	{
-	  arr[ix] = (void *) h;
-	  scalareg_arrcnt_HDGJIRPS[curtypnum]++;
-	  return;
-	}
+        {
+          arr[ix] = (void *) h;
+          scalareg_arrcnt_HDGJIRPS[curtypnum]++;
+          return;
+        }
     };
   for (unsigned ix = 0; ix < lim; ix++)
     {
       if (!arr[ix])
-	{
-	  arr[ix] = (void *) h;
-	  scalareg_arrcnt_HDGJIRPS[curtypnum]++;
-	  return;
-	}
+        {
+          arr[ix] = (void *) h;
+          scalareg_arrcnt_HDGJIRPS[curtypnum]++;
+          return;
+        }
     };
   /// not supposed to be reached:
   HDGJIRPS_FATAL ("corrupted scalar array @%p of typenum#%d",
-		  arr, (int) curtypnum);
-}				/* end  scalareg_add_HDGJIRPS */
+                  arr, (int) curtypnum);
+}                               /* end  scalareg_add_HDGJIRPS */
 
 void
 register_scalar_value_HDGJIRPS (void *ptr,
-				enum scalar_typid_HDGJIRPS_en typcod)
+                                enum scalar_typid_HDGJIRPS_en typcod)
 {
   bool needgrow = false;
   assert (typcod > sca__none && typcod < sca__lasttypid);
@@ -397,26 +397,26 @@ register_scalar_value_HDGJIRPS (void *ptr,
   if (needgrow)
     {
       unsigned newsiz =
-	((4 * scalareg_arrcnt_HDGJIRPS[typcod] + 100) | 0x1f) + 1;
+        ((4 * scalareg_arrcnt_HDGJIRPS[typcod] + 100) | 0x1f) + 1;
       if (newsiz > INT_MAX / sizeof (void *))
-	HDGJIRPS_FATAL ("out of memory when registering scalar value @%p"
-			" of type#%d", ptr, (int) typcod);
+        HDGJIRPS_FATAL ("out of memory when registering scalar value @%p"
+                        " of type#%d", ptr, (int) typcod);
       assert (newsiz > scalareg_arrsize_HDGJIRPS[typcod]);
       scalareg_arrptr_HDGJIRPS[typcod]
-	= mallocx (newsiz * sizeof (void *),
-		   MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
+        = mallocx (newsiz * sizeof (void *),
+                   MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
       scalareg_arrsize_HDGJIRPS[typcod] = newsiz;
       scalareg_arrcnt_HDGJIRPS[typcod] = 0;
       for (unsigned oldix = 0; oldix < oldsize; oldix++)
-	{
-	  if (oldarr[oldix])
-	    scalareg_add_HDGJIRPS ((struct header_hdgjirps_st *)
-				   oldarr[oldix]);
-	};
+        {
+          if (oldarr[oldix])
+            scalareg_add_HDGJIRPS ((struct header_hdgjirps_st *)
+                                   oldarr[oldix]);
+        };
     };
   scalareg_add_HDGJIRPS ((struct header_hdgjirps_st *) ptr);
 end:
   pthread_mutex_unlock (&scalareg_mtx_HDGJIRPS);
-}				/* end of register_scalar_value_HDGJIRPS */
+}                               /* end of register_scalar_value_HDGJIRPS */
 
 /// end of file gccjit-refpersys/scalar.c
