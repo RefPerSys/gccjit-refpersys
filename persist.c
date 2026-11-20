@@ -55,8 +55,7 @@ load_state_HDGJIRPS (const char *path, const char *start, const char *last)
   assert (last > start);
   assert (loadmagic_HDGJIRPS == LOADMAGIC_HDGJIRPS);
   const char *startcomm =
-    strnstr ((const char *) start, start_comment_HDGJIRPS,
-             (const char *) last - (const char *) start);
+    strstr ((const char *) start, start_comment_HDGJIRPS);
   if (!startcomm)
     HDGJIRPS_FATAL
       ("load state file %s is lacking a start comment %s",
@@ -266,7 +265,6 @@ get_escape_sequence_HDGHIRPS (const char **ps, bool instring, bool *badseq)
               *ps = s + ulen + 1;
               return uc;
             }
-#warning missing code here to handle UTF8 in strings
         }
     }
 
@@ -290,6 +288,9 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
   if (!ld || ld->lda_magic != LOADMAGIC_HDGJIRPS)
     return NULL;
   void *res = NULL;
+  char *buf = NULL;
+  unsigned bufsiz = 0;
+  unsigned buflen = 0;
   int pos = -1;
   intptr_t i = 0;
   long long il = 0;
@@ -332,9 +333,7 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
       else
         {
           const char *eol = strchr ((const char *) ld->lda_cur, '\n');
-          char *buf = NULL;
-          unsigned bufsiz = 0;
-          unsigned buflen = 0;
+          buf = NULL;
           char smallbuf[80];
           memset (smallbuf, 0, sizeof (smallbuf));
           if (!eol)
@@ -395,6 +394,9 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
               while (!stop && ld->lda_cur < ld->lda_end);
             }
         }
+      if (buf && buf[0] && buflen > 0)
+        res = make_sized_string_HDGJIRPS (buf, buflen);
+      return res;
     }                           /* end literal string */
   ///https://stackoverflow.com/a/5796039/841108
   else if (sscanf (ld->lda_cur, "INT%lli%n", &il, &pos) >= 2 && pos > 0)
@@ -438,6 +440,11 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 }                               /* end loaded_value_HDGJIRPS */
 
 void
+load_push_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp, const void *val)
+{
+}                               /* end load_push_value_HDGJIRPS */
+
+void
 load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
 {
   assert (ldp && ldp->lda_magic == LOADMAGIC_HDGJIRPS);
@@ -453,7 +460,7 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
       const char *eol = strchr (ldp->lda_cur, '\n');
       if (!eol)
         eol = ldp->lda_end;
-      if (sscanf (ldp->lda_cur, "MAKOBJ_%30[0-9A-Z]_%30[0-9A-Z]%n",
+      if (sscanf (ldp->lda_cur, "@MAKOBJ_%30[0-9A-Z]_%30[0-9A-Z]%n",
                   bufhi, buflo, &pos) > 2 && pos > 0
           && (char *) ldp->lda_cur + pos <= eol)
         {
@@ -488,26 +495,6 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
                 };
             }
         }
-      else if (sscanf (ldp->lda_cur, "FILLOBJ_%30[0-9A-Z]_%30[0-9A-Z]%n",
-                       bufhi, buflo, &pos) > 2 && pos > 0
-               && (char *) ldp->lda_cur + pos <= eol)
-        {
-          bufhi[sizeof (bufhi) - 1] = (char) 0;
-          buflo[sizeof (buflo) - 1] = (char) 0;
-          uint32_t hi = 0;
-          uint64_t lo = 0;
-          hi = (uint32_t) strtol (bufhi, NULL, 36);
-          lo = (uint64_t) strtol (buflo, NULL, 36);
-          if (hi > 0 && lo > 0)
-            {
-              Obj_HDGJIRPS *pob = find_object_HDGJIRPS (hi, lo);
-              if (!pob)
-                HDGJIRPS_FATAL ("cannot fill object (_%s_%s) at %s:%d",
-                                bufhi, buflo, ldp->lda_path, ldp->lda_lineno);
-              ldp->lda_cur += pos;
-              load_fill_object_HDGJIRPS (ldp, pob);
-            };
-        }
 #warning load_data_HDGJIRPS incomplete
       else
         {
@@ -520,9 +507,9 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
         }
     };
 end:
-  fprintf (stderr,
-           "load_data_HDGJIRPS unimplemented for path %s [%s:%d] git %s\n",
-           ldp->lda_path, __FILE__, __LINE__, persist_HDGJIRPS_git);
+  HDGJIRPS_WARNING ("load_data_HDGJIRPS unimplemented for path %s"
+                    " [%s:%d] git %s\n",
+                    ldp->lda_path, __FILE__, __LINE__, persist_HDGJIRPS_git);
 #warning incomplete load_data_HDGJIRPS should use ldp
 }                               /* end load_data_HDGJIRPS */
 

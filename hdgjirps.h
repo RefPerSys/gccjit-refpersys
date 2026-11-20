@@ -121,6 +121,9 @@ extern bool uint64b36_HDGJIRPS (uint64_t i, char *buf, int bufsiz);
 
 extern void load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
 extern void *loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
+extern void load_push_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp,
+                                      const void *val);
+
 extern void load_fill_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ld,
                                        Obj_HDGJIRPS *pob);
 /// This loading state is called after a successful mmap of path
@@ -147,7 +150,6 @@ struct load_data_HDGJIRPS_st
   void **lda_stack;
   uint32_t lda_sizstack;
   uint32_t lda_topstack;
-#warning add a stack
   /* todo: we probably want a stack of values and a load protocol
      inspired by concepts from FORTH, PDF, PostScript, NeWS stack
      operations */

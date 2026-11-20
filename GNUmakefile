@@ -50,7 +50,7 @@ clean:
 	$(RM) *.o obj/*.o *.i *~ gccjit-refpersys a.out
 
 gccjit-refpersys: $(OBJFILES)
-	$(CC) $(CFLAGS) global.c $(NONGLOBOBFILES) -lm -lbsd -lgccjit -L/usr/local/lib  -lunistring  -lbacktrace -ldl -lreadline -ljemalloc -lz -o $@
+	$(CC) $(CFLAGS) global.c $(NONGLOBOBFILES) -lm  -lgccjit -L/usr/local/lib  -lunistring  -lbacktrace -ldl -lreadline -ljemalloc -lz -o $@
 
 indent: GNUmakefile $(wildcard *.[ch]) .indent.pro
 	for f in *.c *.h ; do $(INDENT) -v $$f ; done
@@ -58,7 +58,8 @@ indent: GNUmakefile $(wildcard *.[ch]) .indent.pro
 test00: gccjit-refpersys GNUmakefile cold-load.sh
 	./cold-load.sh
 
-#obj/main.o: main.c |GNUmakefile hdgjirps.h
-#	$(CC) $(CFLAGS) $< -o $@
 obj/%.o: %.c hdgjirps.h  |GNUmakefile 
 	$(CC) $(CFLAGS) -c $< -o $@
+
+
+### end of file gccjit-refpersys/GNUmakefile
