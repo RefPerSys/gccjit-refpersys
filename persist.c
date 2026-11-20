@@ -291,10 +291,12 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
   char *buf = NULL;
   unsigned bufsiz = 0;
   unsigned buflen = 0;
+  char smallbuf[80];
   int pos = -1;
   intptr_t i = 0;
   long long il = 0;
   double d = 0;
+  memset (smallbuf, 0, sizeof (smallbuf));
   load_skip_spaces_HDGJIRPS (ld);
   if (ld->lda_cur >= ld->lda_end)
     return NULL;
@@ -334,8 +336,6 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
         {
           const char *eol = strchr ((const char *) ld->lda_cur, '\n');
           buf = NULL;
-          char smallbuf[80];
-          memset (smallbuf, 0, sizeof (smallbuf));
           if (!eol)
             eol = ld->lda_end;
           assert (eol >= (const char *) ld->lda_cur
