@@ -109,8 +109,7 @@ get_int_HDGJIRPS (const void *ptr, intptr_t *p)
 
 ///// boxed pair of integers
 static_assert (alignof (struct boxtwoints_hdgjirps_st) == (1 << 4));
-static_assert (sizeof (struct boxtwoints_hdgjirps_st) <
-               8 * sizeof (intptr_t));
+static_assert (sizeof (struct boxtwoints_hdgjirps_st) < 8 * sizeof (intptr_t));
 
 struct boxtwoints_hdgjirps_st *
 make_boxtwoints_HDGJIRPS (intptr_t v0, intptr_t v1)
@@ -124,8 +123,7 @@ make_boxtwoints_HDGJIRPS (intptr_t v0, intptr_t v1)
   p->gcmark = 0;
   p->flag = 0;
   uint32_t h =
-    (uint32_t) (v0 * 347) ^ (uint32_t) (v1 * 397 +
-                                        ((v0 & 0xfff) | (v1 & 0xfff)));
+    (uint32_t) (v0 * 347) ^ (uint32_t) (v1 * 397 + ((v0 & 0xfff) | (v1 & 0xfff)));
   if (h == 0)
     h = (v0 & 0xffff) + (v1 & 0x3ffff) + 3;
   p->xtranum = 0;
@@ -141,8 +139,7 @@ get_twoints_HDGJIRPS (const void *ptr, intptr_t *p0, intptr_t *p1)
 {
   if (!ptr || !is_valid_ptr_HDGJIRPS (ptr))
     return false;
-  const struct boxtwoints_hdgjirps_st *d =
-    (struct boxtwoints_hdgjirps_st *) ptr;
+  const struct boxtwoints_hdgjirps_st *d = (struct boxtwoints_hdgjirps_st *) ptr;
   if (d->typenum != sca_boxed_twoints)
     return false;
   if (p0)
@@ -187,8 +184,7 @@ get_double_HDGJIRPS (const void *ptr, double *p)
 {
   if (!ptr || !is_valid_ptr_HDGJIRPS (ptr))
     return false;
-  const struct boxdouble_hdgjirps_st *d =
-    (struct boxdouble_hdgjirps_st *) ptr;
+  const struct boxdouble_hdgjirps_st *d = (struct boxdouble_hdgjirps_st *) ptr;
   if (d->typenum != sca_boxed_double)
     return false;
   if (p)
@@ -371,13 +367,11 @@ scalareg_add_HDGJIRPS (struct header_hdgjirps_st *h)
         }
     };
   /// not supposed to be reached:
-  HDGJIRPS_FATAL ("corrupted scalar array @%p of typenum#%d",
-                  arr, (int) curtypnum);
+  HDGJIRPS_FATAL ("corrupted scalar array @%p of typenum#%d", arr, (int) curtypnum);
 }                               /* end  scalareg_add_HDGJIRPS */
 
 void
-register_scalar_value_HDGJIRPS (void *ptr,
-                                enum scalar_typid_HDGJIRPS_en typcod)
+register_scalar_value_HDGJIRPS (void *ptr, enum scalar_typid_HDGJIRPS_en typcod)
 {
   bool needgrow = false;
   assert (typcod > sca__none && typcod < sca__lasttypid);
@@ -396,22 +390,19 @@ register_scalar_value_HDGJIRPS (void *ptr,
     needgrow = 4 * (oldcnt + 1) > 3 * oldsize;
   if (needgrow)
     {
-      unsigned newsiz =
-        ((4 * scalareg_arrcnt_HDGJIRPS[typcod] + 100) | 0x1f) + 1;
+      unsigned newsiz = ((4 * scalareg_arrcnt_HDGJIRPS[typcod] + 100) | 0x1f) + 1;
       if (newsiz > INT_MAX / sizeof (void *))
         HDGJIRPS_FATAL ("out of memory when registering scalar value @%p"
                         " of type#%d", ptr, (int) typcod);
       assert (newsiz > scalareg_arrsize_HDGJIRPS[typcod]);
       scalareg_arrptr_HDGJIRPS[typcod]
-        = mallocx (newsiz * sizeof (void *),
-                   MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
+        = mallocx (newsiz * sizeof (void *), MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
       scalareg_arrsize_HDGJIRPS[typcod] = newsiz;
       scalareg_arrcnt_HDGJIRPS[typcod] = 0;
       for (unsigned oldix = 0; oldix < oldsize; oldix++)
         {
           if (oldarr[oldix])
-            scalareg_add_HDGJIRPS ((struct header_hdgjirps_st *)
-                                   oldarr[oldix]);
+            scalareg_add_HDGJIRPS ((struct header_hdgjirps_st *) oldarr[oldix]);
         };
     };
   scalareg_add_HDGJIRPS ((struct header_hdgjirps_st *) ptr);

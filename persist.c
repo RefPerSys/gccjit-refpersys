@@ -54,8 +54,7 @@ load_state_HDGJIRPS (const char *path, const char *start, const char *last)
   assert (last != NULL);
   assert (last > start);
   assert (loadmagic_HDGJIRPS == LOADMAGIC_HDGJIRPS);
-  const char *startcomm =
-    strstr ((const char *) start, start_comment_HDGJIRPS);
+  const char *startcomm = strstr ((const char *) start, start_comment_HDGJIRPS);
   if (!startcomm)
     HDGJIRPS_FATAL
       ("load state file %s is lacking a start comment %s",
@@ -145,8 +144,7 @@ get_escape_sequence_HDGHIRPS (const char **ps, bool instring, bool *badseq)
   else if (tolower ((unsigned char) *s) == 'x')
     {
       /* Is hexadecimal constant */
-      if (sscanf (s + 1, instring ? "%2x%n" : "%x%n",
-                  (unsigned *) &rc, &pos) < 1)
+      if (sscanf (s + 1, instring ? "%2x%n" : "%x%n", (unsigned *) &rc, &pos) < 1)
         {
           HDGJIRPS_WARNING ("Invalid hexadecimal constant %s", s);
           if (badseq)
@@ -350,10 +348,8 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
               //useless since using MALLOCX_ZERO: memset (buf, 0, bufsiz);
               do
                 {
-                  int u =
-                    get_escape_sequence_HDGHIRPS ((const char **)
-                                                  &ld->lda_cur,
-                                                  true, &stop);
+                  int u = get_escape_sequence_HDGHIRPS ((const char **) &ld->lda_cur,
+                                                        true, &stop);
                   /// the escaped NULL \0 is forbidden
                   if (u == 0 && !stop)
                     {
@@ -373,8 +369,7 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
                         }
                       else
                         {
-                          unsigned newbufsiz
-                            = ((5 * bufsiz / 4 + 50) | 0x1f) + 1;
+                          unsigned newbufsiz = ((5 * bufsiz / 4 + 50) | 0x1f) + 1;
                           assert (newbufsiz + 2 >= sizeof (minbuf));
                           const char *oldbuf = buf;
                           char *newbuf = mallocx (newbufsiz,
@@ -450,12 +445,10 @@ load_push_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp, const void *val)
       void *oldstack = ldp->lda_stack;
       uint32_t oldsiz = ldp->lda_sizstack;
       assert (ldp->lda_sizstack < UINT32_MAX / 2);
-      uint32_t newsiz =
-        1 + ((ldp->lda_topstack + ldp->lda_topstack / 3) | 0x1f);
+      uint32_t newsiz = 1 + ((ldp->lda_topstack + ldp->lda_topstack / 3) | 0x1f);
       assert (newsiz < 3 * UINT32_MAX / 4);
       ldp->lda_stack =
-        mallocx (newsiz * sizeof (void *),
-                 MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
+        mallocx (newsiz * sizeof (void *), MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
       if (!ldp->lda_stack)
         HDGJIRPS_FATAL
           ("failed to grow load stack to %d pointers (previous %d) at %s:%d",
@@ -505,19 +498,16 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
                            ldp->lda_path, ldp->lda_lineno);
                   fprintf (stderr,
                            " (hi=%d=%s, lo=%ld=%s) [%s:%d]\n",
-                           (int) hi, bufhi, (long) lo, buflo, __FILE__,
-                           __LINE__);
+                           (int) hi, bufhi, (long) lo, buflo, __FILE__, __LINE__);
                   fflush (stderr);
                   continue;
                 }
               else
                 {
-                  Obj_HDGJIRPS *newob =
-                    make_loaded_object_HDGJIRPS (ldp, hi, lo);
+                  Obj_HDGJIRPS *newob = make_loaded_object_HDGJIRPS (ldp, hi, lo);
                   if (!newob)
                     continue;
-                  register_composite_value_HDGJIRPS (newob,
-                                                     comp_boxed_object);
+                  register_composite_value_HDGJIRPS (newob, comp_boxed_object);
                 };
             }
         }
@@ -546,23 +536,19 @@ end:
 
 
 void
-load_fill_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp,
-                           Obj_HDGJIRPS *pob)
+load_fill_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp, Obj_HDGJIRPS *pob)
 {
   assert (ldp && ldp->lda_magic == LOADMAGIC_HDGJIRPS);
-#warning unimplemented load_fill_object_HDGJIRPS
+#warning unimplemented and perhaps useless load_fill_object_HDGJIRPS
   HDGJIRPS_FATAL ("unimplemented load_fill_object_HDGJIRPS ldp@%p"
-                  " at %s:%d (pob@%p)",
-                  ldp, ldp->lda_path, ldp->lda_lineno, pob);
+                  " at %s:%d (pob@%p)", ldp, ldp->lda_path, ldp->lda_lineno, pob);
 }                               /* end load_fill_object_HDGJIRPS */
 
 const uint32_t dump_magic_HDGJIRPS = DUMPMAGIC_HDGJIRPS;
 
 static ssize_t dump_reader_HDGJIRPS (void *cookie, char *buffer, size_t size);
-static ssize_t dump_writer_HDGJIRPS (void *cookie, const char *buffer,
-                                     size_t size);
-static int dump_seeker_HDGJIRPS (void *cookie, off64_t * position,
-                                 int whence);
+static ssize_t dump_writer_HDGJIRPS (void *cookie, const char *buffer, size_t size);
+static int dump_seeker_HDGJIRPS (void *cookie, off64_t * position, int whence);
 static int dump_cleaner_HDGJIRPS (void *cookie);
 
 void
@@ -586,8 +572,7 @@ write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab)
 #warning should probably use fopencookie
   filsta = fopen (path, "w");
   if (!filsta)
-    HDGJIRPS_FATAL ("failed to open state file %s (%s)", path,
-                    strerror (errno));
+    HDGJIRPS_FATAL ("failed to open state file %s (%s)", path, strerror (errno));
   cookie_io_functions_t iofun;
   memset (&iofun, 0, sizeof (iofun));
   iofun.read = dump_reader_HDGJIRPS;
@@ -596,8 +581,7 @@ write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab)
   iofun.close = dump_cleaner_HDGJIRPS;
   FILE *cookf = fopencookie (&dd, "w", iofun);
   if (!cookf)
-    HDGJIRPS_FATAL ("failed to open cookie file dd@%p (%s)", &dd,
-                    strerror (errno));
+    HDGJIRPS_FATAL ("failed to open cookie file dd@%p (%s)", &dd, strerror (errno));
   dd.dump_magic = DUMPMAGIC_HDGJIRPS;
   dd.dump_indent = 0;
   dd.dump_path = path;

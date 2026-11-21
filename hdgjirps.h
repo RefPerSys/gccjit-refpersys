@@ -132,11 +132,9 @@ extern void load_state_HDGJIRPS (const char *path, const char *start,
                                  const char *last);
 
 extern Obj_HDGJIRPS *make_loaded_object_HDGJIRPS (struct load_data_HDGJIRPS_st
-                                                  *ld, uint32_t hi,
-                                                  uint32_t lo);
+                                                  *ld, uint32_t hi, uint32_t lo);
 
-extern void
-write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab);
+extern void write_state_HDGJIRPS (const char *path, void **tabptr, size_t siztab);
 
 extern const uint32_t loadmagic_HDGJIRPS;
 struct load_data_HDGJIRPS_st
@@ -259,8 +257,7 @@ enum scalar_typid_HDGJIRPS_en
 };
 
 extern void register_scalar_value_HDGJIRPS (void *ptr,
-                                            enum scalar_typid_HDGJIRPS_en
-                                            typcod);
+                                            enum scalar_typid_HDGJIRPS_en typcod);
 
 
 struct boxint_hdgjirps_st
@@ -276,8 +273,7 @@ struct boxtwoints_hdgjirps_st
   intptr_t intpair[2];
 };
 
-struct boxtwoints_hdgjirps_st *make_boxtwoints_HDGJIRPS (intptr_t v0,
-                                                         intptr_t v1);
+struct boxtwoints_hdgjirps_st *make_boxtwoints_HDGJIRPS (intptr_t v0, intptr_t v1);
 bool get_twoints_HDGJIRPS (const void *ptr, intptr_t * p0, intptr_t * p1);
 
 
@@ -309,8 +305,7 @@ struct string_hdgjirps_st
 struct string_hdgjirps_st *make_string_HDGJIRPS (const char *str);
 struct string_hdgjirps_st *make_sized_string_HDGJIRPS (const char *str,
                                                        int bytesize);
-bool get_string_length_HDGJIRPS (void *ptr, const char **pstr,
-                                 unsigned *pslen);
+bool get_string_length_HDGJIRPS (void *ptr, const char **pstr, unsigned *pslen);
 
 bool get_string_HDGJIRPS (void *ptr, const char **pstr);
 
@@ -351,8 +346,7 @@ enum composite_typid_HDGJIRPS_en
 };
 
 extern void register_composite_value_HDGJIRPS (void *ptr,
-                                               enum
-                                               composite_typid_HDGJIRPS_en
+                                               enum composite_typid_HDGJIRPS_en
                                                typcod);
 
 extern const uint32_t minhi_obid_HDGJIRPS;

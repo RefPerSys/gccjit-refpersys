@@ -1,5 +1,6 @@
 /* file gccjit-refpersys/.indent.pro */
 --no-tabs
+--line-length85
 -T FILE
 -T pthread_mutex_t
 -T Obj_HDGJIRPS

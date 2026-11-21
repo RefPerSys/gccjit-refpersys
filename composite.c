@@ -51,8 +51,7 @@ static unsigned comporeg_arrcnt_HDGJIRPS[(unsigned) comp__lasttypid];
 static unsigned comporeg_arrsize_HDGJIRPS[(unsigned) comp__lasttypid];
 static inline void comporeg_add_HDGJIRPS (struct header_hdgjirps_st *h);
 
-static pthread_mutex_t object_mtx_HDGJIRPS
-  = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutex_t object_mtx_HDGJIRPS = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 static Obj_HDGJIRPS **object_arrptr_HDGJIRPS;
 static unsigned object_arrcnt_HDGJIRPS;
@@ -118,22 +117,19 @@ register_composite_value_HDGJIRPS (void *ptr,
     needgrow = 4 * (oldcnt + 1) > 3 * oldsize;
   if (needgrow)
     {
-      unsigned newsiz =
-        ((4 * comporeg_arrcnt_HDGJIRPS[typcod] + 100) | 0x1f) + 1;
+      unsigned newsiz = ((4 * comporeg_arrcnt_HDGJIRPS[typcod] + 100) | 0x1f) + 1;
       if (newsiz > INT_MAX / sizeof (void *))
         HDGJIRPS_FATAL ("out of memory when registering composite value @%p"
                         " of type#%d", ptr, (int) typcod);
       assert (newsiz > comporeg_arrsize_HDGJIRPS[typcod]);
       comporeg_arrptr_HDGJIRPS[typcod]
-        = mallocx (newsiz * sizeof (void *),
-                   MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
+        = mallocx (newsiz * sizeof (void *), MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
       comporeg_arrsize_HDGJIRPS[typcod] = newsiz;
       comporeg_arrcnt_HDGJIRPS[typcod] = 0;
       for (unsigned oldix = 0; oldix < oldsize; oldix++)
         {
           if (oldarr[oldix])
-            comporeg_add_HDGJIRPS ((struct header_hdgjirps_st *)
-                                   oldarr[oldix]);
+            comporeg_add_HDGJIRPS ((struct header_hdgjirps_st *) oldarr[oldix]);
         };
     };
   comporeg_add_HDGJIRPS ((struct header_hdgjirps_st *) ptr);
@@ -256,8 +252,7 @@ make_node_vect_HDGJIRPS (Obj_HDGJIRPS *ob, unsigned nbsons, void **sontab)
       void *curson = sontab ? sontab[ix] : NULL;
       if (curson && is_valid_ptr_HDGJIRPS (curson))
         {
-          struct header_hdgjirps_st *hd =
-            (struct header_hdgjirps_st *) curson;
+          struct header_hdgjirps_st *hd = (struct header_hdgjirps_st *) curson;
           h = (h * 1307 + ix) ^ (hd->hash);
           res->nod_sons[ix] = curson;
         }
@@ -335,8 +330,7 @@ make_object_HDGJIRPS (void)
       unsigned oldsiz = object_arrsize_HDGJIRPS;
       unsigned newsiz = 1 + ((4 * oldcnt / 3 + 20) | 0x3f);
       object_arrptr_HDGJIRPS =
-        mallocx (newsiz * sizeof (void *),
-                 MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
+        mallocx (newsiz * sizeof (void *), MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
       object_arrcnt_HDGJIRPS = 0;
       object_arrsize_HDGJIRPS = newsiz;
       for (unsigned ix = 0; ix < oldsiz; ix++)
@@ -385,8 +379,7 @@ make_loaded_object_HDGJIRPS (struct load_data_HDGJIRPS_st *ld,
       unsigned oldsiz = object_arrsize_HDGJIRPS;
       unsigned newsiz = 1 + ((4 * oldcnt / 3 + 20) | 0x3f);
       object_arrptr_HDGJIRPS =
-        mallocx (newsiz * sizeof (void *),
-                 MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
+        mallocx (newsiz * sizeof (void *), MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
       object_arrcnt_HDGJIRPS = 0;
       object_arrsize_HDGJIRPS = newsiz;
       for (unsigned ix = 0; ix < oldsiz; ix++)
