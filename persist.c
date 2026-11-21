@@ -38,11 +38,21 @@ const char persist_HDGJIRPS_git[] = SHORTGITID;
 
 #warning TODO: define a simple and human readable syntax of the persistent file
 
+#ifndef NO_STATIC_ASSERTS
 static_assert (sizeof (FILE) < 32 * sizeof (void *),
                "check FILE has less than 32 words");
+#endif
 
 
 const char start_comment_HDGJIRPS[] = "#*START-GCCJIT-REFPERSYS";
+
+static void run_loading_routine_at_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp,
+                                             const char *routname, intptr_t num,
+                                             int lin);
+
+#define RUN_LOADING_ROUTINE_HDGJIRPS(Ldp,Nam,Num)			\
+  do {run_loading_routine_at_HDGJIRPS((Ldp),(Nam),(Num),__LINE__);	\
+  } while(0)
 
 /// This loading state is called after a successful mmap of path
 /// (start -> end)
@@ -101,6 +111,42 @@ load_skip_spaces_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
         ld->lda_lineno++;
     };
 }                               /* end load_skip_spaces_HDGJIRPS */
+
+/// called thru RUN_LOADING_ROUTINE_HDGJIRPS macro
+void
+run_loading_routine_at_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp,
+                                 const char *name, intptr_t num, int lin)
+{
+  char routname[160];
+  memset (routname, 0, sizeof (routname));
+  if (!ldp || ldp->lda_magic != LOADMAGIC_HDGJIRPS)
+    HDGJIRPS_FATAL ("run_loading_routine_at_HDGJIRPS bad ld@%p (%s:%d)",
+                    ldp, __FILE__, lin);
+  if (!name)
+    HDGJIRPS_FATAL ("run_loading_routine_at_HDGJIRPS no name (%s:%d)",
+                    __FILE__, lin);
+  if (!isalpha (name[0]) || strlen (name) > 60)
+    HDGJIRPS_FATAL ("run_loading_routine_at_HDGJIRPS bad name '%s' (%s:%d)",
+                    name, __FILE__, lin);
+  for (const char *pn = name; *pn; pn++)
+    {
+      if (!isalnum (*pn) && *pn != '_')
+        HDGJIRPS_FATAL ("run_loading_routine_at_HDGJIRPS bad name '%s' (%s:%d)",
+                        __FILE__, name, lin);
+    };
+  int ln = snprintf (routname, sizeof (routname), "loader_%s_HDGJIRPS",
+                     name);
+  if (ln > (int) sizeof (routname) - 2)
+    HDGJIRPS_FATAL ("run_loading_routine_at_HDGJIRPS too big '%s' (%s:%d)",
+                    name, __FILE__, lin);
+  void *routad = dlsym (full_program_dlhandle_HDGJIRPS (), routname);
+  if (!routad)
+    HDGJIRPS_FATAL ("in %s:%d bad routine name %s : %s (%s:%d)",
+                    ldp->lda_path, ldp->lda_lineno, routname, dlerror (),
+                    __FILE__, lin);
+  load_routine_sig_HDGJIRPS *routptr = (load_routine_sig_HDGJIRPS *) routad;
+  (*routptr) (ldp, num);
+}                               /* end run_loading_routine_at_HDGJIRPS */
 
 /* Code borowed from nwcc.sourceforge.net file token.c */
 
@@ -471,10 +517,12 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
       void *val = NULL;
       int pos = -1;
       long num = 0;
-      char nam[80] = { };
+      char nam[72] = { };
+      char routnam[128] = { };
       char bufhi[32] = { };
       char buflo[32] = { };
       memset (nam, 0, sizeof (nam));
+      memset (routnam, 0, sizeof (routnam));
       memset (bufhi, 0, sizeof (bufhi));
       memset (buflo, 0, sizeof (buflo));
       load_skip_spaces_HDGJIRPS (ldp);
