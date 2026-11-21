@@ -575,23 +575,13 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
                        nam, &num, &pos) > 2
                && isalpha (nam[0]) && pos > 0 && (char *) ldp->lda_cur + pos <= eol)
         {
-          void *routad = dlsym (full_program_dlhandle_HDGJIRPS (), nam);
-          if (!routad)
-            HDGJIRPS_FATAL ("in %s:%d bad routine name %s : %s",
-                            ldp->lda_path, ldp->lda_lineno, nam, dlerror ());
-          load_routine_sig_HDGJIRPS *routptr = (load_routine_sig_HDGJIRPS *) routad;
-          (*routptr) (ldp, num);
+          RUN_LOADING_ROUTINE_HDGJIRPS (ldp, nam, num);
         }
       else if (sscanf (ldp->lda_cur, "@%70[a-zA-Z0-9_] '%n",
                        nam, &pos) > 2
                && isalpha (nam[0]) && pos > 0 && (char *) ldp->lda_cur + pos <= eol)
         {
-          void *routad = dlsym (full_program_dlhandle_HDGJIRPS (), nam);
-          if (!routad)
-            HDGJIRPS_FATAL ("in %s:%d bad routine name %s : %s",
-                            ldp->lda_path, ldp->lda_lineno, nam, dlerror ());
-          load_routine_sig_HDGJIRPS *routptr = (load_routine_sig_HDGJIRPS *) routad;
-          (*routptr) (ldp, pos);
+          RUN_LOADING_ROUTINE_HDGJIRPS (ldp, nam, num);
         }
       else
         {
