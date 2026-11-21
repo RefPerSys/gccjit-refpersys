@@ -31,7 +31,7 @@
 export
 #CC=/usr/bin/gcc-14
 CC=gcc
-TINYCC=tcc
+TINYCC?=tcc
 GITID:= $(shell ./do-generate-gitid.sh)
 SHORTGITID:= $(shell ./do-generate-gitid.sh -s)
 SOURCEDIR:= $(shell /bin/pwd)
@@ -55,7 +55,7 @@ gccjit-refpersys-lto: $(CFILES)
 	   -lunistring  -lbacktrace -ldl -lreadline -ljemalloc -lz -o $@
 
 gccjit-refpersys-tcc: $(CFILES)
-	$(TINYCC) $(CFLAGS) $(CFILES)  -lm  -lgccjit -L/usr/local/lib \
+	$(TINYCC) -DNO_STATIC_ASSERTS $(CFLAGS) $(CFILES)  -lm  -lgccjit -L/usr/local/lib \
 	   -lunistring  -lbacktrace -ldl -lreadline -ljemalloc -lz -o $@
 
 gccjit-refpersys: $(OBJFILES)
