@@ -38,6 +38,11 @@
 #error compilation command without SHORTGITID
 #endif
 
+#ifdef NO_STATIC_ASSERTS
+#warning disabling static_assert
+#define static_assert(Cond,...)
+#endif
+
 #include <stdlib.h>
 #include <stdalign.h>
 #include <stdarg.h>
