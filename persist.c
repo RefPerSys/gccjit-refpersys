@@ -77,9 +77,9 @@ load_state_HDGJIRPS (const char *path, const char *start, const char *last)
   ldata.lda_cur = (void *) (endcomm + 1);
   ldata.lda_end = (void *) last;
   ldata.lda_lineno = lineno;
-  const unsigned ldstacksiz = 1024;
-  ldata.lda_stack =
-    mallocx (ldstacksiz, MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
+  const unsigned ldstacksiz = 512;
+  ldata.lda_stack = mallocx (ldstacksiz * sizeof (void *),
+                             MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
   ldata.lda_sizstack = ldstacksiz;
   ldata.lda_topstack = 0;
 #warning should use the stack of ldata
@@ -442,6 +442,29 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 void
 load_push_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp, const void *val)
 {
+  assert (ldp && ldp->lda_magic == LOADMAGIC_HDGJIRPS);
+  assert (ldp->lda_path != NULL);
+  assert (ldp->lda_stack != NULL);
+  if (ldp->lda_topstack + 2 > ldp->lda_sizstack)
+    {
+      void *oldstack = ldp->lda_stack;
+      uint32_t oldsiz = ldp->lda_sizstack;
+      assert (ldp->lda_sizstack < UINT32_MAX / 2);
+      uint32_t newsiz =
+        1 + ((ldp->lda_topstack + ldp->lda_topstack / 3) | 0x1f);
+      assert (newsiz < 3 * UINT32_MAX / 4);
+      ldp->lda_stack =
+        mallocx (newsiz * sizeof (void *),
+                 MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
+      if (!ldp->lda_stack)
+        HDGJIRPS_FATAL
+          ("failed to grow load stack to %d pointers (previous %d) at %s:%d",
+           (int) newsiz, oldsiz, ldp->lda_path, ldp->lda_lineno);
+      memcpy (ldp->lda_stack, oldstack, ldp->lda_topstack * sizeof (void *));
+      free_sized (oldstack, oldsiz * sizeof (void *));
+      ldp->lda_sizstack = newsiz;
+    };
+  ldp->lda_stack[ldp->lda_topstack++] = val;
 }                               /* end load_push_value_HDGJIRPS */
 
 void
@@ -451,9 +474,12 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
   assert (ldp->lda_path != NULL);
   while (ldp->lda_cur < ldp->lda_end)
     {
+      void *val = NULL;
       int pos = -1;
+      char routnam[80] = { };
       char bufhi[32] = { };
       char buflo[32] = { };
+      memset (routnam, 0, sizeof (routnam));
       memset (bufhi, 0, sizeof (bufhi));
       memset (buflo, 0, sizeof (buflo));
       load_skip_spaces_HDGJIRPS (ldp);
@@ -494,6 +520,10 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
                                                      comp_boxed_object);
                 };
             }
+        }
+      else if ((val = loaded_value_HDGJIRPS (ldp)) != NULL)
+        {
+          load_push_value_HDGJIRPS (ldp, val);
         }
 #warning load_data_HDGJIRPS incomplete
       else

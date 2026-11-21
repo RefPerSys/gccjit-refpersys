@@ -147,7 +147,7 @@ struct load_data_HDGJIRPS_st
   void *lda_start;
   void *lda_cur;
   void *lda_end;
-  void **lda_stack;
+  const void **lda_stack;
   uint32_t lda_sizstack;
   uint32_t lda_topstack;
   /* todo: we probably want a stack of values and a load protocol
@@ -195,7 +195,8 @@ extern void breakpoint_at_HDGJIRPS (const char *fil, int lin, char kind);
 #define HDGJIRPS_FATAL_AT(Fil,Lin,Func,Fmt,...) \
    HDGJIRPS_FATAL_AT_BIS(Fil,Lin,Func,Fmt,##__VA_ARGS__)
 
-#define HDGJIRPS_FATAL(Fmt,...)  HDGJIRPS_FATAL_AT(__FILE__,__LINE__,__FUNCTION__,Fmt,##__VA_ARGS__)
+#define HDGJIRPS_FATAL(Fmt,...)  \
+  HDGJIRPS_FATAL_AT(__FILE__,__LINE__,__FUNCTION__,Fmt,##__VA_ARGS__)
 
 
 #define HDGJIRPS_WARNING_AT_BIS(Fil,Lin,Func,Fmt,...) do {	\
