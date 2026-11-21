@@ -510,6 +510,7 @@ load_push_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp, const void *val)
 void
 load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
 {
+  const char* eol = NULL;
   assert (ldp && ldp->lda_magic == LOADMAGIC_HDGJIRPS);
   assert (ldp->lda_path != NULL);
   while (ldp->lda_cur < ldp->lda_end)
@@ -526,7 +527,7 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
       memset (bufhi, 0, sizeof (bufhi));
       memset (buflo, 0, sizeof (buflo));
       load_skip_spaces_HDGJIRPS (ldp);
-      const char *eol = strchr (ldp->lda_cur, '\n');
+      eol = strchr (ldp->lda_cur, '\n');
       if (!eol)
         eol = ldp->lda_end;
       if (*(const char *) ldp->lda_cur == '#')
@@ -573,21 +574,27 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
         }
       else if (sscanf (ldp->lda_cur, "@%70[a-zA-Z0-9_] %ld %n",
                        nam, &num, &pos) > 2
-               && isalpha (nam[0]) && pos > 0 && (char *) ldp->lda_cur + pos <= eol)
+               && isalpha (nam[0]) && pos > 0
+	       && (char *) ldp->lda_cur + pos <= eol)
         {
           RUN_LOADING_ROUTINE_HDGJIRPS (ldp, nam, num);
         }
       else if (sscanf (ldp->lda_cur, "@%70[a-zA-Z0-9_] '%n",
                        nam, &pos) > 2
-               && isalpha (nam[0]) && pos > 0 && (char *) ldp->lda_cur + pos <= eol)
+               && isalpha (nam[0]) && pos > 0
+	       && (char *) ldp->lda_cur + pos <= eol)
         {
           RUN_LOADING_ROUTINE_HDGJIRPS (ldp, nam, num);
         }
       else
         {
-          HDGJIRPS_WARNING ("incomplete load_data_HDGJIRPS @%s:%d line:%s",
+	  eol = strchr((const char*)ldp->lda_cur, '\n');
+	  if (!eol)
+	    eol = ldp->lda_end;
+          HDGJIRPS_WARNING ("incomplete load_data_HDGJIRPS @%s:%d line:%.*s",
                             ldp->lda_path, ldp->lda_lineno,
-                            (const char *) ldp->lda_cur);
+                            (int)(eol - (const char*)ldp->lda_cur),
+			    (const char *) ldp->lda_cur);
           /* todo: define a load stack and some operations to handle it,
              with ideas inspired by PostScript, PDF, FORTH, or NeWS */
           goto end;
@@ -595,8 +602,12 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
     };
 end:
   HDGJIRPS_WARNING ("load_data_HDGJIRPS unimplemented for path %s"
-                    " [%s:%d] git %s\n",
-                    ldp->lda_path, __FILE__, __LINE__, persist_HDGJIRPS_git);
+                    " line %d, git %s\n"
+		    "\n parsed line: %.*s\n",
+                    ldp->lda_path, ldp->lda_lineno, persist_HDGJIRPS_git,
+		    (int)(eol - (const char*)ldp->lda_cur),
+		    (const char *) ldp->lda_cur
+		   );
 #warning incomplete load_data_HDGJIRPS should use ldp
 }                               /* end load_data_HDGJIRPS */
 
@@ -692,6 +703,7 @@ dump_seeker_HDGJIRPS (void *cookie, off64_t *position, int whence)
   struct dump_data_HDGJIRPS_st *dd = (struct dump_data_HDGJIRPS_st *) cookie;
   assert (dd && dd->dump_magic == DUMPMAGIC_HDGJIRPS);
   assert (position);
+  assert (whence >= 0);
 #warning unimplemented dump_seeker_HDGJIRPS
   HDGJIRPS_FATAL ("unimplemented dump_seeker_HDGJIRPS dd@%p", cookie);
   return res;
