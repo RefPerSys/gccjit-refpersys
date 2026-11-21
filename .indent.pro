@@ -3,6 +3,7 @@
 --line-length85
 -T FILE
 -T pthread_mutex_t
+-T load_routine_sig_HDGJIRPS
 -T Obj_HDGJIRPS
 -T int32_t
 -T uint32_t
