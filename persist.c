@@ -38,7 +38,8 @@ const char persist_HDGJIRPS_git[] = SHORTGITID;
 
 #warning TODO: define a simple and human readable syntax of the persistent file
 
-static_assert (sizeof (FILE) < 32 * sizeof (void *));
+static_assert (sizeof (FILE) < 32 * sizeof (void *),
+               "check FILE has less than 32 words");
 
 
 const char start_comment_HDGJIRPS[] = "#*START-GCCJIT-REFPERSYS";
@@ -469,19 +470,26 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
     {
       void *val = NULL;
       int pos = -1;
-      char routnam[80] = { };
+      long num = 0;
+      char nam[80] = { };
       char bufhi[32] = { };
       char buflo[32] = { };
-      memset (routnam, 0, sizeof (routnam));
+      memset (nam, 0, sizeof (nam));
       memset (bufhi, 0, sizeof (bufhi));
       memset (buflo, 0, sizeof (buflo));
       load_skip_spaces_HDGJIRPS (ldp);
       const char *eol = strchr (ldp->lda_cur, '\n');
       if (!eol)
         eol = ldp->lda_end;
-      if (sscanf (ldp->lda_cur, "@MAKOBJ_%30[0-9A-Z]_%30[0-9A-Z]%n",
-                  bufhi, buflo, &pos) > 2 && pos > 0
-          && (char *) ldp->lda_cur + pos <= eol)
+      if (*(const char *) ldp->lda_cur == '#')
+        {
+          ldp->lda_cur = (void *) (eol + 1);
+          ldp->lda_lineno++;
+          continue;
+        }
+      else if (sscanf (ldp->lda_cur, "@MAKOBJ_%30[0-9A-Z]_%30[0-9A-Z]%n",
+                       bufhi, buflo, &pos) > 2 && pos > 0
+               && (char *) ldp->lda_cur + pos <= eol)
         {
           bufhi[sizeof (bufhi) - 1] = (char) 0;
           buflo[sizeof (buflo) - 1] = (char) 0;
@@ -515,7 +523,28 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
         {
           load_push_value_HDGJIRPS (ldp, val);
         }
-#warning load_data_HDGJIRPS incomplete
+      else if (sscanf (ldp->lda_cur, "@%70[a-zA-Z0-9_] %ld %n",
+                       nam, &num, &pos) > 2
+               && isalpha (nam[0]) && pos > 0 && (char *) ldp->lda_cur + pos <= eol)
+        {
+          void *routad = dlsym (full_program_dlhandle_HDGJIRPS (), nam);
+          if (!routad)
+            HDGJIRPS_FATAL ("in %s:%d bad routine name %s : %s",
+                            ldp->lda_path, ldp->lda_lineno, nam, dlerror ());
+          load_routine_sig_HDGJIRPS *routptr = (load_routine_sig_HDGJIRPS *) routad;
+          (*routptr) (ldp, num);
+        }
+      else if (sscanf (ldp->lda_cur, "@%70[a-zA-Z0-9_] '%n",
+                       nam, &pos) > 2
+               && isalpha (nam[0]) && pos > 0 && (char *) ldp->lda_cur + pos <= eol)
+        {
+          void *routad = dlsym (full_program_dlhandle_HDGJIRPS (), nam);
+          if (!routad)
+            HDGJIRPS_FATAL ("in %s:%d bad routine name %s : %s",
+                            ldp->lda_path, ldp->lda_lineno, nam, dlerror ());
+          load_routine_sig_HDGJIRPS *routptr = (load_routine_sig_HDGJIRPS *) routad;
+          (*routptr) (ldp, pos);
+        }
       else
         {
           HDGJIRPS_WARNING ("incomplete load_data_HDGJIRPS @%s:%d line:%s",

@@ -152,7 +152,7 @@ struct load_data_HDGJIRPS_st
      inspired by concepts from FORTH, PDF, PostScript, NeWS stack
      operations */
 };
-
+typedef void load_routine_sig_HDGJIRPS (struct load_data_HDGJIRPS_st *ld, long num);
 extern void load_skip_spaces_HDGJIRPS (struct load_data_HDGJIRPS_st *ld);
 
 #define DUMPMAGIC_HDGJIRPS 0x3d4a10bf   /* 1028264127 */

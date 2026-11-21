@@ -42,8 +42,10 @@ const char scalar_shortgit_HDGJIRPS[] = SHORTGITID;
 
 
 ///// boxed integers (intptr_t so 64 bits on AMD64)
-static_assert (alignof (struct boxint_hdgjirps_st) == (1 << 4));
-static_assert (sizeof (struct boxint_hdgjirps_st) < 8 * sizeof (intptr_t));
+static_assert (alignof (struct boxint_hdgjirps_st) == (1 << 4),
+               "check alignment of boxint_hdgjirps_st");
+static_assert (sizeof (struct boxint_hdgjirps_st) < 8 * sizeof (intptr_t),
+               "check size of boxint_hdgjirps_st");
 
 unsigned
 hashstr_HDGJIRPS (const char *s)
@@ -75,7 +77,8 @@ hashstr_HDGJIRPS (const char *s)
 struct boxint_hdgjirps_st *
 make_box_int_HDGJIRPS (intptr_t v)
 {
-  static_assert (alignof (struct boxint_hdgjirps_st) == 16);
+  static_assert (alignof (struct boxint_hdgjirps_st) == 16,
+                 "check alignof boxint_hdgjirps_st");
   struct boxint_hdgjirps_st *p = MALLOC_HDGJIRPS (sizeof (*p));
   if (!p)
     HDGJIRPS_FATAL ("out of memory when boxing int %ld", (long) v);
@@ -108,13 +111,14 @@ get_int_HDGJIRPS (const void *ptr, intptr_t *p)
 
 
 ///// boxed pair of integers
-static_assert (alignof (struct boxtwoints_hdgjirps_st) == (1 << 4));
-static_assert (sizeof (struct boxtwoints_hdgjirps_st) < 8 * sizeof (intptr_t));
+static_assert (alignof (struct boxtwoints_hdgjirps_st) == (1 << 4),
+               "check alignof boxtwoints_hdgjirps_st");
+static_assert (sizeof (struct boxtwoints_hdgjirps_st)
+               < 8 * sizeof (intptr_t), "check sizeof boxtwoints_hdgjirps_st");
 
 struct boxtwoints_hdgjirps_st *
 make_boxtwoints_HDGJIRPS (intptr_t v0, intptr_t v1)
 {
-  static_assert (alignof (struct boxtwoints_hdgjirps_st) == 16);
   struct boxtwoints_hdgjirps_st *p = MALLOC_HDGJIRPS (sizeof (*p));
   if (!p)
     HDGJIRPS_FATAL ("out of memory when boxing two ints %ld & %ld",
@@ -155,13 +159,14 @@ get_twoints_HDGJIRPS (const void *ptr, intptr_t *p0, intptr_t *p1)
 
 
 ///// boxed floating point doubles (double so IEEE74 - 64 bits on AMD64)
-static_assert (alignof (struct boxdouble_hdgjirps_st) == (1 << 4));
-static_assert (sizeof (struct boxdouble_hdgjirps_st) < 8 * sizeof (intptr_t));
+static_assert (alignof (struct boxdouble_hdgjirps_st) == (1 << 4),
+               "check alignof boxdouble_hdgjirps_st");
+static_assert (sizeof (struct boxdouble_hdgjirps_st)
+               < 8 * sizeof (intptr_t), "check sizeof boxdouble_hdgjirps_st");
 
 struct boxdouble_hdgjirps_st *
 make_box_double_HDGJIRPS (double v)
 {
-  static_assert (alignof (struct boxdouble_hdgjirps_st) == 16);
   struct boxdouble_hdgjirps_st *p = MALLOC_HDGJIRPS (sizeof (*p));
   if (!p)
     HDGJIRPS_FATAL ("out of memory when boxing double %g", v);
@@ -262,7 +267,8 @@ get_string_HDGJIRPS (void *ptr, const char **pstr)
   return true;
 }                               /* end get_string_HDGJIRPS */
 
-static_assert (sizeof (void *) == sizeof (&fopen));
+static_assert (sizeof (void *) == sizeof (&fopen), "check pointer sizes");
+
 struct namedrout_hdgjirps_st *
 make_namedrout_HDGJIRPS (const char *nam)
 {
