@@ -105,8 +105,8 @@ extern double thread_cpu_time_HDGJIRPS (void);
 
 #pragma GCC poison malloc calloc free
 #define MALLOC_HDGJIRPS(Siz) \
-  mallocx((Siz),		    \
-	  MALLOCX_ZERO|MALLOCX_LG_ALIGN(4));
+  mallocx((Siz),                    \
+          MALLOCX_ZERO|MALLOCX_LG_ALIGN(4));
 extern void
 emit_gplv3_notice_AT_HDGJIRPS (FILE *fout, const char *fil, int lin,
                                const char *fromfun, const char *path,
@@ -175,23 +175,23 @@ struct dump_data_HDGJIRPS_st
 
 extern void breakpoint_at_HDGJIRPS (const char *fil, int lin, char kind);
 
-#define HDGJIRPS_FATAL_AT_BIS(Fil,Lin,Func,Fmt,...) do {	\
-    char thrname##Lin[32];					\
-    memset(thrname##Lin, 0, sizeof(thrname##Lin));		\
-    pthread_getname_np(pthread_self(), thrname##Lin,		\
-                       sizeof(thrname##Lin));			\
-    fprintf (stderr, "%s:%d:%s [%s]", (Fil), (Lin),		\
-             (Func), thrname##Lin);				\
-    fprintf (stderr, "FATAL ERROR\n");				\
-    fprintf (stderr, Fmt "\n", ##__VA_ARGS__);			\
-    fprintf (stderr, "%s: shortgit %s pid %d\n",		\
-             progname_HDGJIRPS, shortgitid_HDGJIRPS,		\
-             (int)getpid());					\
-    fflush (stderr);						\
-    if (backtrace_state_HDGJIRPS)				\
-      backtrace_print (backtrace_state_HDGJIRPS, 1,		\
-		       stderr);					\
-    fflush(NULL);						\
+#define HDGJIRPS_FATAL_AT_BIS(Fil,Lin,Func,Fmt,...) do {        \
+    char thrname##Lin[32];                                      \
+    memset(thrname##Lin, 0, sizeof(thrname##Lin));              \
+    pthread_getname_np(pthread_self(), thrname##Lin,            \
+                       sizeof(thrname##Lin));                   \
+    fprintf (stderr, "%s:%d:%s [%s]", (Fil), (Lin),             \
+             (Func), thrname##Lin);                             \
+    fprintf (stderr, "FATAL ERROR\n");                          \
+    fprintf (stderr, Fmt "\n", ##__VA_ARGS__);                  \
+    fprintf (stderr, "%s: shortgit %s pid %d\n",                \
+             progname_HDGJIRPS, shortgitid_HDGJIRPS,            \
+             (int)getpid());                                    \
+    fflush (stderr);                                            \
+    if (backtrace_state_HDGJIRPS)                               \
+      backtrace_print (backtrace_state_HDGJIRPS, 1,             \
+                       stderr);                                 \
+    fflush(NULL);                                               \
     breakpoint_at_HDGJIRPS((Fil),(Lin), 'F');                   \
     abort(); } while(0)
 
@@ -202,24 +202,25 @@ extern void breakpoint_at_HDGJIRPS (const char *fil, int lin, char kind);
   HDGJIRPS_FATAL_AT(__FILE__,__LINE__,__FUNCTION__,Fmt,##__VA_ARGS__)
 
 
-#define HDGJIRPS_WARNING_AT_BIS(Fil,Lin,Func,Fmt,...) do {	\
-    char thrname##Lin[32];					\
-    memset(thrname##Lin, 0, sizeof(thrname##Lin));		\
-    pthread_getname_np(pthread_self(), thrname##Lin,		\
-                       sizeof(thrname##Lin));			\
-    fprintf (stderr, "%s:%d:%s [%s]", (Fil), (Lin),		\
-             (Func), thrname##Lin);				\
-    fprintf (stderr, "WARNING\n");				\
-    fprintf (stderr, Fmt "\n", ##__VA_ARGS__);			\
-    fprintf (stderr, "%s: shortgit %s pid %d\n",		\
-             progname_HDGJIRPS, shortgitid_HDGJIRPS,		\
-             (int)getpid());					\
-    fflush (stderr);						\
-    if (backtrace_state_HDGJIRPS)				\
-      backtrace_print (backtrace_state_HDGJIRPS, 1,		\
-		       stderr);					\
-    fflush(NULL);						\
-    breakpoint_at_HDGJIRPS((Fil),(Lin), 'W');                   \
+#define HDGJIRPS_WARNING_AT_BIS(Fil,Lin,Func,Fmt,...) do {   \
+    char thrname##Lin[32];                                   \
+    memset(thrname##Lin, 0, sizeof(thrname##Lin));           \
+    pthread_getname_np(pthread_self(), thrname##Lin,         \
+                       sizeof(thrname##Lin));                \
+    fprintf (stderr, "%s:%d:%s [thr:%s] ",		     \
+	     (Fil), (Lin),				     \
+             (Func), thrname##Lin);                          \
+    fprintf (stderr, "WARNING:");                            \
+    fprintf (stderr, Fmt "\n", ##__VA_ARGS__);               \
+    fprintf (stderr, "%s: shortgit %s pid %d\n",             \
+             progname_HDGJIRPS, shortgitid_HDGJIRPS,         \
+             (int)getpid());                                 \
+    fflush (stderr);                                         \
+    if (backtrace_state_HDGJIRPS)                            \
+      backtrace_print (backtrace_state_HDGJIRPS, 1,          \
+                       stderr);                              \
+    fflush(NULL);                                            \
+    breakpoint_at_HDGJIRPS((Fil),(Lin), 'W');                \
     } while(0)
 
 #define HDGJIRPS_WARNING_AT(Fil,Lin,Func,Fmt,...) \
@@ -234,11 +235,11 @@ extern int get_escape_sequence_HDGHIRPS (const char **ps, bool instring,
 #define HDGJIRPS_TWO_WORDS_ALIGNED __attribute__((aligned(2*sizeof(void*))))
 // by convention positive typenums are for scalar values and negative
 // ones are for composite values.
-#define HDGJIRPS_HEADER_FIELDS			\
-  int16_t HDGJIRPS_TWO_WORDS_ALIGNED typenum;	\
-  uint8_t  gcmark;				\
-  uint8_t  flag;				\
-  uint32_t length;				\
+#define HDGJIRPS_HEADER_FIELDS                  \
+  int16_t HDGJIRPS_TWO_WORDS_ALIGNED typenum;   \
+  uint8_t  gcmark;                              \
+  uint8_t  flag;                                \
+  uint32_t length;                              \
   uint32_t hash;                                \
   uint32_t xtranum
 
