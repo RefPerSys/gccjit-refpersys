@@ -31,6 +31,7 @@
 export
 #CC=/usr/bin/gcc-14
 CC=gcc
+TINYCC=tcc
 GITID:= $(shell ./do-generate-gitid.sh)
 SHORTGITID:= $(shell ./do-generate-gitid.sh -s)
 SOURCEDIR:= $(shell /bin/pwd)
@@ -41,13 +42,21 @@ OBJFILES:=$(patsubst %.c, obj/%.o, $(CFILES))
 NONGLOBOBFILES=$(patsubst %.c, obj/%.o, $(filter-out global.c, $(CFILES)))
 RM= /bin/rm -vf
 INDENT= indent
-.PHONY: all clean tests indent test00
+.PHONY: all clean tests indent lto test00
 .SUFFIXES: .c
 
 all: gccjit-refpersys
 
 clean:
-	$(RM) *.o obj/*.o *.i *~ gccjit-refpersys a.out
+	$(RM) *.o obj/*.o *.i *~ gccjit-refpersys gccjit-refpersys-lto a.out
+
+gccjit-refpersys-lto: $(CFILES)
+	$(CC) -flto $(CFLAGS) $(CFILES)  -lm  -lgccjit -L/usr/local/lib \
+	   -lunistring  -lbacktrace -ldl -lreadline -ljemalloc -lz -o $@
+
+gccjit-refpersys-tcc: $(CFILES)
+	$(TINYCC) $(CFLAGS) $(CFILES)  -lm  -lgccjit -L/usr/local/lib \
+	   -lunistring  -lbacktrace -ldl -lreadline -ljemalloc -lz -o $@
 
 gccjit-refpersys: $(OBJFILES)
 	$(CC) $(CFLAGS) global.c $(NONGLOBOBFILES) -lm  -lgccjit -L/usr/local/lib  -lunistring  -lbacktrace -ldl -lreadline -ljemalloc -lz -o $@
