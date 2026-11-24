@@ -74,10 +74,14 @@
 #include "unistr.h"             /* www.gnu.org/software/libunistring */
 #include "unictype.h"           /* www.gnu.org/software/libunistring */
 #include "jemalloc/jemalloc.h"  /* see jemalloc.net */
-#include <bsd/string.h>         /* for strnstr(3) */
 #include <string.h>
 
 #include <libgccjit.h>          /* see gcc.gnu.org/onlinedocs/jit/ */
+
+
+#ifndef JEMALLOC_VERSION
+#error undefined JEMALLOC_VERSION
+#endif
 
 typedef struct _object_HDGJIRPS_st Obj_HDGJIRPS;
 
