@@ -425,8 +425,16 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
                           memcpy (newbuf, oldbuf, buflen);
                           if (oldbuf != smallbuf)
                             {
-                              /// perhaps dallocx should be used?
+                              /// perhaps sdallocx should be used?
+                              /** note: in nov 2026 on Debian/Testing
+                                 the system libjemalloc 5.3 don't have
+                                 free_sized */
+#if JEMALLOC_VERSION_MAJOR<=5 && JEMALLOC_VERSION_MINOR<4
+                              sdallocx ((void *) oldbuf, bufsiz,
+                                        MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
+#else
                               free_sized ((void *) oldbuf, bufsiz);
+#endif /*libjemalloc v <= 3.4 */
                               oldbuf = NULL;
                             };
                           buf = newbuf;
@@ -501,7 +509,15 @@ load_push_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp, const void *val)
           ("failed to grow load stack to %d pointers (previous %d) at %s:%d",
            (int) newsiz, oldsiz, ldp->lda_path, ldp->lda_lineno);
       memcpy (ldp->lda_stack, oldstack, ldp->lda_topstack * sizeof (void *));
+      /// perhaps sdallocx should be used?
+      /** note: in nov 2026 on Debian/Testing the system libjemalloc 5.3 don't have
+         free_sized */
+#if JEMALLOC_VERSION_MAJOR<=5 && JEMALLOC_VERSION_MINOR<4
+      sdallocx ((void *) oldstack, oldsiz * sizeof (void *),
+                MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
+#else
       free_sized (oldstack, oldsiz * sizeof (void *));
+#endif
       ldp->lda_sizstack = newsiz;
     };
   ldp->lda_stack[ldp->lda_topstack++] = val;
@@ -510,7 +526,7 @@ load_push_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp, const void *val)
 void
 load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
 {
-  const char* eol = NULL;
+  const char *eol = NULL;
   assert (ldp && ldp->lda_magic == LOADMAGIC_HDGJIRPS);
   assert (ldp->lda_path != NULL);
   while (ldp->lda_cur < ldp->lda_end)
@@ -574,27 +590,25 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
         }
       else if (sscanf (ldp->lda_cur, "@%70[a-zA-Z0-9_] %ld %n",
                        nam, &num, &pos) > 2
-               && isalpha (nam[0]) && pos > 0
-	       && (char *) ldp->lda_cur + pos <= eol)
+               && isalpha (nam[0]) && pos > 0 && (char *) ldp->lda_cur + pos <= eol)
         {
           RUN_LOADING_ROUTINE_HDGJIRPS (ldp, nam, num);
         }
       else if (sscanf (ldp->lda_cur, "@%70[a-zA-Z0-9_] '%n",
                        nam, &pos) > 2
-               && isalpha (nam[0]) && pos > 0
-	       && (char *) ldp->lda_cur + pos <= eol)
+               && isalpha (nam[0]) && pos > 0 && (char *) ldp->lda_cur + pos <= eol)
         {
           RUN_LOADING_ROUTINE_HDGJIRPS (ldp, nam, num);
         }
       else
         {
-	  eol = strchr((const char*)ldp->lda_cur, '\n');
-	  if (!eol)
-	    eol = ldp->lda_end;
+          eol = strchr ((const char *) ldp->lda_cur, '\n');
+          if (!eol)
+            eol = ldp->lda_end;
           HDGJIRPS_WARNING ("incomplete load_data_HDGJIRPS @%s:%d line:%.*s",
                             ldp->lda_path, ldp->lda_lineno,
-                            (int)(eol - (const char*)ldp->lda_cur),
-			    (const char *) ldp->lda_cur);
+                            (int) (eol - (const char *) ldp->lda_cur),
+                            (const char *) ldp->lda_cur);
           /* todo: define a load stack and some operations to handle it,
              with ideas inspired by PostScript, PDF, FORTH, or NeWS */
           goto end;
@@ -603,11 +617,10 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
 end:
   HDGJIRPS_WARNING ("load_data_HDGJIRPS unimplemented for path %s"
                     " line %d, git %s\n"
-		    "\n parsed line: %.*s\n",
+                    "\n parsed line: %.*s\n",
                     ldp->lda_path, ldp->lda_lineno, persist_HDGJIRPS_git,
-		    (int)(eol - (const char*)ldp->lda_cur),
-		    (const char *) ldp->lda_cur
-		   );
+                    (int) (eol - (const char *) ldp->lda_cur),
+                    (const char *) ldp->lda_cur);
 #warning incomplete load_data_HDGJIRPS should use ldp
 }                               /* end load_data_HDGJIRPS */
 
