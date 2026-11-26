@@ -527,6 +527,7 @@ void
 load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
 {
   const char *eol = NULL;
+  int nbscan = -1;
   assert (ldp && ldp->lda_magic == LOADMAGIC_HDGJIRPS);
   assert (ldp->lda_path != NULL);
   while (ldp->lda_cur < ldp->lda_end)
@@ -546,14 +547,15 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
       eol = strchr (ldp->lda_cur, '\n');
       if (!eol)
         eol = ldp->lda_end;
+      nbscan = -1;
       if (*(const char *) ldp->lda_cur == '#')
         {
           ldp->lda_cur = (void *) (eol + 1);
           ldp->lda_lineno++;
           continue;
         }
-      else if (sscanf (ldp->lda_cur, "@MAKOBJ_%30[0-9A-Z]_%30[0-9A-Z]%n",
-                       bufhi, buflo, &pos) > 2 && pos > 0
+      else if ((nbscan = sscanf (ldp->lda_cur, "@MAKOBJ_%30[0-9A-Z]_%30[0-9A-Z]%n",
+                                 bufhi, buflo, &pos)) >= 2 && pos > 0
                && (char *) ldp->lda_cur + pos <= eol)
         {
           bufhi[sizeof (bufhi) - 1] = (char) 0;
@@ -588,14 +590,14 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
         {
           load_push_value_HDGJIRPS (ldp, val);
         }
-      else if (sscanf (ldp->lda_cur, "@%70[a-zA-Z0-9_] %ld %n",
-                       nam, &num, &pos) > 2
+      else if ((nbscan = sscanf (ldp->lda_cur, "@%70[a-zA-Z0-9_] %ld %n",
+                                 nam, &num, &pos)) >= 2
                && isalpha (nam[0]) && pos > 0 && (char *) ldp->lda_cur + pos <= eol)
         {
           RUN_LOADING_ROUTINE_HDGJIRPS (ldp, nam, num);
         }
-      else if (sscanf (ldp->lda_cur, "@%70[a-zA-Z0-9_] '%n",
-                       nam, &pos) > 2
+      else if ((nbscan = sscanf (ldp->lda_cur, "@%70[a-zA-Z0-9_] '%n",
+                                 nam, &pos)) >= 2
                && isalpha (nam[0]) && pos > 0 && (char *) ldp->lda_cur + pos <= eol)
         {
           RUN_LOADING_ROUTINE_HDGJIRPS (ldp, nam, num);
