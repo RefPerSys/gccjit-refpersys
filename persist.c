@@ -584,6 +584,13 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
                   register_composite_value_HDGJIRPS (newob, comp_boxed_object);
                 };
             }
+	  else
+	    HDGJIRPS_FATAL
+                    ("load_data_HDGJIRPS at %s:%d has @MAKOBJ with bad (hi=%u='%s' lo=%lu='%s')",
+                     ldp->lda_path, ldp->lda_lineno, (unsigned) hi, bufhi,
+                     (unsigned long) lo, buflo);
+	  ldp->lda_cur += pos;
+	  asm volatile ("nop; nop");
         }
       else if ((val = loaded_value_HDGJIRPS (ldp)) != NULL)
         {
