@@ -1,4 +1,6 @@
 #!/bin/bash -x
+# SPDX-License-Identifier: GPL-3.0-or-later
+# file cold-load.sh in github.com/RefPerSys/gccjit-refpersys
 ./gccjit-refpersys --verbose --load $0
 exit
 
@@ -11,7 +13,8 @@ see persist.c file routine load_state_RPS and start_comment_RPS
 "abcdef\n01234"
 1234
 0x675
-# line 14
+# line 16
 "0123456789_0123456789_0123456789€0123456789É0123456789_0123456789_0123456789_0123456789°0123456789"
 @should_do_something 123
-# line 17
+# line 19
+@echo 'message in line 20

@@ -419,4 +419,10 @@ extern Obj_HDGJIRPS *make_object_HDGJIRPS (void);
 extern uint32_t hash_object_HDGJIRPS (Obj_HDGJIRPS *ob);
 
 #endif /*HDGJIRPS_INCLUDED */
-/*end of hdgjirps.h file */
+/****************
+ **                           for Emacs...
+ ** Local Variables: ;;
+ ** compile-command: "make -j2 gccjit-refpersys" ;;
+ ** End: ;;
+ ****************/
+/*end of gccjit-refpersys/hdgjirps.h file */

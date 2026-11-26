@@ -50,4 +50,10 @@ pthread_mutex_t globmtx_HDGJIRPS = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 char executable_HDGJIRPS[128];
 const uint32_t loadmagic_HDGJIRPS = LOADMAGIC_HDGJIRPS;
 
+/****************
+ **                           for Emacs...
+ ** Local Variables: ;;
+ ** compile-command: "make -j2 gccjit-refpersys" ;;
+ ** End: ;;
+ ****************/
 /// end of file gccjit-refpersys/global.c

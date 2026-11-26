@@ -408,4 +408,11 @@ end:
   return resob;
 }                               /* end make_object_HDGJIRPS */
 
+/****************
+ **                           for Emacs...
+ ** Local Variables: ;;
+ ** compile-command: "make -j2 gccjit-refpersys" ;;
+ ** End: ;;
+ ****************/
+
 /* end of file gccjit-refpersys/composite.c */

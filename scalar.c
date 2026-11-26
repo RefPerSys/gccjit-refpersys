@@ -423,4 +423,10 @@ end:
   pthread_mutex_unlock (&scalareg_mtx_HDGJIRPS);
 }                               /* end of register_scalar_value_HDGJIRPS */
 
+/****************
+ **                           for Emacs...
+ ** Local Variables: ;;
+ ** compile-command: "make -j2 gccjit-refpersys" ;;
+ ** End: ;;
+ ****************/
 /// end of file gccjit-refpersys/scalar.c

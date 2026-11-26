@@ -459,3 +459,11 @@ main (int argc, char **argv)
             (int) getpid (), full_source_main_HDGJIRPS);
   return 0;
 }                               /* end main */
+
+/****************
+ **                           for Emacs...
+ ** Local Variables: ;;
+ ** compile-command: "make -j2 gccjit-refpersys" ;;
+ ** End: ;;
+ ****************/
+/// end of file gccjit-refpersys/main.c
