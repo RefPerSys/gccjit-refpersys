@@ -731,4 +731,10 @@ dump_cleaner_HDGJIRPS (void *cookie)
   return res;
 }                               /* end dump_cleaner_HDGJIRPS */
 
+/****************
+ **                           for Emacs...
+ ** Local Variables: ;;
+ ** compile-command: "make -j2 gccjit-refpersys" ;;
+ ** End: ;;
+ ****************/
 /* end of file gccjit-refpersys/persist.c */

@@ -46,7 +46,7 @@ INDENT= indent
 .PHONY: all optim clean tests indent lto
 .SUFFIXES: .c
 
-all: gccjit-refpersys
+all: gccjit-refpersys | GNUmakefile
 
 lto: $(CFILES) | GNUmakefile
 	$(MAKE) OPTIMFLAGS='-O2 -flto' $(OBJFILES)
@@ -59,28 +59,35 @@ optim: $(CFILES) | GNUmakefile
 clean:
 	$(RM) *.o obj/*.o *.i *~ gccjit-refpersys gccjit-refpersys-lto a.out
 
-gccjit-refpersys-lto: $(CFILES)
+gccjit-refpersys-lto: $(CFILES) | GNUmakefile
 	$(CC) -flto $(CFLAGS) $(CFILES)  -lm  -lgccjit -L/usr/local/lib \
 	   -lunistring  -lbacktrace -ldl -lreadline -ljemalloc -lz -o $@
 
-gccjit-refpersys-tcc: $(CFILES)
+gccjit-refpersys-tcc: $(CFILES) | GNUmakefile
 	$(TINYCC) -DNO_STATIC_ASSERTS $(CFLAGS) $(CFILES)  -lm  -lgccjit -L/usr/local/lib \
 	   -lunistring  -lbacktrace -ldl -lreadline -ljemalloc -lz -o $@
 
-gccjit-refpersys: $(OBJFILES)
+gccjit-refpersys: $(OBJFILES) | GNUmakefile
 	$(CC) $(CFLAGS) global.c $(NONGLOBOBFILES) -lm  -lgccjit -L/usr/local/lib  -lunistring  -lbacktrace -ldl -lreadline -ljemalloc -lz -o $@
 
-indent: GNUmakefile $(wildcard *.[ch]) .indent.pro
+indent: GNUmakefile $(wildcard *.[ch]) .indent.pro | GNUmakefile
 	for f in *.c *.h ; do $(INDENT) -v $$f ; done
 
 
-test00: gccjit-refpersys GNUmakefile cold-load.sh
+test00: gccjit-refpersys GNUmakefile cold-load.sh | GNUmakefile
 	./cold-load.sh
 
 tests: test00
 
 obj/%.o: %.c hdgjirps.h  |GNUmakefile 
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -DBASENAME=\"$(basename $<)\" -c $< -o $@
 
+
+#****************
+#**                           for Emacs...
+#** Local Variables: ;;
+#** compile-command: "make -j2 gccjit-refpersys" ;;
+#** End: ;;
+#****************
 
 ### end of file gccjit-refpersys/GNUmakefile
