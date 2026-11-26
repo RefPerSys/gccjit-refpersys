@@ -18,3 +18,4 @@ see persist.c file routine load_state_RPS and start_comment_RPS
 @should_do_something 123
 # line 19
 @echo 'message in line 20
+#### end of file cold-load.sh in github.com/RefPerSys/gccjit-refpersys
