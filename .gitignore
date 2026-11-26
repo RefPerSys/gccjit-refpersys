@@ -3,10 +3,9 @@
 *~
 *%
 .vscode/*
-gccjit-refpersys
+gccjit-refpersys*
 branch_structure.json
 temp_auto_push.bat
 temp_interactive_push.bat
 .gitignore
-gccjit-refpersys-lto
-gccjit-refpersys-tcc
+
