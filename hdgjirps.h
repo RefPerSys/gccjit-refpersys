@@ -392,7 +392,7 @@ struct _object_HDGJIRPS_st      // aliased as Obj_HDGJIRPS
 static inline bool
 is_valid_ptr_HDGJIRPS (const void *ptr)
 {
-  if (((intptr_t) ptr & 0xf) != 0)
+  if (((intptr_t) ptr & 0xf) != 0 || !ptr)
     return false;
   if (((intptr_t) ptr & ~0xf) == 0)
     return false;
