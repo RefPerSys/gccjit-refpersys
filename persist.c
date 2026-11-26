@@ -568,14 +568,10 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
             {
               if (find_object_HDGJIRPS (hi, lo))
                 {
-                  fprintf (stderr,
-                           "load_data_HDGJIRPS at %s:%d cannot create existing object\n",
-                           ldp->lda_path, ldp->lda_lineno);
-                  fprintf (stderr,
-                           " (hi=%d=%s, lo=%ld=%s) [%s:%d]\n",
-                           (int) hi, bufhi, (long) lo, buflo, __FILE__, __LINE__);
-                  fflush (stderr);
-                  continue;
+                  HDGJIRPS_FATAL
+                    ("load_data_HDGJIRPS at %s:%d cannot @MAKOBJ existing object (hi=%u='%s' lo=%lu='%s')",
+                     ldp->lda_path, ldp->lda_lineno, (unsigned) hi, bufhi,
+                     (unsigned long) lo, buflo);
                 }
               else
                 {
