@@ -57,7 +57,7 @@ optim: $(CFILES) | GNUmakefile
 	$(MAKE) OPTIMFLAGS='-O1' gccjit-refpersys
 
 clean:
-	$(RM) *.o obj/*.o *.i *~ gccjit-refpersys gccjit-refpersys-lto a.out
+	$(RM) *.o obj/*.o *.i *~ *% gccjit-refpersys* *.orig a.out
 
 gccjit-refpersys-lto: $(CFILES) | GNUmakefile
 	$(CC) -flto $(CFLAGS) $(CFILES)  -lm  -lgccjit -L/usr/local/lib \
