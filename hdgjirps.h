@@ -389,7 +389,7 @@ struct _object_HDGJIRPS_st      // aliased as Obj_HDGJIRPS
   struct compvect_hdgjirps_st *ob_compv;
 };                              /* end struct _object_hdgjirps_st a.k.a Obj_HDGJIRPS */
 
-inline bool
+static inline bool
 is_valid_ptr_HDGJIRPS (const void *ptr)
 {
   if (((intptr_t) ptr & 0xf) != 0)
