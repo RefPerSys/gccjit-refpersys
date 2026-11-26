@@ -400,6 +400,7 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
               //useless since using MALLOCX_ZERO: memset (buf, 0, bufsiz);
               do
                 {
+		  asm volatile ("nop; nop");
                   int u = get_escape_sequence_HDGHIRPS ((const char **) &ld->lda_cur,
                                                         true, &stop);
                   /// the escaped NULL \0 is forbidden
