@@ -35,17 +35,26 @@ TINYCC?=tcc
 GITID:= $(shell ./do-generate-gitid.sh)
 SHORTGITID:= $(shell ./do-generate-gitid.sh -s)
 SOURCEDIR:= $(shell /bin/pwd)
-CFLAGS= -Wall -Wextra -Wmissing-prototypes -g -O -std=gnu17 -I/usr/local/include \
+OPTIMFLAGS?= -Og
+CFLAGS= -Wall -Wextra -Wmissing-prototypes -g $(OPTIMFLAGS) -std=gnu17 -I/usr/local/include \
         -DSHORTGITID=\"$(SHORTGITID)\" -DSOURCEDIR=\"$(SOURCEDIR)\"
 CFILES:=$(wildcard *.c)
 OBJFILES:=$(patsubst %.c, obj/%.o, $(CFILES))
 NONGLOBOBFILES=$(patsubst %.c, obj/%.o, $(filter-out global.c, $(CFILES)))
 RM= /bin/rm -vf
 INDENT= indent
-.PHONY: all clean tests indent lto test00
+.PHONY: all optim clean tests indent lto
 .SUFFIXES: .c
 
 all: gccjit-refpersys
+
+lto: $(CFILES) | GNUmakefile
+	$(MAKE) OPTIMFLAGS='-O2 -flto' $(OBJFILES)
+	$(MAKE) gccjit-refpersys-lto
+
+optim: $(CFILES) | GNUmakefile
+	$(MAKE) OPTIMFLAGS='-O1' $(OBJFILES)
+	$(MAKE) OPTIMFLAGS='-O1' gccjit-refpersys
 
 clean:
 	$(RM) *.o obj/*.o *.i *~ gccjit-refpersys gccjit-refpersys-lto a.out
@@ -64,8 +73,11 @@ gccjit-refpersys: $(OBJFILES)
 indent: GNUmakefile $(wildcard *.[ch]) .indent.pro
 	for f in *.c *.h ; do $(INDENT) -v $$f ; done
 
+
 test00: gccjit-refpersys GNUmakefile cold-load.sh
 	./cold-load.sh
+
+tests: test00
 
 obj/%.o: %.c hdgjirps.h  |GNUmakefile 
 	$(CC) $(CFLAGS) -c $< -o $@
