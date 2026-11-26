@@ -60,19 +60,23 @@ void
 load_state_HDGJIRPS (const char *path, const char *start, const char *last)
 {
   int lineno = 1;
+  struct load_data_HDGJIRPS_st ldata = { };
   assert (path != NULL);
   assert (start != NULL);
   assert (last != NULL);
   assert (last > start);
   assert (loadmagic_HDGJIRPS == LOADMAGIC_HDGJIRPS);
-  const char *startcomm = strstr ((const char *) start, start_comment_HDGJIRPS);
+  memset ((void *) &ldata, 0, sizeof (ldata));
+  const char *startcomm =       ///
+    strstr ((const char *) start, start_comment_HDGJIRPS);
   if (!startcomm)
-    HDGJIRPS_FATAL
-      ("load state file %s is lacking a start comment %s",
-       path, start_comment_HDGJIRPS);
-  for (const char *p = start; p < startcomm; p++)
-    if (*p == '\n')
-      lineno++;
+    HDGJIRPS_FATAL ("load state file %s is lacking a start comment %s",
+                    path, start_comment_HDGJIRPS);
+  for (const char *p = start; p < startcomm && *p; p++)
+    {
+      if (*p == '\n')
+        lineno++;
+    };
   if (startcomm > (const char *) start
       && startcomm[-1] != '\n' && startcomm[-1] != '\r')
     HDGJIRPS_FATAL ("load state file %s "
@@ -80,13 +84,12 @@ load_state_HDGJIRPS (const char *path, const char *start, const char *last)
                     path, start_comment_HDGJIRPS, lineno);
   const char *endcomm = startcomm + strlen (start_comment_HDGJIRPS);
   assert (endcomm < (const char *) last);
-  struct load_data_HDGJIRPS_st ldata = { };
   ldata.lda_magic = LOADMAGIC_HDGJIRPS;
   ldata.lda_path = path;
   ldata.lda_start = (void *) endcomm;
   ldata.lda_cur = (void *) (endcomm + 1);
   ldata.lda_end = (void *) last;
-  ldata.lda_lineno = lineno;
+  ldata.lda_lineno = lineno+1;
   const unsigned ldstacksiz = 512;
   ldata.lda_stack = mallocx (ldstacksiz * sizeof (void *),
                              MALLOCX_ZERO | MALLOCX_ALIGN (1 << 8));
