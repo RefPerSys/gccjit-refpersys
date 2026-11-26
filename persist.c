@@ -334,8 +334,6 @@ get_escape_sequence_HDGHIRPS (const char **ps, bool instring, bool *badseq)
 void *
 loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
 {
-  if (!ld || ld->lda_magic != LOADMAGIC_HDGJIRPS)
-    return NULL;
   void *res = NULL;
   char *buf = NULL;
   unsigned bufsiz = 0;
@@ -345,6 +343,8 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
   intptr_t i = 0;
   long long il = 0;
   double d = 0;
+  if (!ld || ld->lda_magic != LOADMAGIC_HDGJIRPS)
+    return NULL;
   memset (smallbuf, 0, sizeof (smallbuf));
   load_skip_spaces_HDGJIRPS (ld);
   if (ld->lda_cur >= ld->lda_end)
@@ -375,6 +375,7 @@ loaded_value_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
     {
       char smbuf[64];
       memset (smbuf, 0, sizeof (smbuf));
+      asm volatile ("nop; nop");
       if (sscanf (ld->lda_cur, "\"%60[^\\\n\r\f\"]\"%n", smbuf, &pos) >= 1
           && pos > 2)
         {
