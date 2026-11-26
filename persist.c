@@ -112,6 +112,7 @@ load_skip_spaces_HDGJIRPS (struct load_data_HDGJIRPS_st *ld)
     {
       if (*((char *) (ld->lda_cur)) == '\n')
         ld->lda_lineno++;
+      ld->lda_cur = ((const char*)ld->lda_cur) + 1;
     };
 }                               /* end load_skip_spaces_HDGJIRPS */
 
@@ -589,6 +590,7 @@ load_data_HDGJIRPS (struct load_data_HDGJIRPS_st *ldp)
                     ("load_data_HDGJIRPS at %s:%d has @MAKOBJ with bad (hi=%u='%s' lo=%lu='%s')",
                      ldp->lda_path, ldp->lda_lineno, (unsigned) hi, bufhi,
                      (unsigned long) lo, buflo);
+	  asm volatile ("nop; nop");
 	  ldp->lda_cur += pos;
 	  asm volatile ("nop; nop");
         }
