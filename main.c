@@ -198,6 +198,7 @@ const struct option progopt_HDGJIRPS[] = {
   {.name = "version",.has_arg = no_argument,.flag = NULL,.val = 'v'},
   {.name = "help",.has_arg = no_argument,.flag = NULL,.val = 'H'},
   {.name = "load",.has_arg = required_argument,.flag = NULL,.val = 'l'},
+  {.name = "debug",.has_arg = required_argument,.flag = NULL,.val = 'D'},
   {.name = "random",.has_arg = no_argument,.flag = NULL,
    .val = (int) random_optHDGJIRPS},
   {.name = NULL,.has_arg = no_argument,.flag = NULL,.val = 0}
@@ -214,6 +215,7 @@ program_usage_HDGJIRPS (void)
   printf ("\t -H | --help            # this help\n");
   printf ("\t      --random          # prints a random 64bits\n");
   printf ("\t -l | --load <topfile>  # load heap from TOPFILE\n");
+  printf ("\t -D | --debug <level>   # set debug flags to <LEVEL>\n");
   printf
     ("%s is GPLv3+ licensed, so WITHOUT WARRANTY;\n"
      " see www.gnu.org/licenses/gpl-3.0.html and refpersys.org\n"
@@ -230,7 +232,7 @@ parse_program_option_HDGJIRPS (int argc, char **argv)
   int ix = -1;
   do
     {
-      opt = getopt_long (argc, argv, "VvHl:", progopt_HDGJIRPS, &ix);
+      opt = getopt_long (argc, argv, "VvHl:D:", progopt_HDGJIRPS, &ix);
       switch (opt)
         {
         case 0:
@@ -273,6 +275,9 @@ parse_program_option_HDGJIRPS (int argc, char **argv)
                             loadpath_HDGJIRPS, optarg);
           loadpath_HDGJIRPS = optarg;
           break;
+	case 'D':
+	  HDGJIRPS_FATAL("debug %s not implemented", optarg);
+#warning should implement debug flags
         case random_optHDGJIRPS:
           {
             uint64_t r = randomi64_HDGJIRPS ();
